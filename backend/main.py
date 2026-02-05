@@ -1,4 +1,6 @@
 import time
+import datetime
+import sys
 from nse_session import NSESession
 from nse_equity import NSEEquity
 from nse_indices import NSEIndices
@@ -7,8 +9,27 @@ from supabase_manager import SupabaseManager
 from technical_analysis import TechnicalAnalysis
 from utils import log_info, log_error, sleep_random, log_success
 
+def is_market_hours():
+    """Check if current time is within 09:00 to 16:00 IST"""
+    # Get current time in UTC and adjust to IST (+5:30)
+    now_utc = datetime.datetime.now(datetime.timezone.utc)
+    ist_offset = datetime.timedelta(hours=5, minutes=30)
+    now_ist = now_utc + ist_offset
+    
+    # Check weekday (0=Monday, 6=Sunday)
+    if now_ist.weekday() >= 5: # Saturday or Sunday
+        return False
+        
+    start_time = now_ist.replace(hour=9, minute=0, second=0, microsecond=0)
+    end_time = now_ist.replace(hour=16, minute=0, second=0, microsecond=0)
+    
+    return start_time <= now_ist <= end_time
+
 def main():
     log_info("Starting NSE Backend Orchestrator 🚀")
+    
+    # Check for --once flag for GitHub Actions / Cron
+    run_once = "--once" in sys.argv
     
     # 1. Initialize Components
     session = NSESession()
@@ -17,16 +38,20 @@ def main():
     options = NSEOptions(session)
     db = SupabaseManager()
     
-    # Symbols to track (Example List) - can be fetched from DB later
-    # watchlist = ["RELIANCE", "TCS", "INFY", "HDFCBANK", "SBIN"] 
-    
     cycle_counter = 0
-    SLOW_LANE_INTERVAL = 3 # Run slow lane every 3 cycles (~ 2-3 seconds if fast lane is ~0.8s)
+    # Every 10 iterations = ~20 seconds for slow lane
+    SLOW_LANE_INTERVAL = 10 
 
     while True:
+        # Check market hours (unless running a single manual cycle)
+        if not is_market_hours() and not run_once:
+            log_info("Outside Market Hours (09:00 - 16:00 IST). Sleeping for 5 minutes...")
+            time.sleep(300)
+            continue
+
         cycle_start_time = time.time()
         try:
-            log_info("\n--- Starting Fetch Cycle ---")
+            log_info(f"\n--- Starting Fetch Cycle (Iter {cycle_counter}) ---")
             
             # ==========================================
             # FAST LANE (Runs EVERY Cycle - Target: 2s)
@@ -35,9 +60,9 @@ def main():
             indices_data = indices.fetch_all_indices()
             if indices_data:
                 db.upsert_indices(indices_data)
-                log_success(f"Updated {len(indices_data)} indices (Fast Lane)")
+                log_success(f"Updated {len(indices_data)} indices")
 
-            # C. MARKET MOVERS (Gainers/Losers) - Moved to Fast Lane
+            # C. MARKET MOVERS (Gainers/Losers)
             try:
                 gainers = equity.fetch_top_gainers()
                 if gainers and "data" in gainers:
@@ -56,27 +81,10 @@ def main():
                 log_info("--- Entering Slow Lane ---")
                 
                 # B. EQUITIES (ALL STOCKS via NIFTY 500)
-                # 1. Main Market Quote Sync (NIFTY 500 covers most active stocks)
                 market_wide_data = equity.fetch_nifty_total_market()
-                stocks_list = []
                 if market_wide_data and "data" in market_wide_data:
-                    stocks_list = market_wide_data["data"]
-                    db.upsert_equities_bulk(stocks_list)
-                    log_success(f"Updated {len(stocks_list)} stocks (NIFTY 500)")
-                
-                # 2. Sync Index Constituents for Heatmaps
-                indices_to_fetch = ["NIFTY 50", "NIFTY MIDCAP 150", "NIFTY SMALLCAP 250", "NIFTY BANK"]
-                for idx_name in indices_to_fetch:
-                    idx_data = equity.fetch_index(idx_name)
-                    if idx_data and "data" in idx_data:
-                        c_stocks = idx_data["data"]
-                        c_symbols = [s.get("symbol") for s in c_stocks if s.get("symbol")]
-                        
-                        # Upsert quotes first to ensure FK integrity
-                        db.upsert_equities_bulk(c_stocks) 
-                        
-                        # Sync Constituents
-                        db.upsert_index_constituents(idx_name, c_symbols)
+                    db.upsert_equities_bulk(market_wide_data["data"])
+                    log_success(f"Updated {len(market_wide_data['data'])} stocks (NIFTY 500)")
                 
                 # D. OPTION CHAINS
                 for index_symbol in ["NIFTY", "BANKNIFTY"]:
@@ -86,53 +94,22 @@ def main():
                              db.upsert_option_chain(oc_data)
                     except Exception as e:
                         log_error(f"Error fetching OC for {index_symbol}: {e}")
-
-                # E. TECHNICAL INDICATORS (RSI, MACD)
-                # Optimize: Only calculate for a subset or key stocks to avoid rate limiting
-                tracking_symbols = ["RELIANCE", "TCS", "INFY", "HDFCBANK", "SBIN", "ICICIBANK", "TATAMOTORS"]
-                
-                for symbol in tracking_symbols:
-                    try:
-                        # 1. Fetch History
-                        closes = equity.fetch_historical_data(symbol, days=50)
-                        if not closes or len(closes) < 30:
-                            continue
-                            
-                        # 2. Calculate Indicators
-                        rsi = TechnicalAnalysis.calculate_rsi(closes)
-                        macd, signal, hist = TechnicalAnalysis.calculate_macd(closes)
-                        sma = TechnicalAnalysis.calculate_sma(closes, period=20)
-                        ema = TechnicalAnalysis.calculate_ema(closes, period=20)
-                        
-                        if rsi:
-                            log_info(f"Technicals for {symbol}: RSI={rsi:.2f} MACD={macd:.2f}")
-                            
-                            # 3. Store
-                            tech_data = {
-                                "symbol": symbol,
-                                "rsi": rsi,
-                                "macd": macd,
-                                "macd_signal": signal,
-                                "macd_hist": hist,
-                                "sma": sma,
-                                "ema": ema
-                            }
-                            db.upsert_technicals(tech_data)
-                    except Exception as e:
-                        log_error(f"Error processing technicals for {symbol}: {e}")
                 
                 log_info("--- Slow Lane Complete ---")
-            else:
-                 log_info(f"Skipping Slow Lane (Cycle {cycle_counter % SLOW_LANE_INTERVAL}/{SLOW_LANE_INTERVAL})")
-
             
             elapsed = time.time() - cycle_start_time
-            sleep_duration = max(0, 0.5 - elapsed) # Target 0.5s cycle (requested 0.5-1s)
-            log_info(f"Cycle took {elapsed:.2f}s. Sleeping for {sleep_duration:.2f}s...")
-            time.sleep(sleep_duration) 
+            sleep_duration = max(0, 2.0 - elapsed) # Target 2.0s cycle
+            
+            if not run_once:
+                log_info(f"Cycle took {elapsed:.2f}s. Sleeping for {sleep_duration:.2f}s...")
+                time.sleep(sleep_duration) 
             
             cycle_counter += 1 
             
+            if run_once:
+                log_info("Single cycle complete. Exiting (GitHub Actions Mode).")
+                break
+                
         except KeyboardInterrupt:
             log_info("Stopping Backend...")
             break
