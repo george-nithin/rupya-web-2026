@@ -1,5 +1,7 @@
 import TradeEntryForm from "@/features/journal/components/TradeEntryForm";
 
+export const dynamic = "force-dynamic";
+
 export default function CreateTradePage() {
     return (
         <div className="max-w-4xl mx-auto space-y-6">

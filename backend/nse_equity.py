@@ -1,6 +1,8 @@
 import pandas as pd
 from nse_session import NSESession
-from utils import log_info, log_error
+from utils import log_info, log_error, log_success
+import csv
+import io
 
 class NSEEquity:
     def __init__(self, session: NSESession):
@@ -154,3 +156,35 @@ class NSEEquity:
             return closes
         
         return []
+
+    def fetch_nifty500_list(self):
+        """
+        Fetch NIFTY 500 list from NSE CSV to get Sector/Industry mapping.
+        Returns: { symbol: sector_name }
+        """
+        url = "https://nsearchives.nseindia.com/content/indices/ind_nifty500list.csv"
+        log_info(f"Fetching NIFTY 500 CSV for Sector Data...")
+        
+        try:
+            # Bypass the wrapper which EXPECTS JSON and use the underlying session
+            response = self.session.session.get(url, headers=self.session.headers)
+            
+            if response.status_code == 200:
+                csv_text = response.text
+                reader = csv.DictReader(io.StringIO(csv_text))
+                
+                sector_map = {}
+                for row in reader:
+                    symbol = row.get("Symbol")
+                    industry = row.get("Industry")
+                    if symbol and industry:
+                        sector_map[symbol] = industry
+                
+                log_success(f"Loaded Sector Map for {len(sector_map)} stocks")
+                return sector_map
+            else:
+                log_error(f"Failed to fetch NIFTY 500 CSV: {response.status_code}")
+                return {}
+        except Exception as e:
+            log_error(f"Error fetching NIFTY 500 CSV: {e}")
+            return {}

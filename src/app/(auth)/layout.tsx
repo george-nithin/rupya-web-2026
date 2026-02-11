@@ -11,8 +11,8 @@ export default function AuthLayout({
             <div className="absolute top-0 -right-4 w-72 h-72 bg-sky-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000" />
             <div className="absolute -bottom-8 left-20 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000" />
 
-            {/* Content */}
-            <div className="relative z-10 w-full max-w-md">
+            {/* Content - No max-width so login page can use full width */}
+            <div className="relative z-10 w-full">
                 {children}
             </div>
         </div>

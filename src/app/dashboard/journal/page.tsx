@@ -30,6 +30,7 @@ export default function JournalPage() {
             const tableData = trades.map(t => [
                 new Date(t.entry_date).toLocaleDateString(),
                 t.symbol,
+                t.trade_type || '-', // Added Type
                 t.direction,
                 t.strategy_name || '-',
                 t.entry_price,
@@ -39,7 +40,7 @@ export default function JournalPage() {
             ]);
 
             autoTable(doc, {
-                head: [['Date', 'Symbol', 'Dir', 'Strategy', 'Entry', 'Exit', 'PnL', 'Status']],
+                head: [['Date', 'Symbol', 'Type', 'Dir', 'Strategy', 'Entry', 'Exit', 'PnL', 'Status']],
                 body: tableData,
                 startY: 30,
             });
@@ -52,8 +53,8 @@ export default function JournalPage() {
         <div className="space-y-8">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Trading Journal</h1>
-                    <p className="text-slate-400">Track, Analyze, Improve</p>
+                    <h1 className="text-2xl font-bold text-foreground">Trading Journal</h1>
+                    <p className="text-muted-foreground">Track, Analyze, Improve</p>
                 </div>
                 <Link href="/dashboard/journal/create">
                     <GlassButton>
@@ -71,7 +72,7 @@ export default function JournalPage() {
             <div className="space-y-4">
                 <div className="flex justify-between items-center">
                     <h3 className="text-lg font-semibold text-white">Trade History</h3>
-                    <GlassButton onClick={downloadPDF} size="sm" variant="outline">
+                    <GlassButton onClick={downloadPDF} size="sm" variant="secondary">
                         <FileDown className="h-4 w-4 mr-2" /> Download Report
                     </GlassButton>
                 </div>

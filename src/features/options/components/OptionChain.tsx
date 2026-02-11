@@ -1,92 +1,132 @@
 "use client";
 
 import { GlassCard } from "@/components/ui/GlassCard";
-import { useState } from "react";
-
-// Mock Option Chain Data for NIFTY
-const strikePrices = [
-    { strike: 21500, call: { ltp: 154, oi: 150000, iv: 12.5 }, put: { ltp: 45, oi: 250000, iv: 14.2 } },
-    { strike: 21550, call: { ltp: 120, oi: 120000, iv: 12.8 }, put: { ltp: 68, oi: 210000, iv: 14.1 } },
-    { strike: 21600, call: { ltp: 85, oi: 280000, iv: 13.1 }, put: { ltp: 95, oi: 180000, iv: 13.9 } }, // ATM
-    { strike: 21650, call: { ltp: 56, oi: 300000, iv: 13.5 }, put: { ltp: 125, oi: 110000, iv: 13.7 } },
-    { strike: 21700, call: { ltp: 32, oi: 450000, iv: 13.8 }, put: { ltp: 160, oi: 80000, iv: 13.6 } },
-];
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 export function OptionChain() {
-    const [expiry, setExpiry] = useState("25 JAN");
+    const [chainData, setChainData] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [symbol, setSymbol] = useState("NIFTY");
+    const [expiry, setExpiry] = useState("");
+
+    useEffect(() => {
+        fetchOptionChain();
+    }, [symbol]);
+
+    const fetchOptionChain = async () => {
+        setLoading(true);
+        const { data, error } = await supabase
+            .from('market_option_chains')
+            .select('data, last_update_time')
+            .eq('symbol', symbol)
+            .single();
+
+        if (data && data.data) {
+            setChainData(data.data);
+            // Backend stores the full structure in data.data, expiry is nested in records
+            if (data.data.records?.expiryDates && data.data.records.expiryDates.length > 0) {
+                setExpiry(data.data.records.expiryDates[0]);
+            }
+        }
+        setLoading(false);
+    };
+
+    // Backend structure: data.records.data contains the strikes array
+    const strikes = chainData?.records?.data || chainData?.filtered?.data || [];
+    const spotPrice = chainData?.records?.underlyingValue || 0;
 
     return (
         <GlassCard className="h-full overflow-hidden flex flex-col p-0">
             <div className="p-4 border-b border-white/10 flex justify-between items-center bg-slate-900/50">
                 <div className="flex items-center gap-4">
-                    <h2 className="text-lg font-bold text-white">Option Chain</h2>
+                    <select
+                        value={symbol}
+                        onChange={(e) => setSymbol(e.target.value)}
+                        className="bg-sky-500/10 border border-sky-500/20 rounded-lg px-2 py-1 text-sm font-bold text-white outline-none"
+                    >
+                        <option value="NIFTY">NIFTY</option>
+                        <option value="BANKNIFTY">BANKNIFTY</option>
+                    </select>
                     <select
                         value={expiry}
                         onChange={(e) => setExpiry(e.target.value)}
                         className="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-white outline-none"
                     >
-                        <option>18 JAN</option>
-                        <option>25 JAN</option>
-                        <option>01 FEB</option>
+                        {chainData?.records?.expiryDates?.slice(0, 5).map((exp: string) => (
+                            <option key={exp} value={exp}>{exp}</option>
+                        ))}
                     </select>
                 </div>
                 <div className="text-xs text-slate-400">
-                    Spot: <span className="text-white font-bold">21,612.45</span> (-0.45%)
+                    Spot: <span className="text-white font-bold">{spotPrice.toLocaleString()}</span>
                 </div>
             </div>
 
+
             <div className="flex-1 overflow-auto">
-                <table className="w-full text-xs text-center border-collapse">
-                    <thead className="text-slate-500 bg-white/5 sticky top-0 z-10 font-medium">
-                        <tr>
-                            <th colSpan={3} className="py-2 border-r border-white/10 text-green-400/80">CALLS</th>
-                            <th className="py-2 px-4 bg-slate-800 text-white">STRIKE</th>
-                            <th colSpan={3} className="py-2 border-l border-white/10 text-red-400/80">PUTS</th>
-                        </tr>
-                        <tr className="text-[10px] uppercase">
-                            <th className="pb-2 font-normal">OI</th>
-                            <th className="pb-2 font-normal">IV</th>
-                            <th className="pb-2 font-normal border-r border-white/10">LTP</th>
-                            <th className="pb-2 bg-slate-800 w-16"></th>
-                            <th className="pb-2 font-normal border-l border-white/10">LTP</th>
-                            <th className="pb-2 font-normal">IV</th>
-                            <th className="pb-2 font-normal">OI</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5 text-slate-300">
-                        {strikePrices.map((row, i) => {
-                            const isATM = i === 2; // Mock logic for visual
-                            return (
-                                <tr key={row.strike} className={`hover:bg-white/5 transition-colors ${isATM ? 'bg-sky-500/10' : ''}`}>
-                                    {/* Calls */}
-                                    <td className="py-2 relative">
-                                        {row.call.oi.toLocaleString()}
-                                        <div className="absolute inset-y-1 right-0 bg-green-500/10" style={{ width: `${(row.call.oi / 450000) * 100}%` }} />
-                                    </td>
-                                    <td className="py-2 text-slate-500">{row.call.iv}</td>
-                                    <td className="py-2 font-medium text-white border-r border-white/10 hover:bg-green-500/20 cursor-pointer transition-colors">
-                                        {row.call.ltp}
-                                    </td>
+                {loading ? (
+                    <div className="h-full flex items-center justify-center text-slate-500">Loading live chain...</div>
+                ) : (
+                    <table className="w-full text-xs border-collapse">
+                        <thead className="text-slate-500 bg-white/5 sticky top-0 z-10 font-medium">
+                            <tr>
+                                <th className="py-2 px-2 text-green-400/80">OI</th>
+                                <th className="py-2 px-2 text-green-400/80">OI Chg</th>
+                                <th className="py-2 px-2 text-green-400/80">Vol</th>
+                                <th className="py-2 px-2 text-green-400/80">IV</th>
+                                <th className="py-2 px-2 text-green-400/80 border-r border-white/10">LTP</th>
+                                <th className="py-2 px-4 bg-slate-800 text-white">STRIKE</th>
+                                <th className="py-2 px-2 text-red-400/80 border-l border-white/10">LTP</th>
+                                <th className="py-2 px-2 text-red-400/80">IV</th>
+                                <th className="py-2 px-2 text-red-400/80">Vol</th>
+                                <th className="py-2 px-2 text-red-400/80">OI Chg</th>
+                                <th className="py-2 px-2 text-red-400/80">OI</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5 text-slate-300">
+                            {(() => {
+                                // Filter strikes around ATM (±500 points for NIFTY, ±1000 for BANKNIFTY)
+                                const range = symbol === "NIFTY" ? 500 : 1000;
+                                const atmStrikes = strikes
+                                    .filter((s: any) => Math.abs(s.strikePrice - spotPrice) <= range)
+                                    .sort((a: any, b: any) => a.strikePrice - b.strikePrice);
 
-                                    {/* Strike */}
-                                    <td className={`py-2 font-bold bg-slate-800 ${isATM ? 'text-sky-400' : 'text-white'}`}>
-                                        {row.strike}
-                                    </td>
+                                return atmStrikes.map((strike: any) => {
+                                    const isATM = Math.abs(strike.strikePrice - spotPrice) < 50;
+                                    return (
+                                        <tr key={strike.strikePrice} className={`hover:bg-white/5 transition-colors ${isATM ? 'bg-sky-500/10' : ''}`}>
+                                            {/* CALLS */}
+                                            <td className="py-2 px-2 text-center">{strike.CE?.openInterest?.toLocaleString() || '-'}</td>
+                                            <td className="py-2 px-2 text-center">
+                                                <span className={strike.CE?.changeinOpenInterest > 0 ? 'text-green-400' : 'text-red-400'}>
+                                                    {strike.CE?.changeinOpenInterest?.toLocaleString() || '-'}
+                                                </span>
+                                            </td>
+                                            <td className="py-2 px-2 text-center text-slate-400">{strike.CE?.totalTradedVolume?.toLocaleString() || '-'}</td>
+                                            <td className="py-2 px-2 text-center text-slate-400">{strike.CE?.impliedVolatility || '-'}</td>
+                                            <td className="py-2 px-2 font-medium text-white border-r border-white/10 text-center">{strike.CE?.lastPrice || '-'}</td>
 
-                                    {/* Puts */}
-                                    <td className="py-2 font-medium text-white border-l border-white/10 hover:bg-red-500/20 cursor-pointer transition-colors">
-                                        {row.put.ltp}
-                                    </td>
-                                    <td className="py-2 text-slate-500">{row.put.iv}</td>
-                                    <td className="py-2 relative">
-                                        {row.put.oi.toLocaleString()}
-                                        <div className="absolute inset-y-1 left-0 bg-red-500/10" style={{ width: `${(row.put.oi / 300000) * 100}%` }} />
-                                    </td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                                            {/* STRIKE */}
+                                            <td className={`py-2 px-4 font-bold bg-slate-800 text-center ${isATM ? 'text-sky-400' : 'text-white'}`}>{strike.strikePrice}</td>
+
+                                            {/* PUTS */}
+                                            <td className="py-2 px-2 font-medium text-white border-l border-white/10 text-center">{strike.PE?.lastPrice || '-'}</td>
+                                            <td className="py-2 px-2 text-center text-slate-400">{strike.PE?.impliedVolatility || '-'}</td>
+                                            <td className="py-2 px-2 text-center text-slate-400">{strike.PE?.totalTradedVolume?.toLocaleString() || '-'}</td>
+                                            <td className="py-2 px-2 text-center">
+                                                <span className={strike.PE?.changeinOpenInterest > 0 ? 'text-green-400' : 'text-red-400'}>
+                                                    {strike.PE?.changeinOpenInterest?.toLocaleString() || '-'}
+                                                </span>
+                                            </td>
+                                            <td className="py-2 px-2 text-center">{strike.PE?.openInterest?.toLocaleString() || '-'}</td>
+                                        </tr>
+                                    );
+                                });
+                            })()}
+                        </tbody>
+                    </table>
+                )}
             </div>
         </GlassCard>
     );

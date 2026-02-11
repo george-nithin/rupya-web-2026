@@ -64,6 +64,25 @@ export default function RegisterForm() {
         }
     };
 
+    const handleGoogleLogin = async () => {
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: "google",
+                options: {
+                    queryParams: {
+                        access_type: "offline",
+                        prompt: "consent",
+                    },
+                    redirectTo: `${window.location.origin}/auth/callback`,
+                },
+            });
+            if (error) throw error;
+        } catch (error: any) {
+            console.error("Google Login Error:", error);
+            setError(error.message);
+        }
+    };
+
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 
@@ -163,6 +182,7 @@ export default function RegisterForm() {
 
             <button
                 type="button"
+                onClick={handleGoogleLogin}
                 className="flex w-full items-center justify-center gap-3 rounded-lg border border-white/10 bg-white/5 py-3 text-sm font-medium text-white transition-all hover:bg-white/10 hover:border-white/20"
             >
                 <svg className="h-5 w-5" viewBox="0 0 24 24">

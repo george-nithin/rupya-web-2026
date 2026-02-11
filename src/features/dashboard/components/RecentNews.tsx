@@ -1,20 +1,42 @@
 "use client";
 
 import { GlassCard } from "@/components/ui/GlassCard";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, TrendingUp, Building2, DollarSign, Calendar } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import Link from "next/link";
 
 interface NewsItem {
-    id: string; // Changed to match UUID
+    id: string;
     source: string;
     title: string;
+    summary?: string;
     published_at: string;
-    sentiment: string; // Assuming sentiment field might exist or fallback
+    category: string;
+    symbols?: string[];
+    sentiment?: string;
+    news_url?: string;
 }
+
+const categoryIcons: Record<string, any> = {
+    stock: TrendingUp,
+    dividend: DollarSign,
+    corporate: Building2,
+    economy: TrendingUp,
+    special_events: Calendar,
+};
+
+const categoryColors: Record<string, string> = {
+    stock: 'sky',
+    dividend: 'green',
+    corporate: 'purple',
+    economy: 'orange',
+    special_events: 'red',
+};
 
 export function RecentNews() {
     const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchNews = async () => {
@@ -22,56 +44,149 @@ export function RecentNews() {
                 .from('market_news')
                 .select('*')
                 .order('published_at', { ascending: false })
-                .limit(5);
+                .limit(6);
 
             if (data) {
-                setNewsItems(data.map(item => ({
-                    ...item,
-                    time: new Date(item.published_at).toLocaleString(), // Basic formatting
-                    sentiment: item.category === 'positive' ? 'positive' : 'neutral' // Simple mapping if sentiment column missing
-                })) as any); // Type assertion for now
+                setNewsItems(data as NewsItem[]);
             }
+            setLoading(false);
         };
 
         fetchNews();
+
+        // Realtime subscription for new news
+        const channel = supabase
+            .channel('news_updates')
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'market_news',
+                },
+                (payload) => {
+                    setNewsItems((current) => [payload.new as NewsItem, ...current].slice(0, 6));
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }, []);
 
+    if (loading) {
+        return (
+            <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-white">Market News</h2>
+                <div className="text-slate-500 text-sm">Loading news...</div>
+            </div>
+        );
+    }
+
     return (
-        <div className="col-span-1 lg:col-span-12 mt-4 space-y-4">
+        <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-white">Market News</h2>
-                <button className="text-sm text-sky-400 hover:text-sky-300 flex items-center transition-colors">
+                <Link
+                    href="/dashboard/news"
+                    className="text-sm text-sky-400 hover:text-sky-300 flex items-center transition-colors"
+                >
                     View All <ArrowRight className="ml-1 h-3 w-3" />
-                </button>
+                </Link>
             </div>
 
-            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-                {newsItems.length === 0 ? (
-                    <div className="text-slate-500 text-sm">No recent news loaded.</div>
-                ) : (
-                    newsItems.map((item) => (
-                        <GlassCard
-                            key={item.id}
-                            className="min-w-[300px] md:min-w-[400px] flex-shrink-0 hover:bg-white/10 transition-colors cursor-pointer"
-                            variant="frosted"
-                        >
-                            <div className="flex justify-between items-start mb-2">
-                                <span className="text-xs font-medium text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded-full border border-sky-500/20">
-                                    {item.source || 'Market News'}
-                                </span>
-                                <span className="text-xs text-slate-500">
-                                    {new Date(item.published_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </span>
-                            </div>
-                            <h3 className="text-sm font-medium text-white leading-relaxed line-clamp-2">
-                                {item.title}
-                            </h3>
-                            {/* Simple sentiment indicator if available */}
-                            <div className={`mt-3 h-1 w-full rounded-full bg-slate-500/50`} />
-                        </GlassCard>
-                    ))
-                )}
-            </div>
+            {newsItems.length === 0 ? (
+                <GlassCard>
+                    <div className="text-center text-slate-500 text-sm py-8">
+                        No market news available yet. Run the news aggregator script to populate news.
+                    </div>
+                </GlassCard>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {newsItems.map((item) => {
+                        const Icon = categoryIcons[item.category] || TrendingUp;
+                        const color = categoryColors[item.category] || 'sky';
+
+                        const CardContent = (
+                            <GlassCard
+                                className="hover:bg-white/10 transition-all cursor-pointer group h-full"
+                                variant="frosted"
+                            >
+                                <div className="space-y-3">
+                                    <div className="flex justify-between items-start gap-2">
+                                        <span className={`text-xs font-medium text-${color}-400 bg-${color}-500/10 px-2 py-1 rounded-full border border-${color}-500/20 inline-flex items-center gap-1`}>
+                                            <Icon className="h-3 w-3" />
+                                            {item.category.replace('_', ' ').toUpperCase()}
+                                        </span>
+                                        <div className="flex items-center gap-1">
+                                            <span className="text-xs text-slate-500 whitespace-nowrap">
+                                                {new Date(item.published_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                                            </span>
+                                            {item.news_url && (
+                                                <ArrowRight className="h-3 w-3 text-slate-500 group-hover:text-sky-400 transition-colors" />
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <h3 className="text-sm font-medium text-white leading-relaxed line-clamp-2 group-hover:text-sky-300 transition-colors">
+                                        {item.title}
+                                    </h3>
+
+                                    {item.summary && (
+                                        <p className="text-xs text-slate-400 line-clamp-2">
+                                            {item.summary}
+                                        </p>
+                                    )}
+
+                                    {item.symbols && item.symbols.length > 0 && (
+                                        <div className="flex flex-wrap gap-1">
+                                            {item.symbols.slice(0, 3).map((symbol) => (
+                                                <span
+                                                    key={symbol}
+                                                    className="text-[10px] font-medium text-slate-300 bg-white/5 px-1.5 py-0.5 rounded border border-white/10"
+                                                >
+                                                    {symbol}
+                                                </span>
+                                            ))}
+                                            {item.symbols.length > 3 && (
+                                                <span className="text-[10px] text-slate-500">
+                                                    +{item.symbols.length - 3} more
+                                                </span>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {item.sentiment && (
+                                        <div className={`h-1 w-full rounded-full ${item.sentiment === 'positive' ? 'bg-green-500/50' :
+                                            item.sentiment === 'negative' ? 'bg-red-500/50' :
+                                                'bg-slate-500/50'
+                                            }`} />
+                                    )}
+                                </div>
+                            </GlassCard>
+                        );
+
+                        // If news_url exists, make it clickable
+                        if (item.news_url) {
+                            return (
+                                <a
+                                    key={item.id}
+                                    href={item.news_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="block h-full"
+                                >
+                                    {CardContent}
+                                </a>
+                            );
+                        }
+
+                        // Otherwise, just render the card
+                        return <div key={item.id}>{CardContent}</div>;
+                    })}
+                </div>
+            )}
         </div>
     );
 }

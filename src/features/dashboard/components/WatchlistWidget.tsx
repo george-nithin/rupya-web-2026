@@ -17,6 +17,26 @@ export function WatchlistWidget() {
 
     useEffect(() => {
         fetchWatchlist();
+
+        const channel = supabase
+            .channel('watchlist_changes')
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'market_equity_quotes'
+                },
+                () => {
+                    // Refresh data or update specific item
+                    fetchWatchlist();
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }, []);
 
     const fetchWatchlist = async () => {
@@ -42,7 +62,7 @@ export function WatchlistWidget() {
             // 2. Get market data for those symbols
             const { data: quotes, error: qError } = await supabase
                 .from('market_equity_quotes')
-                .select('symbol, last_price, pchange_30d, pchange_1y') // Using available fields as proxy for day change if needed, or just display available data
+                .select('symbol, last_price, change, percent_change, pchange_1y')
                 .in('symbol', symbols);
 
             if (qError) throw qError;
@@ -51,12 +71,12 @@ export function WatchlistWidget() {
             const mappedData = quotes?.map(q => ({
                 symbol: q.symbol,
                 ltp: q.last_price,
-                dayChange: 0, // Not available in current schema, defaulting
-                dayPercent: q.pchange_30d ? (q.pchange_30d / 30) : 0, // Rough proxy or 0
+                dayChange: q.change || 0,
+                dayPercent: q.percent_change || 0,
                 sinceChange: 0,
                 sincePercent: q.pchange_1y || 0,
-                addedAt: "Recently", // Timestamp not tracked in join usually
-                momentum: (q.pchange_30d || 0) > 0 ? "bullish" : "bearish"
+                addedAt: "Live",
+                momentum: (q.percent_change || 0) > 0 ? "bullish" : "bearish"
             })) || [];
 
             setWatchlistData(mappedData);

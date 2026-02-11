@@ -1,5 +1,6 @@
 import { OptionChain } from "@/features/options/components/OptionChain";
 import { PayoffAnalyzer } from "@/features/options/components/PayoffAnalyzer";
+import { MostTradedOptions } from "@/features/options/components/MostTradedOptions";
 
 export default function OptionsPage() {
     return (
@@ -7,6 +8,11 @@ export default function OptionsPage() {
             <div>
                 <h1 className="text-2xl font-bold text-white">Options Desk</h1>
                 <p className="text-slate-400">Advanced Option Chain & Strategy Builder</p>
+            </div>
+
+            {/* Most Traded Options Section */}
+            <div className="w-full">
+                <MostTradedOptions />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 overflow-hidden">

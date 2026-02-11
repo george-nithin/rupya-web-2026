@@ -1,6 +1,6 @@
 "use client";
 
-import { createChart, ColorType } from "lightweight-charts";
+import { createChart, ColorType, CandlestickSeries } from "lightweight-charts";
 import { useEffect, useRef } from "react";
 
 interface TVChartProps {
@@ -33,8 +33,7 @@ export const TVChart = ({ data, colors = {} }: TVChartProps) => {
             },
         });
 
-        // Cast to any to bypass type check for addCandlestickSeries if types are mismatched
-        const candlestickSeries = (chart as any).addCandlestickSeries({
+        const candlestickSeries = chart.addSeries(CandlestickSeries, {
             upColor: "#4ade80",
             downColor: "#ef4444",
             borderVisible: false,

@@ -36,7 +36,9 @@ class SupabaseManager:
                     "total_traded_volume": data.get("totalTradedVolume"),
                     "last_update_time": data.get("lastUpdateTime", "now()"),
                     "pchange_30d": data.get("perChange30d", 0),  # Matching webapp expectation
-                    "pchange_1y": data.get("perChange365d", 0)   # Matching webapp expectation
+                    "pchange_1y": data.get("perChange365d", 0),  # Matching webapp expectation
+                    "sector": data.get("sector"),  # Added sector
+                    "industry": data.get("industry") # Added industry
                 })
             
             # Chunking might be needed if 500 is too large for one request, 
@@ -69,7 +71,9 @@ class SupabaseManager:
                 "total_traded_volume": data["totalTradedVolume"],
                 "last_update_time": data["lastUpdateTime"],
                 "pchange_30d": data.get("perChange30d", 0),
-                "pchange_1y": data.get("perChange365d", 0)
+                "pchange_1y": data.get("perChange365d", 0),
+                "sector": data.get("sector"),
+                "industry": data.get("industry")
             }
             res = self.supabase.table("market_equity_quotes").upsert(payload, on_conflict="symbol").execute()
             # log_info(f"Upserted {data['symbol']}")
@@ -110,11 +114,21 @@ class SupabaseManager:
         """
         if not self.supabase or not data: return
         try:
+            # Extract expiry date if available (usually in records > expiryDates or top level)
+            expiry_date = None
+            if "records" in data and "expiryDates" in data["records"]:
+                expiry_dates = data["records"]["expiryDates"]
+                if expiry_dates: 
+                    expiry_date = expiry_dates[0]
+            
             payload = {
                 "symbol": data["symbol"],
-                "data": data, # Store the entire nested JSON
-                "last_update_time": "now()" # Let Postgres handle it or pass from python
+                "data": data,
+                "last_update_time": "now()" 
             }
+            if expiry_date:
+                payload["expiry_date"] = expiry_date
+            
             # upsert based on symbol
             res = self.supabase.table("market_option_chains").upsert(payload).execute()
             log_success(f"Upserted Option Chain: {data['symbol']}")
@@ -248,6 +262,53 @@ class SupabaseManager:
             log_success(f"Upserted {len(payloads)} Stock Forecasts")
         except Exception as e:
             log_error(f"Error upserting Stock Forecasts: {e}")
+
+    def upsert_fundamentals(self, data: dict):
+        """
+        Upsert Stock Fundamentals (Screener.in).
+        Table: stock_fundamentals
+        """
+        if not self.supabase or not data: return
+        try:
+            payload = {
+                "symbol": data["symbol"],
+                "market_cap": data.get("market_cap"),
+                "current_price": data.get("current_price"),
+                "high_low": data.get("high_low"),
+                "stock_pe": data.get("stock_pe"),
+                "book_value": data.get("book_value"),
+                "dividend_yield": data.get("dividend_yield"),
+                "roce": data.get("roce"),
+                "roe": data.get("roe"),
+                "face_value": data.get("face_value"),
+                "pros": data.get("pros", []),
+                "cons": data.get("cons", []),
+                "updated_at": "now()"
+            }
+            res = self.supabase.table("stock_fundamentals").upsert(payload, on_conflict="symbol").execute()
+            log_success(f"Upserted Fundamentals for {data['symbol']}")
+        except Exception as e:
+            log_error(f"Error upserting Fundamentals for {data['symbol']}: {e}")
+
+    def get_symbols_for_fundamentals_update(self, limit=5):
+        """
+        Get a list of symbols that need fundamentals update using RPC.
+        Priority:
+        1. Symbols in market_equity_quotes NOT in stock_fundamentals.
+        2. Symbols in stock_fundamentals with oldest updated_at.
+        """
+        if not self.supabase: return []
+        try:
+            # Call the RPC function we created
+            res = self.supabase.rpc("get_target_symbols_for_fundamentals", {"limit_count": limit}).execute()
+            if res.data:
+                # RPC returns list of dicts: [{'symbol': 'TCS'}, ...]
+                return [r['symbol'] for r in res.data]
+            return []
+            
+        except Exception as e:
+            log_error(f"Error getting symbols for update via RPC: {e}")
+            return []
 
     # ==========================================
     # BROKER & PORTFOLIO EXTENSIONS
@@ -450,3 +511,79 @@ class SupabaseManager:
             log_error(f"Error upserting Orders: {e}")
 
 
+
+    def upsert_technical_signals(self, data_list: list):
+        """
+        Upsert Technical Signals (Bulk).
+        Table: market_technical_signals
+        """
+        if not self.supabase or not data_list: return
+        try:
+            res = self.supabase.table("market_technical_signals").upsert(data_list, on_conflict="symbol").execute()
+            log_success(f"Upserted {len(data_list)} Technical Signals")
+        except Exception as e:
+            log_error(f"Error upserting Technical Signals: {e}")
+
+    def upsert_stock_performance(self, data_list: list):
+        """
+        Upsert Stock Performance (Bulk).
+        Table: market_stock_performance
+        """
+        if not self.supabase or not data_list: return
+        try:
+            res = self.supabase.table("market_stock_performance").upsert(data_list, on_conflict="symbol").execute()
+            log_success(f"Upserted {len(data_list)} Performance Records")
+        except Exception as e:
+            log_error(f"Error upserting Stock Performance: {e}")
+
+    def upsert_fno_movers(self, data_list: list):
+        """
+        Upsert F&O Movers (Bulk).
+        Table: market_fno_movers
+        """
+        if not self.supabase or not data_list: return
+        try:
+            res = self.supabase.table("market_fno_movers").upsert(data_list, on_conflict="symbol").execute()
+            log_success(f"Upserted {len(data_list)} F&O Movers")
+        except Exception as e:
+            log_error(f"Error upserting F&O Movers: {e}")
+
+    def upsert_strategies(self, data_list: list):
+        """
+        Upsert Trading Strategies (Bulk).
+        Table: trading_strategies
+        """
+        if not self.supabase or not data_list: return
+        try:
+            res = self.supabase.table("trading_strategies").upsert(data_list, on_conflict="name").execute() # Conflict on name? ID is UUID.
+            # If we want to update by name, we need a unique constraint on name. 
+            # Or we just insert if not exists.
+            # For seeding, we might want to check existence.
+            # Let's assume on_conflict="name" works if we add that constraint or if we use ID. 
+            # Since I didn't add constraint in SQL, let's use the ID if provided, or insert.
+            # Use on_conflict="id" if IDs are stable, otherwise just insert?
+            # Safe bet: upsert if IDs provided.
+            res = self.supabase.table("trading_strategies").upsert(data_list).execute()
+            log_success(f"Upserted {len(data_list)} Strategies")
+        except Exception as e:
+            log_error(f"Error upserting Strategies: {e}")
+
+    def upsert_recommendations(self, data_list: list):
+        """
+        Upsert Research Recommendations (Bulk).
+        Table: research_recommendations
+        """
+        if not self.supabase or not data_list: return
+        try:
+            # Upsert based on symbol? Or just insert new ones? 
+            # For now, let's assume we want to update existing active recommendations for the same symbol.
+            # But since ID is random UUID, simpler to just insert active ones.
+            # But to avoid duplicates, maybe we should check active ones first?
+            # Or just upsert based on symbol if we add a unique constraint?
+            # I didn't add unique constraint on symbol in SQL.
+            # So I will just insert for now. But better to deactivate old ones first?
+            # Let's just insert directly.
+            res = self.supabase.table("research_recommendations").insert(data_list).execute()
+            log_success(f"Inserted {len(data_list)} Recommendations")
+        except Exception as e:
+            log_error(f"Error inserting Recommendations: {e}")

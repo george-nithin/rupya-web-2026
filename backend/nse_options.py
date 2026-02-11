@@ -32,12 +32,10 @@ class NSEOptions:
             expiry_dates = records.get("expiryDates", [])
             underlying_value = records.get("underlyingValue")
             
-            return {
-                "symbol": symbol,
-                "underlyingValue": underlying_value,
-                "expiryDates": expiry_dates,
-                "data": records.get("data", [])
-            }
+            # Frontend expects raw NSE structure (records, filtered, etc.)
+            # We inject 'symbol' for DB upsert requirements
+            data["symbol"] = symbol
+            return data
         
         if data:
             log_error(f"Option Chain Data Missing 'records'. Keys: {list(data.keys())}")

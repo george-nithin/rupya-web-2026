@@ -3,23 +3,8 @@
 import { GlassCard } from "@/components/ui/GlassCard";
 import { ResponsiveContainer, Treemap, Tooltip } from "recharts";
 
-const data = [
-    {
-        name: 'Nifty 50',
-        children: [
-            { name: 'HDFC Bank', size: 1300, change: 1.2 },
-            { name: 'Reliance', size: 1500, change: -0.5 },
-            { name: 'ICICI Bank', size: 900, change: 2.1 },
-            { name: 'Infosys', size: 800, change: -1.4 },
-            { name: 'ITC', size: 600, change: 0.2 },
-            { name: 'TCS', size: 1100, change: 0.8 },
-            { name: 'L&T', size: 500, change: 1.5 },
-            { name: 'Axis Bank', size: 400, change: -0.2 },
-            { name: 'Kotak Bank', size: 450, change: -0.8 },
-            { name: 'SBI', size: 550, change: 2.5 },
-        ],
-    },
-];
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 const CustomizedContent = (props: any) => {
     const { x, y, width, height, change, name } = props;
@@ -54,6 +39,69 @@ const CustomizedContent = (props: any) => {
 };
 
 export function SectorHeatmap() {
+    const [data, setData] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchHeatmapData();
+
+        const channel = supabase
+            .channel('heatmap_changes')
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'market_equity_quotes'
+                },
+                (payload) => {
+                    // Refresh data or update specific item
+                    // For simplicity and accuracy in ranking, we'll re-fetch for now, 
+                    // optimization could be to update local state directly
+                    fetchHeatmapData();
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, []);
+
+    const fetchHeatmapData = async () => {
+        try {
+            // 1. Get NIFTY 50 symptoms
+            const { data: constituents } = await supabase
+                .from('index_constituents')
+                .select('symbol')
+                .eq('index_name', 'NIFTY 50');
+
+            if (!constituents) return;
+            const symbols = constituents.map(c => c.symbol);
+
+            // 2. Get quotes for these symbols
+            const { data: quotes } = await supabase
+                .from('market_equity_quotes')
+                .select('symbol, last_price, percent_change, market_cap')
+                .in('symbol', symbols)
+                .order('market_cap', { ascending: false })
+                .limit(20);
+
+            if (quotes) {
+                setData([{
+                    name: 'Nifty 50',
+                    children: quotes.map(q => ({
+                        name: q.symbol,
+                        size: q.market_cap || 100,
+                        change: q.percent_change || 0
+                    }))
+                }]);
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <GlassCard className="h-full min-h-[400px]">
             <div className="flex items-center justify-between mb-4">
@@ -67,21 +115,25 @@ export function SectorHeatmap() {
                     </span>
                 </div>
             </div>
-            <div className="h-[350px]">
-                <ResponsiveContainer width="100%" height="100%">
-                    <Treemap
-                        data={data}
-                        dataKey="size"
-                        stroke="#fff"
-                        fill="#8884d8"
-                        content={<CustomizedContent />}
-                    >
-                        <Tooltip
-                            contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', color: '#fff' }}
-                            formatter={(val: any, name: any, props: any) => [`${props.payload.change}%`, 'Change']}
-                        />
-                    </Treemap>
-                </ResponsiveContainer>
+            <div className="h-[350px] min-w-0">
+                {loading ? (
+                    <div className="h-full flex items-center justify-center text-slate-500">Loading Market Data...</div>
+                ) : (
+                    <ResponsiveContainer width="100%" height={350}>
+                        <Treemap
+                            data={data}
+                            dataKey="size"
+                            stroke="#fff"
+                            fill="#8884d8"
+                            content={<CustomizedContent />}
+                        >
+                            <Tooltip
+                                contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', color: '#fff' }}
+                                formatter={(val: any, name: any, props: any) => [`${props.payload.change}%`, 'Change']}
+                            />
+                        </Treemap>
+                    </ResponsiveContainer>
+                )}
             </div>
         </GlassCard>
     );

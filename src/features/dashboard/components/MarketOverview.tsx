@@ -15,8 +15,14 @@ interface MarketIndex {
 const defaultIndices = [
     { index_name: "NIFTY 50", last_price: 0, change: 0, percent_change: 0 },
     { index_name: "NIFTY BANK", last_price: 0, change: 0, percent_change: 0 },
-    { index_name: "SENSEX", last_price: 0, change: 0, percent_change: 0 }, // Note: Sensex might not be in NSE data, fallback or check
+    { index_name: "SENSEX", last_price: 0, change: 0, percent_change: 0 },
     { index_name: "NIFTY IT", last_price: 0, change: 0, percent_change: 0 },
+    { index_name: "NIFTY MIDCAP 100", last_price: 0, change: 0, percent_change: 0 },
+    { index_name: "NIFTY SMLCAP 100", last_price: 0, change: 0, percent_change: 0 },
+    { index_name: "NIFTY PHARMA", last_price: 0, change: 0, percent_change: 0 },
+    { index_name: "NIFTY AUTO", last_price: 0, change: 0, percent_change: 0 },
+    { index_name: "NIFTY FMCG", last_price: 0, change: 0, percent_change: 0 },
+    { index_name: "NIFTY METAL", last_price: 0, change: 0, percent_change: 0 },
 ];
 
 export function MarketOverview() {
@@ -27,10 +33,13 @@ export function MarketOverview() {
             const { data } = await supabase
                 .from('market_indices')
                 .select('index_name, last_price, change, percent_change')
-                .in('index_name', ['NIFTY 50', 'NIFTY BANK', 'NIFTY IT', 'SENSEX']); // Adjust names as per DB
+                .in('index_name', [
+                    'NIFTY 50', 'NIFTY BANK', 'SENSEX', 'NIFTY IT',
+                    'NIFTY MIDCAP 100', 'NIFTY SMLCAP 100',
+                    'NIFTY PHARMA', 'NIFTY AUTO', 'NIFTY FMCG', 'NIFTY METAL'
+                ]);
 
             if (data && data.length > 0) {
-                // Merge with defaults to maintain order/placeholders
                 const merged = defaultIndices.map(def => {
                     const found = data.find(d => d.index_name === def.index_name);
                     return found || def;
@@ -41,7 +50,7 @@ export function MarketOverview() {
 
         fetchIndices();
 
-        // Optional: Realtime subscription
+        // Realtime subscription
         const channel = supabase
             .channel('market_indices_changes')
             .on(
@@ -69,22 +78,24 @@ export function MarketOverview() {
     }, []);
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
             {indices.map((index) => (
-                <GlassCard key={index.index_name} className="relative overflow-hidden group hover:border-white/20">
-                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                        <Activity className="h-12 w-12" />
+                <GlassCard key={index.index_name} className="relative overflow-hidden group hover:border-white/20 transition-all cursor-pointer p-3">
+                    <div className="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <Activity className="h-6 w-6" />
                     </div>
 
-                    <div className="space-y-3 relative z-10">
-                        <div className="text-sm font-medium text-slate-400">{index.index_name}</div>
-                        <div className="text-2xl font-bold text-white tracking-tight">
-                            {index.last_price?.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    <div className="space-y-1 relative z-10">
+                        <div className="text-[9px] font-medium text-slate-400 uppercase tracking-wider">
+                            {index.index_name}
+                        </div>
+                        <div className="text-base font-bold text-white tracking-tight">
+                            {index.last_price?.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                         </div>
 
-                        <div className={`flex items-center text-sm font-medium ${index.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                            {index.change >= 0 ? <TrendingUp className="h-4 w-4 mr-1" /> : <TrendingDown className="h-4 w-4 mr-1" />}
-                            {index.change > 0 ? '+' : ''}{index.change} ({index.percent_change}%)
+                        <div className={`flex items-center text-xs font-medium ${index.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {index.change >= 0 ? <TrendingUp className="h-3 w-3 mr-0.5" /> : <TrendingDown className="h-3 w-3 mr-0.5" />}
+                            {index.percent_change?.toFixed(2)}%
                         </div>
                     </div>
                 </GlassCard>

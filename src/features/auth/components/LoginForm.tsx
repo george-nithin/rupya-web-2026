@@ -42,6 +42,10 @@ export default function LoginForm() {
             //     return;
             // }
 
+            console.log('Attempting login with:', data.email);
+            console.log('Supabase client:', supabase);
+            console.log('Supabase auth:', supabase?.auth);
+
             const { error } = await supabase.auth.signInWithPassword({
                 email: data.email,
                 password: data.password,
@@ -53,15 +57,34 @@ export default function LoginForm() {
 
             router.push("/dashboard");
         } catch (err: any) {
-            setError(err.message || "Failed to login");
+            console.error("Login logic error:", err);
+            if (err.message === "Invalid login credentials" || err.message.includes("User not found")) {
+                setError("Invalid email or password. If you haven't created an account, please sign up.");
+            } else {
+                setError(err.message || "Failed to login");
+            }
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleGoogleLogin = async () => {
-        // Mock or actual implementation placeholder
-        console.log("Google Login Clicked");
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: "google",
+                options: {
+                    queryParams: {
+                        access_type: "offline",
+                        prompt: "consent",
+                    },
+                    redirectTo: `${window.location.origin}/auth/callback`,
+                },
+            });
+            if (error) throw error;
+        } catch (error: any) {
+            console.error("Google Login Error:", error);
+            setError(error.message);
+        }
     };
 
     return (

@@ -32,4 +32,14 @@ export interface Trade {
     mae?: number; // Max Adverse Excursion
     mfe?: number; // Max Favorable Excursion
     riskRewardRatio: number;
+
+    // Financials
+    fees?: number;
+    brokerage?: number;
+    netPnl?: number;
+
+    // Psychology & Context
+    emotions?: string[]; // e.g., ["Confident", "Anxious"]
+    mistakes?: string[]; // e.g., ["Early Exit", "Chasing"]
+    session?: 'Morning' | 'Afternoon' | 'Closing';
 }

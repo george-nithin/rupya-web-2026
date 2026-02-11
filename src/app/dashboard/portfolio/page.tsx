@@ -38,19 +38,23 @@ export default function PortfolioPage() {
             // 2. Get Market Data
             const { data: quotes, error: qError } = await supabase
                 .from('market_equity_quotes')
-                .select('symbol, last_price')
+                .select('symbol, last_price, sector')
                 .in('symbol', symbols);
 
             if (qError) throw qError;
 
-            // 3. Merge
+            // 3. Merge and Calculate Allocation
+            const sectorMap: { [key: string]: number } = {};
             const merged = port.map(p => {
                 const quote = quotes?.find(q => q.symbol === p.symbol);
-                const ltp = quote?.last_price || p.avg_price; // Fallback
+                const ltp = quote?.last_price || p.avg_price;
                 const value = ltp * p.quantity;
                 const invested = p.avg_price * p.quantity;
                 const pnl = value - invested;
                 const pnlPercent = invested ? (pnl / invested) * 100 : 0;
+
+                const sector = quote?.sector || "Others";
+                sectorMap[sector] = (sectorMap[sector] || 0) + value;
 
                 return {
                     symbol: p.symbol,
@@ -59,11 +63,22 @@ export default function PortfolioPage() {
                     ltp: ltp,
                     value: value,
                     pnl: pnl,
-                    pnlPercent: pnlPercent
+                    pnlPercent: pnlPercent,
+                    sector: sector
                 };
             });
 
             setHoldings(merged);
+
+            // 4. Map sectors to colors
+            const colors = ["#38bdf8", "#c084fc", "#34d399", "#fbbf24", "#f87171", "#818cf8"];
+            const alloc = Object.entries(sectorMap).map(([name, value], i) => ({
+                name,
+                value,
+                color: colors[i % colors.length]
+            }));
+            setAllocation(alloc);
+
         } catch (error) {
             console.error("Error fetching portfolio:", error);
         } finally {
@@ -71,12 +86,7 @@ export default function PortfolioPage() {
         }
     };
 
-    const allocationData = [
-        { name: "Energy", value: 30, color: "#38bdf8" },
-        { name: "Banking", value: 25, color: "#c084fc" },
-        { name: "IT", value: 35, color: "#34d399" },
-        { name: "Auto", value: 10, color: "#fbbf24" },
-    ];
+    const [allocation, setAllocation] = useState<any[]>([]);
 
     const totalValue = holdings.reduce((acc, curr) => acc + curr.value, 0);
     const totalInvested = holdings.reduce((acc, curr) => acc + (curr.avg * curr.qty), 0);
@@ -87,8 +97,8 @@ export default function PortfolioPage() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Portfolio</h1>
-                    <p className="text-slate-400">Track your investments</p>
+                    <h1 className="text-2xl font-bold text-foreground">Portfolio</h1>
+                    <p className="text-muted-foreground">Track your investments</p>
                 </div>
                 <GlassButton variant="secondary">Sync with Broker</GlassButton>
             </div>
@@ -96,16 +106,16 @@ export default function PortfolioPage() {
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <GlassCard>
-                    <div className="text-sm text-slate-400">Current Value</div>
-                    <div className="text-3xl font-bold text-white mt-1">₹{totalValue.toLocaleString()}</div>
+                    <div className="text-sm text-muted-foreground">Current Value</div>
+                    <div className="text-3xl font-bold text-foreground mt-1">₹{totalValue.toLocaleString()}</div>
                 </GlassCard>
                 <GlassCard>
-                    <div className="text-sm text-slate-400">Invested Amount</div>
-                    <div className="text-2xl font-semibold text-slate-200 mt-1">₹{totalInvested.toLocaleString()}</div>
+                    <div className="text-sm text-muted-foreground">Invested Amount</div>
+                    <div className="text-2xl font-semibold text-foreground mt-1">₹{totalInvested.toLocaleString()}</div>
                 </GlassCard>
                 <GlassCard>
-                    <div className="text-sm text-slate-400">Total P&L</div>
-                    <div className={`text-2xl font-bold mt-1 ${totalPnl >= 0 ? "text-green-400" : "text-red-400"}`}>
+                    <div className="text-sm text-muted-foreground">Total P&L</div>
+                    <div className={`text-2xl font-bold mt-1 ${totalPnl >= 0 ? "text-emerald-500" : "text-red-500"}`}>
                         {totalPnl >= 0 ? "+" : ""}₹{totalPnl.toLocaleString()} ({totalPnlPercent.toFixed(2)}%)
                     </div>
                 </GlassCard>
@@ -114,12 +124,12 @@ export default function PortfolioPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Allocation Chart */}
                 <GlassCard className="col-span-1 min-h-[300px]">
-                    <h2 className="text-lg font-semibold text-white mb-4">Sector Allocation</h2>
+                    <h2 className="text-lg font-semibold text-foreground mb-4">Sector Allocation</h2>
                     <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie
-                                    data={allocationData}
+                                    data={allocation}
                                     cx="50%"
                                     cy="50%"
                                     innerRadius={60}
@@ -127,11 +137,20 @@ export default function PortfolioPage() {
                                     paddingAngle={5}
                                     dataKey="value"
                                 >
-                                    {allocationData.map((entry: any, index: number) => (
+                                    {allocation.map((entry: any, index: number) => (
                                         <Cell key={`cell-${index}`} fill={entry.color} />
                                     ))}
                                 </Pie>
-                                <RechartsTooltip contentStyle={{ background: '#0f172a', border: 'none', borderRadius: '8px' }} />
+                                <RechartsTooltip
+                                    contentStyle={{
+                                        backgroundColor: 'hsl(var(--card))',
+                                        borderColor: 'hsl(var(--border))',
+                                        color: 'hsl(var(--foreground))',
+                                        borderRadius: '12px',
+                                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                                    }}
+                                    itemStyle={{ color: 'hsl(var(--foreground))' }}
+                                />
                             </PieChart>
                         </ResponsiveContainer>
                     </div>
@@ -139,10 +158,10 @@ export default function PortfolioPage() {
 
                 {/* Holdings Table */}
                 <GlassCard className="col-span-1 lg:col-span-2">
-                    <h2 className="text-lg font-semibold text-white mb-4">Holdings</h2>
+                    <h2 className="text-lg font-semibold text-foreground mb-4">Holdings</h2>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm whitespace-nowrap">
-                            <thead className="text-slate-400 border-b border-white/10">
+                            <thead className="text-muted-foreground border-b border-border/50">
                                 <tr>
                                     <th className="pb-3 pl-2">Symbol</th>
                                     <th className="pb-3 text-right">Qty</th>
@@ -152,15 +171,15 @@ export default function PortfolioPage() {
                                     <th className="pb-3 text-right pr-2">P&L</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-white/5">
+                            <tbody className="divide-y divide-border/10">
                                 {holdings.map((stock) => (
-                                    <tr key={stock.symbol} className="hover:bg-white/5">
-                                        <td className="py-3 pl-2 font-medium text-white">{stock.symbol}</td>
-                                        <td className="py-3 text-right text-slate-300">{stock.qty}</td>
-                                        <td className="py-3 text-right text-slate-300">₹{stock.avg.toLocaleString()}</td>
-                                        <td className="py-3 text-right text-slate-300">₹{stock.ltp.toLocaleString()}</td>
-                                        <td className="py-3 text-right text-white font-medium">₹{stock.value.toLocaleString()}</td>
-                                        <td className={`py-3 text-right pr-2 font-medium ${stock.pnl >= 0 ? "text-green-400" : "text-red-400"}`}>
+                                    <tr key={stock.symbol} className="hover:bg-muted/50 transition-colors">
+                                        <td className="py-3 pl-2 font-medium text-foreground">{stock.symbol}</td>
+                                        <td className="py-3 text-right text-foreground">{stock.qty}</td>
+                                        <td className="py-3 text-right text-foreground">₹{stock.avg.toLocaleString()}</td>
+                                        <td className="py-3 text-right text-foreground">₹{stock.ltp.toLocaleString()}</td>
+                                        <td className="py-3 text-right text-foreground font-medium">₹{stock.value.toLocaleString()}</td>
+                                        <td className={`py-3 text-right pr-2 font-medium ${stock.pnl >= 0 ? "text-emerald-500" : "text-red-500"}`}>
                                             {stock.pnl >= 0 ? "+" : ""}₹{stock.pnl.toLocaleString()} <br />
                                             <span className="text-xs opacity-80">({stock.pnlPercent.toFixed(2)}%)</span>
                                         </td>
