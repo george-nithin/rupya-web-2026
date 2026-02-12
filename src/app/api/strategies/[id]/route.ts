@@ -2,15 +2,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder';
 
 export async function GET(
     request: NextRequest,
     context: { params: Promise<{ id: string }> }
 ) {
     try {
+        const supabase = createClient(supabaseUrl, supabaseKey);
         const { id } = await context.params;
         const { data, error } = await supabase
             .from('algo_strategies')
@@ -30,6 +30,7 @@ export async function PUT(
     context: { params: Promise<{ id: string }> }
 ) {
     try {
+        const supabase = createClient(supabaseUrl, supabaseKey);
         const { id } = await context.params;
         const body = await request.json();
 
@@ -55,6 +56,7 @@ export async function DELETE(
     context: { params: Promise<{ id: string }> }
 ) {
     try {
+        const supabase = createClient(supabaseUrl, supabaseKey);
         const { id } = await context.params;
         const { error } = await supabase
             .from('algo_strategies')

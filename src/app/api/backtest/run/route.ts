@@ -50,11 +50,11 @@ export async function POST(request: NextRequest) {
             env: {
                 ...process.env,
                 PYTHONPATH: backendPath,
-                NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+                NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+                SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
                 // Ensure Python script can see these
-                SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                SUPABASE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY!
+                SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+                SUPABASE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || ''
             }
         });
 
