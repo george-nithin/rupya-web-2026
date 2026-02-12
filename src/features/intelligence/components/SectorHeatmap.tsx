@@ -105,19 +105,19 @@ export function SectorHeatmap() {
     return (
         <GlassCard className="h-full min-h-[400px]">
             <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-white">Market Heatmap</h2>
+                <h2 className="text-lg font-bold text-foreground">Market Heatmap</h2>
                 <div className="flex gap-2">
-                    <span className="text-xs flex items-center gap-1 text-slate-400">
+                    <span className="text-xs flex items-center gap-1 text-muted-foreground">
                         <div className="w-2 h-2 rounded-full bg-green-500"></div> Bullish
                     </span>
-                    <span className="text-xs flex items-center gap-1 text-slate-400">
+                    <span className="text-xs flex items-center gap-1 text-muted-foreground">
                         <div className="w-2 h-2 rounded-full bg-red-500"></div> Bearish
                     </span>
                 </div>
             </div>
             <div className="h-[350px] min-w-0">
                 {loading ? (
-                    <div className="h-full flex items-center justify-center text-slate-500">Loading Market Data...</div>
+                    <div className="h-full flex items-center justify-center text-muted-foreground">Loading Market Data...</div>
                 ) : (
                     <ResponsiveContainer width="100%" height={350}>
                         <Treemap

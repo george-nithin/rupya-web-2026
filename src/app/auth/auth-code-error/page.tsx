@@ -13,8 +13,8 @@ export default function AuthErrorPage() {
                     </div>
                 </div>
 
-                <h1 className="text-2xl font-bold text-white mb-2">Authentication Failed</h1>
-                <p className="text-slate-400 mb-8">
+                <h1 className="text-2xl font-bold text-foreground mb-2">Authentication Failed</h1>
+                <p className="text-muted-foreground mb-8">
                     We were unable to sign you in specific to Google. This could be due to a configuration mismatch or an expired session.
                 </p>
 

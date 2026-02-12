@@ -83,11 +83,11 @@ export function NotificationList() {
     if (notifications.length === 0) {
         return (
             <GlassCard className="p-8 text-center flex flex-col items-center justify-center min-h-[400px]">
-                <div className="p-4 rounded-full bg-white/5 mb-4">
-                    <BellOff className="w-8 h-8 text-slate-500" />
+                <div className="p-4 rounded-full bg-card/20 mb-4">
+                    <BellOff className="w-8 h-8 text-muted-foreground" />
                 </div>
-                <h3 className="text-xl font-medium text-white mb-2">No Notifications</h3>
-                <p className="text-slate-400 max-w-sm">
+                <h3 className="text-xl font-medium text-foreground mb-2">No Notifications</h3>
+                <p className="text-muted-foreground max-w-sm">
                     You're all caught up! notifications about market movements and your trades will appear here.
                 </p>
             </GlassCard>

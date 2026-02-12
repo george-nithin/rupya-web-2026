@@ -12,8 +12,8 @@ export default function AlgoTradingPage() {
                         <Bot className="h-6 w-6" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold text-white">Algo Trading Marketplace</h1>
-                        <p className="text-sm text-slate-400">Discover, backtest, and deploy automated trading strategies.</p>
+                        <h1 className="text-2xl font-bold text-foreground">Algo Trading Marketplace</h1>
+                        <p className="text-sm text-muted-foreground">Discover, backtest, and deploy automated trading strategies.</p>
                     </div>
                 </div>
             </div>

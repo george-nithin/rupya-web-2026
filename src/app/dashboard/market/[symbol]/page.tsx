@@ -76,7 +76,7 @@ export default function StockDetailPage() {
         }
     };
 
-    if (loading && !stockData) return <div className="h-screen flex items-center justify-center text-slate-500">Loading {symbol} Details...</div>;
+    if (loading && !stockData) return <div className="h-screen flex items-center justify-center text-muted-foreground">Loading {symbol} Details...</div>;
 
     const isPositive = (stockData?.percent_change || 0) >= 0;
 
@@ -85,10 +85,10 @@ export default function StockDetailPage() {
             {/* Header / Breadcrumb */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Link href="/dashboard/market" className="hover:text-foreground transition-colors">Markets</Link>
-                    <ChevronRight className="h-4 w-4" />
-                    <Link href="/dashboard/watchlist" className="hover:text-foreground transition-colors">Watchlist</Link>
-                    <ChevronRight className="h-4 w-4" />
+                    <Link href="/dashboard/market" className="hover:text-foreground transition-all duration-150">Markets</Link>
+                    <ChevronRight className="h-5 w-5" />
+                    <Link href="/dashboard/watchlist" className="hover:text-foreground transition-all duration-150">Watchlist</Link>
+                    <ChevronRight className="h-5 w-5" />
                     <span className="text-foreground font-medium">{symbol}</span>
                 </div>
 
@@ -103,7 +103,7 @@ export default function StockDetailPage() {
             {/* Main Hero: Price & Chart - Always Visible */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div className="lg:col-span-12">
-                    <GlassCard className="p-0 overflow-hidden relative group min-h-[500px] flex flex-col border-border/50 shadow-sm">
+                    <GlassCard className="p-0 overflow-hidden relative group min-h-[500px] flex flex-col border-border/50 shadow-soft">
                         {/* Header Section */}
                         <div className="p-6 border-b border-border/50 bg-card/50">
                             <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
@@ -113,7 +113,7 @@ export default function StockDetailPage() {
                                         <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-secondary/50 text-muted-foreground border border-border/50">NSE</span>
                                         <button
                                             onClick={toggleWatchlist}
-                                            className={`h-8 w-8 rounded-full flex items-center justify-center cursor-pointer transition-colors ${inWatchlist ? "bg-sky-500/20 text-sky-500" : "bg-secondary text-muted-foreground hover:bg-secondary/80"}`}
+                                            className={`h-8 w-8 rounded-full flex items-center justify-center cursor-pointer transition-all duration-150 ${inWatchlist ? "bg-sky-500/20 text-sky-500" : "bg-secondary text-muted-foreground hover:bg-secondary/80"}`}
                                         >
                                             <Star className={`h-4 w-4 ${inWatchlist ? "fill-sky-500" : ""}`} />
                                         </button>
@@ -123,7 +123,7 @@ export default function StockDetailPage() {
                                 <div className="text-left md:text-right">
                                     <div className="text-3xl font-bold text-foreground tracking-tighter">₹{stockData?.last_price?.toLocaleString()}</div>
                                     <div className={`flex items-center md:justify-end gap-1 text-sm font-medium ${isPositive ? "text-emerald-500" : "text-red-500"}`}>
-                                        {isPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                                        {isPositive ? <TrendingUp className="h-5 w-5" /> : <TrendingDown className="h-5 w-5" />}
                                         <span>{stockData?.change > 0 ? "+" : ""}{stockData?.change} ({stockData?.percent_change}%)</span>
                                     </div>
                                 </div>
@@ -144,7 +144,7 @@ export default function StockDetailPage() {
                                 <span>Low: <span className="text-foreground font-mono">₹{stockData?.day_low}</span></span>
                             </div>
                             <GlassButton variant="secondary" onClick={() => window.location.href = `/dashboard/journal/edit/new?symbol=${symbol}`}>
-                                <BookOpen className="h-4 w-4 mr-2" /> Log Trade
+                                <BookOpen className="h-5 w-5 mr-2" /> Log Trade
                             </GlassButton>
                         </div>
                     </GlassCard>
@@ -173,7 +173,7 @@ export default function StockDetailPage() {
                             <StockFundamentals data={fundamentals} compact={true} />
                             <GlassCard>
                                 <h3 className="text-sm font-bold text-foreground mb-4 flex items-center gap-2">
-                                    <Activity className="h-4 w-4 text-primary" />
+                                    <Activity className="h-5 w-5 text-primary" />
                                     Market Status
                                 </h3>
                                 <div className="space-y-4">
@@ -203,7 +203,7 @@ export default function StockDetailPage() {
                         <div className="md:col-span-4 space-y-6">
                             <GlassCard>
                                 <h3 className="text-sm font-bold text-foreground mb-4 flex items-center gap-2">
-                                    <Zap className="h-4 w-4 text-primary" />
+                                    <Zap className="h-5 w-5 text-primary" />
                                     Live Indicators
                                 </h3>
                                 <div className="space-y-4">

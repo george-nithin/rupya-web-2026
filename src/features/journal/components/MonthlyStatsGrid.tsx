@@ -77,34 +77,48 @@ export function MonthlyStatsGrid({ trades }: MonthlyStatsGridProps) {
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {stats.map((stat, i) => (
-                <GlassCard key={`${stat.month}-${stat.year}`} className="p-4 relative overflow-hidden group hover:bg-white/5 transition-colors">
-                    <div className="flex justify-between items-start mb-4">
+                <GlassCard
+                    key={`${stat.month}-${stat.year}`}
+                    colorBorder={stat.pnl >= 0 ? "emerald" : "rose"}
+                    glow
+                    className="p-6 relative overflow-hidden group transition-all duration-300 active:scale-95"
+                >
+                    <div className="flex justify-between items-start mb-6">
                         <div>
-                            <div className="text-sm font-bold text-sky-400 uppercase tracking-wider">{stat.month} {stat.year}</div>
-                            <div className={`text-2xl font-bold mt-1 ${stat.pnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            <div className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">{stat.month} {stat.year}</div>
+                            <div className={`text-2xl font-black mt-1 ${stat.pnl >= 0 ? 'text-green-400' : 'text-rose-400'}`}>
                                 {stat.pnl >= 0 ? '+' : '-'}₹{Math.abs(stat.pnl).toLocaleString()}
                             </div>
                         </div>
-                        <div className="text-right">
-                            <div className="text-[10px] text-slate-500 uppercase">Win Rate</div>
-                            <div className="text-sm font-bold text-white">{stat.winRate.toFixed(0)}%</div>
+                        <div className="h-10 w-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+                            {stat.pnl >= 0 ? <TrendingUp className="h-5 w-5 text-green-400" /> : <TrendingDown className="h-5 w-5 text-rose-400" />}
                         </div>
                     </div>
 
-                    <div className="space-y-2 text-xs text-slate-400">
-                        <div className="flex justify-between">
-                            <span>Best Trade</span>
-                            <span className="text-green-400 font-medium">+₹{stat.bestTrade.toLocaleString()}</span>
+                    <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                            <span className="text-[11px] font-semibold text-white/40 uppercase tracking-wider">Win Rate</span>
+                            <span className="text-sm font-bold text-white">{stat.winRate.toFixed(0)}%</span>
                         </div>
-                        <div className="flex justify-between">
-                            <span>Worst Trade</span>
-                            <span className="text-red-400 font-medium">{stat.worstTrade !== 0 ? '-' : ''}₹{Math.abs(stat.worstTrade).toLocaleString()}</span>
+
+                        <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                            <div
+                                className={`h-full transition-all duration-1000 ${stat.winRate >= 50 ? 'bg-green-500' : 'bg-rose-500'}`}
+                                style={{ width: `${stat.winRate}%` }}
+                            />
                         </div>
-                        <div className="flex justify-between pt-2 border-t border-white/5">
-                            <span>No. of Trades</span>
-                            <span className="text-white">{stat.totalTrades}</span>
+
+                        <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-white/5">
+                            <div>
+                                <div className="text-[9px] font-bold text-white/30 uppercase tracking-tighter mb-1">Best Trade</div>
+                                <div className="text-xs font-bold text-green-400">+₹{stat.bestTrade.toLocaleString()}</div>
+                            </div>
+                            <div className="text-right">
+                                <div className="text-[9px] font-bold text-white/30 uppercase tracking-tighter mb-1">Worst Trade</div>
+                                <div className="text-xs font-bold text-rose-400">{stat.worstTrade !== 0 ? '-' : ''}₹{Math.abs(stat.worstTrade).toLocaleString()}</div>
+                            </div>
                         </div>
                     </div>
                 </GlassCard>

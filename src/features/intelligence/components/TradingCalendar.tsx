@@ -85,37 +85,37 @@ export function TradingCalendar() {
     return (
         <GlassCard className="h-full">
             <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-bold text-white">Performance Calendar</h2>
+                <h2 className="text-lg font-bold text-foreground">Performance Calendar</h2>
                 <div className="flex items-center gap-4">
-                    <div className="text-sm font-medium text-white">
+                    <div className="text-sm font-medium text-foreground">
                         {currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}
                     </div>
                     <div className="flex gap-1">
                         <button
                             onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() - 1)))}
-                            className="p-1 hover:bg-white/10 rounded text-slate-400 hover:text-white"
+                            className="p-1 hover:bg-card/30 rounded text-muted-foreground hover:text-foreground active:scale-95"
                         >
-                            <ChevronLeft className="h-4 w-4" />
+                            <ChevronLeft className="h-5 w-5" />
                         </button>
                         <button
                             onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() + 1)))}
-                            className="p-1 hover:bg-white/10 rounded text-slate-400 hover:text-white"
+                            className="p-1 hover:bg-card/30 rounded text-muted-foreground hover:text-foreground active:scale-95"
                         >
-                            <ChevronRight className="h-4 w-4" />
+                            <ChevronRight className="h-5 w-5" />
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-7 gap-px bg-white/5 border border-white/5 rounded-lg overflow-hidden">
+            <div className="grid grid-cols-7 gap-px bg-card/20 border border-border/50 rounded-xl overflow-hidden">
                 {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-                    <div key={day} className="p-2 text-center text-xs font-semibold text-slate-500 bg-slate-900/50">
+                    <div key={day} className="p-2 text-center text-xs font-semibold text-muted-foreground bg-card/50">
                         {day}
                     </div>
                 ))}
 
                 {Array.from({ length: adjustedStartDay }).map((_, i) => (
-                    <div key={`empty-${i}`} className="bg-slate-900/30 min-h-[80px]" />
+                    <div key={`empty-${i}`} className="bg-card/30 min-h-[80px]" />
                 ))}
 
                 {Array.from({ length: daysInMonth }).map((_, i) => {
@@ -126,17 +126,17 @@ export function TradingCalendar() {
                     return (
                         <div
                             key={day}
-                            className={`min-h-[80px] p-2 relative group hover:bg-white/5 transition-colors ${isWeekend ? 'bg-slate-900/30' : 'bg-slate-900/50'
+                            className={`min-h-[80px] p-2 relative group hover:bg-card/20 transition-all duration-150 ${isWeekend ? 'bg-card/30' : 'bg-card/50'
                                 }`}
                         >
-                            <span className={`text-xs ${data ? 'text-slate-300' : 'text-slate-600'}`}>{day}</span>
+                            <span className={`text-xs ${data ? 'text-foreground/80' : 'text-slate-600'}`}>{day}</span>
 
                             {data && (
                                 <div className="mt-2 text-center">
                                     <div className={`text-xs font-bold ${data.pnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                                         {data.pnl >= 0 ? '+' : ''}{Math.abs(data.pnl) >= 1000 ? (data.pnl / 1000).toFixed(1) + 'k' : data.pnl}
                                     </div>
-                                    <div className="text-[10px] text-slate-500 mt-1">
+                                    <div className="text-[10px] text-muted-foreground mt-1">
                                         {data.trades} Trades
                                     </div>
                                 </div>
@@ -146,21 +146,21 @@ export function TradingCalendar() {
                 })}
             </div>
 
-            <div className="flex justify-between items-center mt-6 p-4 bg-white/5 rounded-xl border border-white/5">
+            <div className="flex justify-between items-center mt-6 p-4 bg-card/20 rounded-xl border border-border/50">
                 <div className="text-center">
-                    <div className="text-xs text-slate-500 mb-1">Total P&L</div>
+                    <div className="text-xs text-muted-foreground mb-1">Total P&L</div>
                     <div className={`text-xl font-bold ${totalPnl >= 0 ? "text-green-400" : "text-red-400"}`}>
                         {totalPnl >= 0 ? '+' : ''}₹{(totalPnl / 1000).toFixed(1)}k
                     </div>
                 </div>
-                <div className="h-8 w-px bg-white/10" />
+                <div className="h-8 w-px bg-card/30" />
                 <div className="text-center">
-                    <div className="text-xs text-slate-500 mb-1">Win Days</div>
+                    <div className="text-xs text-muted-foreground mb-1">Win Days</div>
                     <div className="text-xl font-bold text-sky-400">{winDays}</div>
                 </div>
-                <div className="h-8 w-px bg-white/10" />
+                <div className="h-8 w-px bg-card/30" />
                 <div className="text-center">
-                    <div className="text-xs text-slate-500 mb-1">Loss Days</div>
+                    <div className="text-xs text-muted-foreground mb-1">Loss Days</div>
                     <div className="text-xl font-bold text-red-400">{lossDays}</div>
                 </div>
             </div>

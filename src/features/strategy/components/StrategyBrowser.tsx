@@ -128,16 +128,16 @@ export function StrategyBrowser() {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-xl font-bold text-white uppercase tracking-wider">Trading Strategies</h2>
-                    <p className="text-xs text-slate-400 mt-1">Select a market view to see relevant templates</p>
+                    <h2 className="text-xl font-bold text-foreground uppercase tracking-wider">Trading Strategies</h2>
+                    <p className="text-xs text-muted-foreground mt-1">Select a market view to see relevant templates</p>
                 </div>
 
-                <div className="flex items-center gap-3 bg-white/5 p-1 rounded-lg border border-white/10">
-                    <span className="text-xs text-slate-400 pl-2">Strategy For:</span>
+                <div className="flex items-center gap-3 bg-card/20 p-1 rounded-xl border border-border">
+                    <span className="text-xs text-muted-foreground pl-2">Strategy For:</span>
                     <select
                         value={selectedIndex}
                         onChange={(e) => setSelectedIndex(e.target.value)}
-                        className="bg-slate-900 border-none rounded px-3 py-1.5 text-sm font-bold text-white outline-none focus:ring-1 focus:ring-sky-500"
+                        className="bg-card border-none rounded px-3 py-1.5 text-sm font-bold text-foreground outline-none focus:ring-1 focus:ring-sky-500"
                     >
                         {indices.map(idx => <option key={idx} value={idx}>{idx}</option>)}
                     </select>
@@ -145,12 +145,12 @@ export function StrategyBrowser() {
             </div>
 
             {/* Tabs */}
-            <div className="flex border-b border-white/10 overflow-x-auto no-scrollbar">
+            <div className="flex border-b border-border overflow-x-auto no-scrollbar">
                 {['Bullish', 'Bearish', 'Directional', 'Neutral', 'Favourites'].map((tab) => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab as any)}
-                        className={`px-6 py-3 text-sm font-medium transition-colors relative whitespace-nowrap ${activeTab === tab ? 'text-sky-400' : 'text-slate-400 hover:text-white'
+                        className={`px-6 py-3 text-sm font-medium transition-all duration-150 relative whitespace-nowrap ${activeTab === tab ? 'text-sky-400' : 'text-slate-400 hover:text-white'
                             }`}
                     >
                         {tab}
@@ -162,7 +162,7 @@ export function StrategyBrowser() {
             </div>
 
             {/* Description Banner */}
-            <div className="bg-gradient-to-r from-sky-500/10 to-transparent border-l-4 border-sky-400 rounded-r-lg p-4 text-sm text-slate-300 flex items-start gap-3">
+            <div className="bg-gradient-to-r from-sky-500/10 to-transparent border-l-4 border-sky-400 rounded-r-lg p-4 text-sm text-foreground/80 flex items-start gap-3">
                 <Info className="h-5 w-5 text-sky-400 shrink-0 mt-0.5" />
                 <div className="font-medium">
                     {activeTab === 'Bullish' && "You expect the market to go up sharply or give a big movement upwards."}
@@ -178,66 +178,66 @@ export function StrategyBrowser() {
                 {loading ? (
                     // Skeletons
                     [1, 2, 3, 4].map(i => (
-                        <div key={i} className="h-64 bg-white/5 animate-pulse rounded-xl border border-white/5" />
+                        <div key={i} className="h-64 bg-card/20 animate-pulse rounded-xl border border-border/50" />
                     ))
                 ) : filteredStrategies.length > 0 ? (
                     filteredStrategies.map(strategy => (
                         <GlassCard key={strategy.id} className="p-0 overflow-hidden group hover:border-sky-500/30 transition-all relative">
                             {/* Card Header */}
-                            <div className="p-4 flex justify-between items-start border-b border-white/5 bg-white/[0.02]">
+                            <div className="p-4 flex justify-between items-start border-b border-border/50 bg-white/[0.02]">
                                 <div>
-                                    <h3 className="font-bold text-white group-hover:text-sky-400 transition-colors">{strategy.name}</h3>
-                                    <span className="text-[10px] text-slate-500 bg-white/5 px-1.5 py-0.5 rounded border border-white/5 mt-1 inline-block">
+                                    <h3 className="font-bold text-white group-hover:text-sky-400 transition-all duration-150">{strategy.name}</h3>
+                                    <span className="text-[10px] text-muted-foreground bg-card/20 px-1.5 py-0.5 rounded border border-border/50 mt-1 inline-block">
                                         {strategy.legs_count} LEGS
                                     </span>
                                 </div>
                                 <button
                                     onClick={(e) => toggleFavorite(strategy.id, e)}
-                                    className={`transition-colors p-1 relative z-20 ${favorites.has(strategy.id) ? 'text-yellow-400' : 'text-slate-600 hover:text-yellow-400'}`}
+                                    className={`transition-all duration-150 p-1 relative z-20 ${favorites.has(strategy.id) ? 'text-yellow-400' : 'text-slate-600 hover:text-yellow-400'}`}
                                 >
                                     <Star className={`h-4 w-4 ${favorites.has(strategy.id) ? 'fill-yellow-400' : ''}`} />
                                 </button>
                             </div>
 
                             {/* Payoff Diagram Area */}
-                            <div className="h-32 bg-slate-900/40 relative flex items-center justify-center p-4">
+                            <div className="h-32 bg-card/40 relative flex items-center justify-center p-4">
                                 <PayoffPlaceholder sentiment={strategy.sentiment} />
 
                                 {/* Overlay Risk Profile */}
-                                <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/90 to-transparent text-[10px] text-center text-slate-400 group-hover:opacity-0 transition-opacity">
+                                <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/90 to-transparent text-[10px] text-center text-muted-foreground group-hover:opacity-0 transition-opacity">
                                     {strategy.risk_profile}
                                 </div>
                             </div>
 
                             {/* HOVER OVERLAY: Details & Legs */}
-                            <div className="absolute inset-0 top-[60px] bg-slate-900/95 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col z-10">
-                                <p className="text-xs text-slate-300 mb-3 line-clamp-2">{strategy.description}</p>
+                            <div className="absolute inset-0 top-[60px] bg-card/95 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col z-10">
+                                <p className="text-xs text-foreground/80 mb-3 line-clamp-2">{strategy.description}</p>
 
                                 <div className="space-y-2 overflow-y-auto flex-1 pr-1 custom-scrollbar">
-                                    <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Strategy Legs</h4>
+                                    <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Strategy Legs</h4>
                                     {Array.isArray(strategy.legs_config) && strategy.legs_config.map((leg: any, idx: number) => (
-                                        <div key={idx} className="flex items-center justify-between text-xs border-b border-white/5 pb-1 last:border-0">
+                                        <div key={idx} className="flex items-center justify-between text-xs border-b border-border/50 pb-1 last:border-0">
                                             <span className={`${leg.action === 'Buy' ? 'text-green-400' : 'text-red-400'} font-medium`}>
                                                 {leg.action}
                                             </span>
-                                            <span className="text-slate-200">
+                                            <span className="text-foreground">
                                                 {leg.strike_offset === 0 ? 'ATM' : leg.strike_offset > 0 ? `OTM +${leg.strike_offset}` : `ITM ${leg.strike_offset}`} {leg.type}
                                             </span>
                                         </div>
                                     ))}
                                 </div>
 
-                                <div className="pt-3 mt-auto border-t border-white/10">
-                                    <div className="flex justify-between items-center text-[10px] text-slate-400 mb-2">
+                                <div className="pt-3 mt-auto border-t border-border">
+                                    <div className="flex justify-between items-center text-[10px] text-muted-foreground mb-2">
                                         <span>Est. Margin</span>
-                                        <span className="text-white">₹ {(strategy.legs_count * 25000).toLocaleString()}+</span>
+                                        <span className="text-foreground">₹ {(strategy.legs_count * 25000).toLocaleString()}+</span>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Footer Action */}
-                            <div className="p-4 bg-white/[0.02] border-t border-white/5">
-                                <GlassButton size="sm" className="w-full bg-white/5 hover:bg-sky-500 hover:text-white border-white/10"
+                            <div className="p-4 bg-white/[0.02] border-t border-border/50">
+                                <GlassButton size="sm" className="w-full bg-white/5 hover:bg-sky-500 hover:text-white border-white/10 active:scale-95"
                                     onClick={() => alert(`Added ${strategy.name} to basket for ${selectedIndex}`)}
                                 >
                                     Add to Basket
@@ -246,8 +246,8 @@ export function StrategyBrowser() {
                         </GlassCard>
                     ))
                 ) : (
-                    <div className="col-span-full py-20 flex flex-col items-center justify-center text-slate-500 border border-dashed border-white/10 rounded-xl bg-white/[0.02]">
-                        <div className="h-16 w-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
+                    <div className="col-span-full py-20 flex flex-col items-center justify-center text-muted-foreground border border-dashed border-border rounded-xl bg-white/[0.02]">
+                        <div className="h-16 w-16 bg-card/20 rounded-full flex items-center justify-center mb-4">
                             <Star className="h-8 w-8 opacity-20" />
                         </div>
                         <p className="font-medium">No strategies found for this view.</p>

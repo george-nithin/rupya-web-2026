@@ -94,27 +94,27 @@ export function PortfolioSummary() {
         <GlassCard className="col-span-1 lg:col-span-8 flex flex-col md:flex-row gap-6">
             <div className="flex-1 space-y-6">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-white">Portfolio Summary</h2>
+                    <h2 className="text-lg font-semibold text-foreground">Portfolio Summary</h2>
                     <GlassButton variant="secondary" size="sm">View Details</GlassButton>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
-                        <div className="text-xs text-slate-400 uppercase tracking-wider">Total Value</div>
-                        <div className="text-3xl font-bold text-white">₹{stats.totalValue.toLocaleString('en-IN')}</div>
+                        <div className="text-xs text-muted-foreground uppercase tracking-wider">Total Value</div>
+                        <div className="text-3xl font-bold text-foreground">₹{stats.totalValue.toLocaleString('en-IN')}</div>
                     </div>
                     <div className="space-y-1">
-                        <div className="text-xs text-slate-400 uppercase tracking-wider">Day's P&L</div>
+                        <div className="text-xs text-muted-foreground uppercase tracking-wider">Day's P&L</div>
                         <div className={`text-xl font-bold ${stats.dayPnl >= 0 ? "text-green-400" : "text-red-400"}`}>
                             {stats.dayPnl >= 0 ? "+" : "-"} ₹{Math.abs(stats.dayPnl).toLocaleString('en-IN')} ({dayPnlPercent.toFixed(2)}%)
                         </div>
                     </div>
                     <div className="space-y-1">
-                        <div className="text-xs text-slate-400 uppercase tracking-wider">Invested</div>
-                        <div className="text-xl font-medium text-slate-200">₹{stats.invested.toLocaleString('en-IN')}</div>
+                        <div className="text-xs text-muted-foreground uppercase tracking-wider">Invested</div>
+                        <div className="text-xl font-medium text-foreground">₹{stats.invested.toLocaleString('en-IN')}</div>
                     </div>
                     <div className="space-y-1">
-                        <div className="text-xs text-slate-400 uppercase tracking-wider">Total P&L</div>
+                        <div className="text-xs text-muted-foreground uppercase tracking-wider">Total P&L</div>
                         <div className={`text-xl font-medium ${stats.totalPnl >= 0 ? "text-green-400" : "text-red-400"}`}>
                             {stats.totalPnl >= 0 ? "+" : "-"} ₹{Math.abs(stats.totalPnl).toLocaleString('en-IN')} ({totalPnlPercent.toFixed(2)}%)
                         </div>
@@ -146,8 +146,8 @@ export function PortfolioSummary() {
                     </PieChart>
                 </ResponsiveContainer>
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
-                    <div className="text-xs text-slate-400">Net Worth</div>
-                    <div className="text-sm font-bold text-white">
+                    <div className="text-xs text-muted-foreground">Net Worth</div>
+                    <div className="text-sm font-bold text-foreground">
                         {stats.totalValue > 10000000 ? `${(stats.totalValue / 10000000).toFixed(2)}Cr` :
                             stats.totalValue > 100000 ? `${(stats.totalValue / 100000).toFixed(2)}L` :
                                 stats.totalValue.toLocaleString()}

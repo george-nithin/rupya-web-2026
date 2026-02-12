@@ -5,18 +5,18 @@ export default function AnalyticsPage() {
     return (
         <div className="space-y-8">
             <div>
-                <h1 className="text-2xl font-bold text-white">Analytics & AI</h1>
-                <p className="text-slate-400">Deep dive into your performance metrics.</p>
+                <h1 className="text-2xl font-bold text-foreground">Analytics & AI</h1>
+                <p className="text-muted-foreground">Deep dive into your performance metrics.</p>
             </div>
 
             <div className="space-y-8">
                 <section>
-                    <h2 className="text-lg font-semibold text-white mb-4">Strategy Backtesting</h2>
+                    <h2 className="text-lg font-semibold text-foreground mb-4">Strategy Backtesting</h2>
                     <Backtester />
                 </section>
 
                 <section>
-                    <h2 className="text-lg font-semibold text-white mb-4">AI Trade Review</h2>
+                    <h2 className="text-lg font-semibold text-foreground mb-4">AI Trade Review</h2>
                     <AIReview />
                 </section>
             </div>

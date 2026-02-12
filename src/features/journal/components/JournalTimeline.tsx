@@ -114,7 +114,7 @@ export function JournalTimeline() {
         <div className="space-y-6">
             {/* Search Bar */}
             <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <GlassInput
                     placeholder="Search by Symbol, Tags, or Notes..."
                     className="pl-10"
@@ -124,37 +124,37 @@ export function JournalTimeline() {
             </div>
 
             {groupedTrades.length === 0 && (
-                <div className="p-8 text-center text-slate-500 bg-white/5 rounded-lg border border-white/10">
+                <div className="p-8 text-center text-muted-foreground bg-card/20 rounded-xl border border-border">
                     {allTrades.length === 0 ? "No trades logged yet. Start your journey! 🚀" : "No trades found matching your search."}
                 </div>
             )}
 
             {groupedTrades.map((group) => (
-                <GlassCard key={group.symbol} className="p-6">
-                    <div className="flex items-center justify-between mb-4 border-b border-white/5 pb-2">
-                        <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold text-white border border-white/10">
+                <GlassCard key={group.symbol} className="p-0 overflow-hidden border-white/5 bg-card/30">
+                    <div className="flex items-center justify-between p-6 bg-white/5">
+                        <div className="flex items-center gap-4">
+                            <div className="h-12 w-12 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-lg font-black text-sky-400">
                                 {group.symbol.substring(0, 2)}
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-white">{group.symbol}</h3>
-                                <div className="text-xs text-slate-400 flex gap-2">
-                                    <span>{group.trades.length} Trades</span>
+                                <h3 className="text-xl font-black text-white tracking-tight">{group.symbol}</h3>
+                                <div className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-1">
+                                    {group.trades.length} Cumulative Trades
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="relative pt-2 pb-6 overflow-x-auto min-h-[80px]">
+                    <div className="relative py-10 overflow-x-auto">
                         {/* Timeline Line */}
-                        <div className="absolute top-8 left-0 w-full h-0.5 bg-white/10 -z-10" />
+                        <div className="absolute top-[52px] left-0 w-full h-0.5 bg-white/5 -z-10" />
 
-                        <div className="flex gap-12 min-w-max px-4">
+                        <div className="flex gap-16 min-w-max px-8">
                             {group.trades.map((trade) => (
                                 <div key={trade.id} className="relative flex flex-col items-center group">
                                     {/* Top Label: PnL/Status */}
-                                    <div className={`mb-3 text-[10px] font-bold px-2 py-0.5 rounded-full border ${trade.status === 'OPEN' ? 'bg-slate-500/10 text-slate-300 border-slate-500/20' :
-                                        (trade.pnl || 0) >= 0 ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'
+                                    <div className={`mb-4 text-[10px] font-black px-3 py-1 rounded-lg border transition-all duration-300 ${trade.status === 'OPEN' ? 'bg-white/10 text-white border-white/10' :
+                                        (trade.pnl || 0) >= 0 ? 'bg-green-500/10 text-green-400 border-green-500/20 group-hover:bg-green-500 group-hover:text-black group-hover:border-green-500' : 'bg-rose-500/10 text-rose-400 border-rose-500/20 group-hover:bg-rose-500 group-hover:text-black group-hover:border-rose-500'
                                         }`}>
                                         {trade.status === 'OPEN' ? 'OPEN' : `${(trade.pnl || 0) >= 0 ? '+' : ''}${trade.pnl}`}
                                     </div>
@@ -162,11 +162,11 @@ export function JournalTimeline() {
                                     {/* Dot */}
                                     <button
                                         onClick={() => toggleTrade(trade.id)}
-                                        className={`w-4 h-4 rounded-full ${getStatusColor(trade.status, trade.pnl)} border-2 border-[#000] hover:scale-125 transition-transform cursor-pointer relative z-10 ${expandedTradeId === trade.id ? 'ring-2 ring-white ring-offset-2 ring-offset-[#000]' : ''}`}
+                                        className={`w-5 h-5 rounded-full ${getStatusColor(trade.status, trade.pnl)} border-[3px] border-slate-950 hover:scale-150 transition-all duration-300 cursor-pointer relative z-10 ${expandedTradeId === trade.id ? 'ring-2 ring-white ring-offset-4 ring-offset-slate-950 shadow-[0_0_20px_rgba(255,255,255,0.3)]' : ''}`}
                                     />
 
                                     {/* Bottom Label: Date */}
-                                    <span className="text-[10px] text-slate-500 mt-2 whitespace-nowrap">
+                                    <span className="text-[10px] font-bold text-white/30 mt-3 whitespace-nowrap uppercase tracking-tighter">
                                         {new Date(trade.entry_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                                     </span>
                                 </div>
@@ -175,122 +175,113 @@ export function JournalTimeline() {
                     </div>
 
                     {/* Detailed Expanded View */}
-                    <div className="mt-2 space-y-4">
+                    <div className="px-6 pb-6">
                         {group.trades.map(trade => (
                             trade.id === expandedTradeId && (
-                                <div key={trade.id} className="bg-white/5 rounded-xl border border-white/10 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                                <GlassCard
+                                    key={trade.id}
+                                    colorBorder={(trade.pnl || 0) >= 0 ? "emerald" : "rose"}
+                                    glow
+                                    className="p-0 border-none animate-in fade-in slide-in-from-top-4 duration-300 overflow-hidden"
+                                >
                                     {/* Header */}
-                                    <div className="p-4 bg-white/5 border-b border-white/5 flex justify-between items-start">
-                                        <div className="flex gap-3">
-                                            <div className={`mt-1 px-2 py-0.5 rounded textxs font-bold uppercase tracking-wider ${trade.direction === 'LONG' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                                    <div className="p-6 bg-white/5 border-b border-white/5 flex flex-wrap justify-between items-center gap-4">
+                                        <div className="flex items-center gap-4">
+                                            <div className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${trade.direction === 'LONG' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
                                                 {trade.direction}
                                             </div>
                                             <div>
-                                                <div className="text-white font-medium flex items-center gap-2">
+                                                <div className="text-white font-black text-lg flex items-center gap-3">
                                                     {trade.strategy_name || "No Strategy"}
-                                                    <span className="text-slate-500 text-xs font-normal">• {trade.trade_type}</span>
+                                                    <span className="h-1 w-1 rounded-full bg-white/20" />
+                                                    <span className="text-white/40 text-xs font-bold uppercase tracking-widest">{trade.trade_type}</span>
                                                 </div>
-                                                <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-2">
-                                                    <span>{new Date(trade.entry_date).toLocaleString()}</span>
-                                                    {trade.session && <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {trade.session}</span>}
+                                                <div className="text-[11px] font-bold text-white/30 mt-1 flex items-center gap-3">
+                                                    <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {new Date(trade.entry_date).toLocaleString()}</span>
+                                                    {trade.session && <span className="flex items-center gap-1 h-4 px-1.5 rounded bg-white/5">{trade.session}</span>}
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-6">
                                             <div className="text-right">
-                                                <div className={`text-xl font-bold ${trade.status === 'OPEN' ? 'text-white' : (trade.pnl || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                                <div className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">Net PnL</div>
+                                                <div className={`text-2xl font-black tabular-nums tracking-tighter ${trade.status === 'OPEN' ? 'text-white' : (trade.pnl || 0) >= 0 ? 'text-green-400' : 'text-rose-400'}`}>
                                                     {trade.status === 'OPEN' ? 'OPEN' : `₹${trade.pnl}`}
                                                 </div>
-                                                <div className="text-[10px] text-slate-500 uppercase tracking-widest text-right">Net PnL</div>
                                             </div>
                                             <Link href={`/dashboard/journal/edit/${trade.id}`}>
-                                                <GlassButton size="sm" variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-white">
-                                                    <Pencil className="h-4 w-4" />
+                                                <GlassButton size="sm" variant="secondary" className="h-10 w-10 p-0 rounded-xl hover:bg-white hover:text-black transition-all">
+                                                    <Pencil className="h-5 w-5" />
                                                 </GlassButton>
                                             </Link>
                                         </div>
                                     </div>
 
                                     {/* Body */}
-                                    <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        {/* Row 1: Numbers */}
-                                        <div className="space-y-3">
-                                            <div className="flex justify-between text-sm">
-                                                <span className="text-slate-400">Quantity</span>
-                                                <span className="text-white font-mono">{trade.quantity}</span>
-                                            </div>
-                                            <div className="flex justify-between text-sm">
-                                                <span className="text-slate-400">Entry Price</span>
-                                                <span className="text-white font-mono">{trade.entry_price}</span>
-                                            </div>
-                                            <div className="flex justify-between text-sm">
-                                                <span className="text-slate-400">Exit Price</span>
-                                                <span className="text-white font-mono">{trade.exit_price || '-'}</span>
-                                            </div>
-                                            <div className="flex justify-between text-sm pt-2 border-t border-white/5">
-                                                <span className="text-slate-500">Stop Loss</span>
-                                                <span className="text-red-400/80 font-mono text-xs">{trade.stop_loss}</span>
-                                            </div>
-                                            <div className="flex justify-between text-sm">
-                                                <span className="text-slate-500">Target</span>
-                                                <span className="text-green-400/80 font-mono text-xs">{trade.target_price}</span>
-                                            </div>
+                                    <div className="p-6 grid grid-cols-1 md:grid-cols-12 gap-8">
+                                        {/* Numbers Column */}
+                                        <div className="md:col-span-4 space-y-4 bg-white/5 p-5 rounded-2xl border border-white/5">
+                                            {[
+                                                { label: "Quantity", value: trade.quantity, color: "text-white" },
+                                                { label: "Entry Price", value: `₹${trade.entry_price}`, color: "text-white" },
+                                                { label: "Exit Price", value: trade.exit_price ? `₹${trade.exit_price}` : '-', color: "text-white/60" },
+                                                { label: "Stop Loss", value: `₹${trade.stop_loss}`, color: "text-rose-400/80" },
+                                                { label: "Target", value: `₹${trade.target_price}`, color: "text-green-400/80" },
+                                            ].map((item, idx) => (
+                                                <div key={idx} className="flex justify-between items-center">
+                                                    <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{item.label}</span>
+                                                    <span className={`text-sm font-black tabular-nums ${item.color}`}>{item.value}</span>
+                                                </div>
+                                            ))}
                                         </div>
 
-                                        {/* Row 2: Notes, Image & Emotions */}
-                                        <div className="md:col-span-2 space-y-4">
-                                            {/* Thumbnail & Note Combo */}
-                                            <div className="flex gap-4">
+                                        {/* Notes and Tags Column */}
+                                        <div className="md:col-span-8 space-y-6">
+                                            <div className="flex flex-col md:flex-row gap-6">
                                                 {trade.screenshot_url && (
-                                                    <div className="h-20 w-32 shrink-0 rounded-lg overflow-hidden border border-white/10 bg-black/20 group relative cursor-pointer">
-                                                        <Link href={`/dashboard/journal/${trade.id}`}>
-                                                            <img src={trade.screenshot_url} alt="Trade chart" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-                                                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/40 transition-opacity">
-                                                                <Search className="h-4 w-4 text-white" />
-                                                            </div>
-                                                        </Link>
-                                                    </div>
+                                                    <Link href={`/dashboard/journal/${trade.id}`} className="block h-32 w-full md:w-56 shrink-0 rounded-2xl overflow-hidden border border-white/10 bg-black/40 group relative">
+                                                        <img src={trade.screenshot_url} alt="Trade chart" className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
+                                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/60 transition-all">
+                                                            <Search className="h-6 w-6 text-white" />
+                                                        </div>
+                                                    </Link>
                                                 )}
 
-                                                <div className={`bg-black/20 p-3 rounded-lg border border-white/5 flex-1 ${!trade.screenshot_url ? 'w-full' : ''}`}>
-                                                    <div className="text-[10px] text-slate-500 uppercase mb-1">Trade Notes</div>
-                                                    <p className="text-sm text-slate-300 italic leading-relaxed line-clamp-2">
-                                                        {trade.reasoning || "No notes added."}
+                                                <div className="flex-1 bg-white/5 p-5 rounded-2xl border border-white/5 min-h-[128px]">
+                                                    <div className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-3">Analysis & Reasoning</div>
+                                                    <p className="text-sm text-white/70 font-medium leading-relaxed italic">
+                                                        {trade.reasoning || "Secure your thoughts here. No notes added for this trade."}
                                                     </p>
                                                 </div>
                                             </div>
 
-                                            <div className="flex flex-wrap gap-2 items-center justify-between">
+                                            <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-white/5">
                                                 <div className="flex flex-wrap gap-2">
                                                     {trade.tags?.map(tag => (
-                                                        <span key={tag} className="flex items-center gap-1 text-xs bg-slate-800 text-slate-300 px-2 py-1 rounded border border-white/10">
-                                                            <Tag className="h-3 w-3 text-slate-500" /> {tag}
+                                                        <span key={tag} className="flex items-center gap-1.5 text-[10px] font-black bg-sky-500/10 text-sky-400 px-3 py-1.5 rounded-lg border border-sky-500/20 uppercase tracking-tight">
+                                                            <Tag className="h-3 w-3" /> {tag}
                                                         </span>
                                                     ))}
                                                     {trade.emotions?.map(emo => (
-                                                        <span key={emo} className="flex items-center gap-1 text-xs bg-purple-500/10 text-purple-300 px-2 py-1 rounded border border-purple-500/20">
+                                                        <span key={emo} className="flex items-center gap-1.5 text-[10px] font-black bg-purple-500/10 text-purple-400 px-3 py-1.5 rounded-lg border border-purple-500/20 uppercase tracking-tight">
                                                             <Brain className="h-3 w-3" /> {emo}
                                                         </span>
                                                     ))}
                                                 </div>
 
-                                                <Link href={`/dashboard/journal/${trade.id}`} className="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1">
-                                                    View Full Details <ChevronRight className="h-3 w-3" />
+                                                <Link href={`/dashboard/journal/${trade.id}`} className="text-[11px] font-black text-sky-400 hover:text-white uppercase tracking-widest flex items-center gap-2 group/link transition-colors">
+                                                    Full Analysis <ChevronRight className="h-4 w-4 group-hover/link:translate-x-1 transition-transform" />
                                                 </Link>
                                             </div>
                                         </div>
                                     </div>
-
-                                    {/* Footer: Fee Info */}
-                                    <div className="px-4 py-2 bg-black/20 border-t border-white/5 flex justify-between items-center text-xs text-slate-600">
-                                        {trade.fees ? <span>Est Fees: ₹{trade.fees}</span> : <span>No fees recorded</span>}
-                                    </div>
-                                </div>
+                                </GlassCard>
                             )
                         ))}
                     </div>
                 </GlassCard>
+
             ))}
         </div>
     );

@@ -79,7 +79,7 @@ export default function PlanningSetupPage() {
                             Target Portfolio Value
                         </label>
                         <div className="relative group">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-muted-foreground group-focus-within:text-foreground transition-colors">₹</span>
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-muted-foreground group-focus-within:text-foreground transition-all duration-150">₹</span>
                             <input
                                 type="number"
                                 value={target}
@@ -94,7 +94,7 @@ export default function PlanningSetupPage() {
                     <div className="space-y-4">
                         <div className="flex justify-between items-center text-sm font-bold text-muted-foreground uppercase tracking-wider">
                             <span className="flex items-center gap-2">
-                                <Hourglass className="h-4 w-4 text-sky-400" />
+                                <Hourglass className="h-5 w-5 text-sky-400" />
                                 Time Horizon
                             </span>
                             <span className="text-sky-400">{duration} Days</span>
@@ -105,9 +105,9 @@ export default function PlanningSetupPage() {
                             max="365"
                             value={duration}
                             onChange={(e) => setDuration(parseInt(e.target.value))}
-                            className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-sky-500"
+                            className="w-full h-2 bg-card/30 rounded-xl appearance-none cursor-pointer accent-sky-500"
                         />
-                        <div className="flex justify-between text-xs text-slate-500 font-medium">
+                        <div className="flex justify-between text-xs text-muted-foreground font-medium">
                             <span>Swing Trade</span>
                             <span>Quarterly</span>
                             <span>Half-Year</span>

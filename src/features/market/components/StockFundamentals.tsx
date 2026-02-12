@@ -26,7 +26,7 @@ export function StockFundamentals({ data, compact = false }: StockFundamentalsPr
         <GlassCard className="h-full flex flex-col">
             <h3 className="text-sm font-bold text-foreground mb-4 flex items-center justify-between shrink-0">
                 Fundamentals
-                <Info className="h-4 w-4 text-muted-foreground" />
+                <Info className="h-5 w-5 text-muted-foreground" />
             </h3>
 
             <div className={`grid ${compact ? 'grid-cols-1 gap-3' : 'grid-cols-2 gap-4'} mb-4`}>
@@ -39,7 +39,7 @@ export function StockFundamentals({ data, compact = false }: StockFundamentalsPr
             </div>
 
             {!compact && (data?.pros?.length > 0 || data?.cons?.length > 0) && (
-                <div className="mt-4 pt-4 border-t border-white/10 grow overflow-y-auto">
+                <div className="mt-4 pt-4 border-t border-border grow overflow-y-auto">
                     {data?.pros?.length > 0 && (
                         <div className="mb-3">
                             <h4 className="text-xs font-semibold text-green-400 mb-2">Pros</h4>

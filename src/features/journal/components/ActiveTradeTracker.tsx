@@ -5,6 +5,7 @@ import { GlassButton } from "@/components/ui/GlassButton";
 import { Maximize2, Target, ShieldAlert, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import Link from "next/link";
 
 interface Trade {
     id: string;
@@ -90,7 +91,7 @@ export function ActiveTradeTracker() {
         };
     }, [activeTrade?.symbol]);
 
-    if (loading) return <div className="h-32 animate-pulse bg-white/5 rounded-xl text-center flex items-center justify-center text-slate-500">Loading Active Trade...</div>;
+    if (loading) return <div className="h-32 animate-pulse bg-card/20 rounded-xl text-center flex items-center justify-center text-muted-foreground">Loading Active Trade...</div>;
     if (!activeTrade) return null; // Or show "No Active Trades" card
 
     // Calculate P&L
@@ -115,54 +116,81 @@ export function ActiveTradeTracker() {
     const barPercent = Math.min(Math.max(progressFromSL * 100, 0), 100);
 
     return (
-        <GlassCard className="col-span-1 lg:col-span-12 relative overflow-hidden p-6">
+        <GlassCard
+            colorBorder={currentPnl >= 0 ? "emerald" : "rose"}
+            glow
+            className="col-span-1 lg:col-span-12 relative overflow-hidden p-8"
+        >
             {/* Background Glow based on P&L */}
-            <div className={`absolute top-0 right-0 w-64 h-64 rounded-full blur-[100px] opacity-10 ${currentPnl >= 0 ? 'bg-green-500' : 'bg-red-500'}`} />
+            <div className={`absolute -top-20 -right-20 w-80 h-80 rounded-full blur-[100px] opacity-20 ${currentPnl >= 0 ? 'bg-green-500' : 'bg-rose-500'}`} />
 
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
 
-                <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-1">
-                        <span className={`px-2 py-0.5 rounded text-[10px] bg-opacity-20 border border-opacity-20 font-bold tracking-wider ${activeTrade.direction === "LONG" ? "bg-green-500 text-green-400 border-green-500" : "bg-red-500 text-red-400 border-red-500"}`}>
-                            {activeTrade.trade_type?.toUpperCase() || 'INTRADAY'} - {activeTrade.direction}
+                <div className="flex-1 w-full lg:w-auto">
+                    <div className="flex items-center gap-4 mb-3">
+                        <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black tracking-[0.1em] border ${activeTrade.direction === "LONG" ? "bg-green-500/10 text-green-400 border-green-500/20" : "bg-rose-500/10 text-rose-400 border-rose-500/20"}`}>
+                            {activeTrade.trade_type?.toUpperCase() || 'INTRADAY'} • {activeTrade.direction}
                         </span>
-                        <h3 className="text-lg font-bold text-white">{activeTrade.symbol}</h3>
+                        <h3 className="text-2xl font-black text-white tracking-tight">{activeTrade.symbol}</h3>
                     </div>
-                    <div className="flex gap-4 text-xs text-slate-400">
-                        <span>Qty: <span className="text-white">{activeTrade.quantity}</span></span>
-                        <span>Entry: <span className="text-white">{activeTrade.entry_price}</span></span>
-                        <span>Target: <span className="text-green-400">{activeTrade.target_price}</span></span>
+                    <div className="flex gap-6 text-[11px] font-bold text-white/40 uppercase tracking-widest">
+                        <span>Qty: <span className="text-white ml-1">{activeTrade.quantity}</span></span>
+                        <span>Entry: <span className="text-white ml-1">{activeTrade.entry_price}</span></span>
+                        <span>Basis: <span className="text-sky-400 ml-1">₹{(activeTrade.entry_price * activeTrade.quantity).toLocaleString()}</span></span>
                     </div>
                 </div>
 
                 {/* Visualization Bar */}
-                <div className="flex-[2] w-full flex flex-col gap-2">
-                    <div className="flex justify-between text-xs font-medium">
-                        <span className="text-red-400 flex items-center gap-1"><ShieldAlert className="h-3 w-3" /> SL: {activeTrade.stop_loss}</span>
-                        {/* Current LTP marker text */}
-                        <span className={`font-bold ${currentPnl >= 0 ? "text-green-400" : "text-red-400"}`}>LTP: {ltp}</span>
-                        <span className="text-green-400 flex items-center gap-1"><Target className="h-3 w-3" /> Tgt: {activeTrade.target_price}</span>
+                <div className="flex-[2] w-full flex flex-col gap-4">
+                    <div className="flex justify-between items-end">
+                        <div className="flex flex-col">
+                            <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">Stop Loss</span>
+                            <span className="text-xs font-bold text-rose-400/80">₹{activeTrade.stop_loss}</span>
+                        </div>
+                        <div className="text-center flex flex-col items-center">
+                            <span className={`text-[10px] font-black uppercase tracking-[0.2em] mb-1 ${currentPnl >= 0 ? "text-green-400" : "text-rose-400"}`}>Market Price</span>
+                            <span className={`text-lg font-black ${currentPnl >= 0 ? "text-green-400" : "text-rose-400"}`}>₹{ltp.toFixed(2)}</span>
+                        </div>
+                        <div className="flex flex-col items-end">
+                            <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">Target</span>
+                            <span className="text-xs font-bold text-green-400/80">₹{activeTrade.target_price}</span>
+                        </div>
                     </div>
-                    <div className="h-2 bg-slate-800 rounded-full overflow-hidden relative">
-                        <div className="absolute top-0 bottom-0 w-2 bg-sky-400 z-30 shadow-[0_0_10px_rgba(56,189,248,0.8)] transition-all duration-500" style={{ left: `${barPercent}%` }} />
-                        {/* Markers for Entry */}
-                        <div className="absolute top-0 bottom-0 w-0.5 bg-white z-20" style={{ left: `${isLong ? ((activeTrade.entry_price - activeTrade.stop_loss) / totalRange) * 100 : ((activeTrade.stop_loss - activeTrade.entry_price) / totalRange) * 100}%` }} title="Entry" />
+
+                    <div className="h-3 bg-white/5 rounded-full overflow-hidden relative border border-white/5 shadow-inner">
+                        <div
+                            className="absolute top-0 bottom-0 w-1.5 bg-white z-40 shadow-[0_0_15px_rgba(255,255,255,0.8)] transition-all duration-700 ease-out"
+                            style={{ left: `${barPercent}%`, transform: 'translateX(-50%)' }}
+                        />
+                        {/* Progress gradients */}
+                        <div
+                            className={`absolute top-0 bottom-0 left-0 transition-all duration-700 ease-out ${currentPnl >= 0 ? 'bg-gradient-to-r from-green-500/10 to-green-500/40' : 'bg-gradient-to-r from-rose-500/10 to-rose-500/40'}`}
+                            style={{ width: `${barPercent}%` }}
+                        />
+                        {/* Entry Marker */}
+                        <div
+                            className="absolute top-0 bottom-0 w-0.5 bg-sky-400 z-30 opacity-50"
+                            style={{ left: `${isLong ? ((activeTrade.entry_price - activeTrade.stop_loss) / totalRange) * 100 : ((activeTrade.stop_loss - activeTrade.entry_price) / totalRange) * 100}%` }}
+                        />
                     </div>
                 </div>
 
-                <div className="text-right min-w-[120px]">
-                    <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">Unrealized P&L</div>
-                    <div className={`text-2xl font-bold font-mono ${currentPnl >= 0 ? "text-green-400" : "text-red-400"}`}>
-                        {currentPnl >= 0 ? "+" : ""}{currentPnl.toFixed(2)}
+                <div className="text-right min-w-[160px] bg-white/5 p-4 rounded-2xl border border-white/5">
+                    <div className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">Potential Payoff</div>
+                    <div className={`text-3xl font-black tabular-nums tracking-tighter ${currentPnl >= 0 ? "text-green-400" : "text-rose-400"}`}>
+                        {currentPnl >= 0 ? "+" : ""}₹{currentPnl.toFixed(2)}
                     </div>
-                    <div className="text-xs text-slate-500 mt-1">
-                        Risk:Reward 1:{(reward / risk).toFixed(1)}
+                    <div className="flex items-center justify-end gap-2 mt-2">
+                        <span className="text-[10px] font-bold text-white/40">R:R</span>
+                        <span className="text-xs font-black text-white">1:{(reward / risk).toFixed(1)}</span>
                     </div>
                 </div>
 
-                <GlassButton variant="secondary" size="sm">
-                    <Maximize2 className="h-4 w-4" />
-                </GlassButton>
+                <Link href={`/dashboard/journal/${activeTrade.id}`}>
+                    <GlassButton variant="secondary" className="h-12 w-12 rounded-2xl p-0 hover:bg-white hover:text-black transition-all">
+                        <Maximize2 className="h-6 w-6" />
+                    </GlassButton>
+                </Link>
             </div>
         </GlassCard>
     );

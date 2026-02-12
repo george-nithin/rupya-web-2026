@@ -8,7 +8,7 @@ export default function StrategiesPage() {
             <StrategyBrowser />
 
             {/* User Custom Strategies */}
-            <div className="pt-8 border-t border-white/10">
+            <div className="pt-8 border-t border-border">
                 <StrategyLibrary />
             </div>
         </div>

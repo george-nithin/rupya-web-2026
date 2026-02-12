@@ -19,8 +19,8 @@ export function TraderScorecard() {
                         <s.icon className="h-6 w-6" />
                     </div>
                     <div>
-                        <div className="text-xs text-slate-400">{s.label}</div>
-                        <div className="text-2xl font-bold text-white">{s.value}/100</div>
+                        <div className="text-xs text-muted-foreground">{s.label}</div>
+                        <div className="text-2xl font-bold text-foreground">{s.value}/100</div>
                     </div>
                 </GlassCard>
             ))}

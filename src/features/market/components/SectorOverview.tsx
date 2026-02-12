@@ -47,11 +47,11 @@ export function SectorOverview() {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {sectors.map((sector) => (
-                <GlassCard key={sector.index_name} className="p-4 hover:bg-white/5 transition-colors cursor-pointer group">
+                <GlassCard key={sector.index_name} className="p-4 hover:bg-card/20 transition-all duration-150 cursor-pointer group active:scale-95">
                     <div className="flex justify-between items-start mb-2">
-                        <span className="text-sm font-semibold text-white">{sector.index_name}</span>
+                        <span className="text-sm font-semibold text-foreground">{sector.index_name}</span>
                         {sector.percent_change >= 2 && (
-                            <Zap className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                            <Zap className="h-5 w-5 text-yellow-400 fill-yellow-400" />
                         )}
                     </div>
 
@@ -67,8 +67,8 @@ export function SectorOverview() {
                         )}
                     </div>
 
-                    <div className="mt-2 text-[10px] text-slate-500 uppercase tracking-wider">
-                        LTP: <span className="text-white">₹{sector.last_price?.toLocaleString()}</span>
+                    <div className="mt-2 text-[10px] text-muted-foreground uppercase tracking-wider">
+                        LTP: <span className="text-foreground">₹{sector.last_price?.toLocaleString()}</span>
                     </div>
                 </GlassCard>
             ))}

@@ -82,32 +82,32 @@ export function StockSearchInput({ onSelect, placeholder = "Search stocks...", c
     return (
         <div ref={wrapperRef} className={`relative ${className}`}>
             <div className="relative">
-                <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <input
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder={placeholder}
-                    className="w-full pl-10 pr-10 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-slate-500 focus:outline-none focus:border-sky-500/50 focus:bg-white/10 transition-all"
+                    className="w-full pl-10 pr-10 py-2.5 bg-card/20 border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-sky-500/50 focus:bg-card/30 transition-all"
                 />
                 {query && (
                     <button
                         onClick={handleClear}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-all duration-150"
                     >
-                        <X className="h-4 w-4" />
+                        <X className="h-5 w-5" />
                     </button>
                 )}
             </div>
 
             {isOpen && (
-                <div className="absolute top-full mt-2 w-full bg-slate-900 border border-white/10 rounded-lg shadow-xl max-h-80 overflow-y-auto z-50">
+                <div className="absolute top-full mt-2 w-full bg-card border border-border rounded-xl shadow-xl max-h-80 overflow-y-auto z-50">
                     {loading ? (
-                        <div className="p-4 text-center text-slate-400 text-sm">
+                        <div className="p-4 text-center text-muted-foreground text-sm">
                             <div className="animate-spin h-5 w-5 border-2 border-sky-500 border-t-transparent rounded-full mx-auto"></div>
                         </div>
                     ) : results.length === 0 ? (
-                        <div className="p-4 text-center text-slate-400 text-sm">
+                        <div className="p-4 text-center text-muted-foreground text-sm">
                             No stocks found for "{query}"
                         </div>
                     ) : (
@@ -116,15 +116,15 @@ export function StockSearchInput({ onSelect, placeholder = "Search stocks...", c
                                 <button
                                     key={stock.symbol}
                                     onClick={() => handleSelect(stock.symbol)}
-                                    className="w-full px-4 py-2.5 text-left hover:bg-white/10 transition-colors flex items-center justify-between group"
+                                    className="w-full px-4 py-2.5 text-left hover:bg-card/30 transition-all duration-150 flex items-center justify-between group active:scale-95"
                                 >
                                     <div>
-                                        <div className="font-medium text-white group-hover:text-sky-400 transition-colors">
+                                        <div className="font-medium text-white group-hover:text-sky-400 transition-all duration-150">
                                             {stock.symbol}
                                         </div>
                                     </div>
                                     {stock.last_price && (
-                                        <div className="text-sm text-slate-400">
+                                        <div className="text-sm text-muted-foreground">
                                             ₹{stock.last_price.toFixed(2)}
                                         </div>
                                     )}

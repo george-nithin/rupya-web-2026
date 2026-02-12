@@ -53,15 +53,15 @@ export const SectorHeatmap = ({ sectors }: SectorHeatmapProps) => {
                         className={`
                             cursor-pointer relative overflow-hidden rounded-xl p-4
                             flex flex-col justify-between h-32 md:h-40
-                            ${colorClass} shadow-lg transition-colors
-                            border border-white/10
+                            ${colorClass} shadow-strong transition-all duration-150
+                            border border-border
                         `}
                     >
                         {/* Background Gradient overlay for depth */}
                         <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-black/10 pointer-events-none" />
 
                         <div className="relative z-10">
-                            <h3 className="text-white font-bold text-lg leading-tight truncate" title={sector.name}>
+                            <h3 className="text-foreground font-bold text-lg leading-tight truncate" title={sector.name}>
                                 {sector.name}
                             </h3>
                             <p className="text-white/80 text-xs font-medium mt-1">
@@ -70,7 +70,7 @@ export const SectorHeatmap = ({ sectors }: SectorHeatmapProps) => {
                         </div>
 
                         <div className="relative z-10 self-end text-right">
-                            <div className="text-2xl font-bold text-white tracking-tighter">
+                            <div className="text-2xl font-bold text-foreground tracking-tighter">
                                 {sector.performance > 0 ? "+" : ""}{sector.performance.toFixed(2)}%
                             </div>
                             <div className="text-white/70 text-xs">

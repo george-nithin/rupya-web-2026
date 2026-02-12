@@ -118,8 +118,8 @@ export default function MarketNewsPage() {
         <div className="space-y-6">
             {/* Header */}
             <div>
-                <h1 className="text-2xl font-bold text-white mb-2">Market News & Events</h1>
-                <p className="text-slate-400">Latest updates on stocks, dividends, corporate actions, and earnings</p>
+                <h1 className="text-2xl font-bold text-foreground mb-2">Market News & Events</h1>
+                <p className="text-muted-foreground">Latest updates on stocks, dividends, corporate actions, and earnings</p>
             </div>
 
             {/* Stats Cards */}
@@ -128,8 +128,8 @@ export default function MarketNewsPage() {
                     <div className="flex items-center gap-3">
                         <Newspaper className="h-8 w-8 text-sky-400" />
                         <div>
-                            <div className="text-2xl font-bold text-white">{news.length}</div>
-                            <div className="text-xs text-slate-400">News Items</div>
+                            <div className="text-2xl font-bold text-foreground">{news.length}</div>
+                            <div className="text-xs text-muted-foreground">News Items</div>
                         </div>
                     </div>
                 </GlassCard>
@@ -138,10 +138,10 @@ export default function MarketNewsPage() {
                     <div className="flex items-center gap-3">
                         <DollarSign className="h-8 w-8 text-green-400" />
                         <div>
-                            <div className="text-2xl font-bold text-white">
+                            <div className="text-2xl font-bold text-foreground">
                                 {news.filter(n => n.category === 'dividend').length}
                             </div>
-                            <div className="text-xs text-slate-400">Dividends</div>
+                            <div className="text-xs text-muted-foreground">Dividends</div>
                         </div>
                     </div>
                 </GlassCard>
@@ -150,10 +150,10 @@ export default function MarketNewsPage() {
                     <div className="flex items-center gap-3">
                         <Building2 className="h-8 w-8 text-purple-400" />
                         <div>
-                            <div className="text-2xl font-bold text-white">
+                            <div className="text-2xl font-bold text-foreground">
                                 {news.filter(n => n.category === 'corporate').length}
                             </div>
-                            <div className="text-xs text-slate-400">Corporate Actions</div>
+                            <div className="text-xs text-muted-foreground">Corporate Actions</div>
                         </div>
                     </div>
                 </GlassCard>
@@ -162,8 +162,8 @@ export default function MarketNewsPage() {
                     <div className="flex items-center gap-3">
                         <Calendar className="h-8 w-8 text-orange-400" />
                         <div>
-                            <div className="text-2xl font-bold text-white">{events.length}</div>
-                            <div className="text-xs text-slate-400">Upcoming Events</div>
+                            <div className="text-2xl font-bold text-foreground">{events.length}</div>
+                            <div className="text-xs text-muted-foreground">Upcoming Events</div>
                         </div>
                     </div>
                 </GlassCard>
@@ -175,13 +175,13 @@ export default function MarketNewsPage() {
                     <button
                         key={id}
                         onClick={() => setActiveTab(id)}
-                        className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex items-center gap-2
+                        className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap flex items-center gap-2
                             ${activeTab === id
-                                ? 'bg-sky-500 text-white shadow-lg shadow-sky-500/50'
-                                : 'bg-white/5 text-slate-400 hover:bg-white/10'
+                                ? 'bg-sky-500 text-white shadow-strong shadow-sky-500/50'
+                                : 'bg-card/20 text-muted-foreground hover:bg-card/30'
                             }`}
                     >
-                        <Icon className="h-4 w-4" />
+                        <Icon className="h-5 w-5" />
                         {label}
                     </button>
                 ))}
@@ -190,19 +190,19 @@ export default function MarketNewsPage() {
             {/* Content */}
             <div className="space-y-4">
                 {loading ? (
-                    <div className="text-center py-12 text-slate-400">Loading...</div>
+                    <div className="text-center py-12 text-muted-foreground">Loading...</div>
                 ) : (
                     <>
                         {/* News Section */}
                         {(activeTab === 'all' || activeTab === 'news' || activeTab === 'dividends' || activeTab === 'corporate') && (
                             <div className="space-y-3">
-                                <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                                <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
                                     <Newspaper className="h-5 w-5 text-sky-400" />
                                     News Updates
                                 </h2>
                                 {filteredNews().length === 0 ? (
                                     <GlassCard>
-                                        <div className="text-center py-8 text-slate-400">
+                                        <div className="text-center py-8 text-muted-foreground">
                                             No news items found for this category
                                         </div>
                                     </GlassCard>
@@ -212,13 +212,13 @@ export default function MarketNewsPage() {
                                             const color = categoryColors[item.category] || 'sky';
 
                                             const CardContent = (
-                                                <GlassCard className="hover:bg-white/10 transition-all cursor-pointer group h-full">
+                                                <GlassCard className="hover:bg-card/30 transition-all cursor-pointer group h-full active:scale-95">
                                                     <div className="space-y-3">
                                                         <div className="flex justify-between items-start gap-2">
                                                             <span className={`text-xs font-medium text-${color}-400 bg-${color}-500/10 px-2 py-1 rounded-full border border-${color}-500/20`}>
                                                                 {item.category.toUpperCase()}
                                                             </span>
-                                                            <span className="text-xs text-slate-500">
+                                                            <span className="text-xs text-muted-foreground">
                                                                 {new Date(item.published_at || '').toLocaleDateString('en-IN', {
                                                                     month: 'short',
                                                                     day: 'numeric'
@@ -226,12 +226,12 @@ export default function MarketNewsPage() {
                                                             </span>
                                                         </div>
 
-                                                        <h3 className="text-sm font-medium text-white leading-relaxed line-clamp-2 group-hover:text-sky-300 transition-colors">
+                                                        <h3 className="text-sm font-medium text-white leading-relaxed line-clamp-2 group-hover:text-sky-300 transition-all duration-150">
                                                             {item.title}
                                                         </h3>
 
                                                         {item.summary && (
-                                                            <p className="text-xs text-slate-400 line-clamp-2">{item.summary}</p>
+                                                            <p className="text-xs text-muted-foreground line-clamp-2">{item.summary}</p>
                                                         )}
 
                                                         {item.symbols && item.symbols.length > 0 && (
@@ -239,7 +239,7 @@ export default function MarketNewsPage() {
                                                                 {item.symbols.slice(0, 4).map((symbol) => (
                                                                     <span
                                                                         key={symbol}
-                                                                        className="text-[10px] font-medium text-slate-300 bg-white/5 px-1.5 py-0.5 rounded border border-white/10"
+                                                                        className="text-[10px] font-medium text-foreground/80 bg-card/20 px-1.5 py-0.5 rounded border border-border"
                                                                     >
                                                                         {symbol}
                                                                     </span>
@@ -280,7 +280,7 @@ export default function MarketNewsPage() {
                         {/* Events Section */}
                         {(activeTab === 'all' || activeTab === 'earnings' || activeTab === 'events') && filteredEvents().length > 0 && (
                             <div className="space-y-3">
-                                <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                                <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
                                     <Calendar className="h-5 w-5 text-orange-400" />
                                     Upcoming Events
                                 </h2>
@@ -289,9 +289,9 @@ export default function MarketNewsPage() {
                                         const color = categoryColors[event.event_type] || 'orange';
 
                                         return (
-                                            <GlassCard key={event.id} className="hover:bg-white/10 transition-all">
+                                            <GlassCard key={event.id} className="hover:bg-card/30 transition-all active:scale-95">
                                                 <div className="flex items-start gap-4">
-                                                    <div className={`p-3 rounded-lg bg-${color}-500/10 border border-${color}-500/20`}>
+                                                    <div className={`p-3 rounded-xl bg-${color}-500/10 border border-${color}-500/20`}>
                                                         <Calendar className={`h-5 w-5 text-${color}-400`} />
                                                     </div>
 
@@ -300,7 +300,7 @@ export default function MarketNewsPage() {
                                                             <span className={`text-xs font-medium px-2 py-1 rounded-full bg-${color}-500/10 text-${color}-400 border border-${color}-500/20`}>
                                                                 {event.event_type.replace('_', ' ').toUpperCase()}
                                                             </span>
-                                                            <span className="text-xs text-slate-500">
+                                                            <span className="text-xs text-muted-foreground">
                                                                 {new Date(event.event_date).toLocaleDateString('en-IN', {
                                                                     day: 'numeric',
                                                                     month: 'short',
@@ -309,10 +309,10 @@ export default function MarketNewsPage() {
                                                             </span>
                                                         </div>
 
-                                                        <h3 className="text-white font-medium mb-1">{event.title}</h3>
+                                                        <h3 className="text-foreground font-medium mb-1">{event.title}</h3>
 
                                                         {event.description && (
-                                                            <p className="text-sm text-slate-400 mb-2">{event.description}</p>
+                                                            <p className="text-sm text-muted-foreground mb-2">{event.description}</p>
                                                         )}
 
                                                         {event.symbols && event.symbols.length > 0 && (
@@ -320,7 +320,7 @@ export default function MarketNewsPage() {
                                                                 {event.symbols.map((symbol) => (
                                                                     <span
                                                                         key={symbol}
-                                                                        className="text-xs font-medium px-2 py-1 rounded bg-white/5 text-slate-300 border border-white/10"
+                                                                        className="text-xs font-medium px-2 py-1 rounded bg-card/20 text-foreground/80 border border-border"
                                                                     >
                                                                         {symbol}
                                                                     </span>

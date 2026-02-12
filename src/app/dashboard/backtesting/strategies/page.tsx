@@ -91,19 +91,19 @@ class CustomStrategy(TradingStrategy):
 
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Strategy Library</h1>
-                    <p className="text-slate-400">Manage your custom Python algorithmic strategies</p>
+                    <h1 className="text-2xl font-bold text-foreground">Strategy Library</h1>
+                    <p className="text-muted-foreground">Manage your custom Python algorithmic strategies</p>
                 </div>
                 <Link href="/dashboard/backtesting/strategies/new">
                     <GlassButton>
-                        <Plus className="h-4 w-4 mr-2" />
+                        <Plus className="h-5 w-5 mr-2" />
                         New Strategy
                     </GlassButton>
                 </Link>
             </div>
 
             {isLoading ? (
-                <div className="text-center py-12 text-slate-500">Loading strategies...</div>
+                <div className="text-center py-12 text-muted-foreground">Loading strategies...</div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {/* Predefined Strategies (Hardcoded for display) */}
@@ -131,13 +131,13 @@ class CustomStrategy(TradingStrategy):
                     ].map((strategy) => (
                         <GlassCard key={strategy.id} className="p-6 border-l-4 border-l-blue-500/50">
                             <div className="flex justify-between items-start mb-4">
-                                <div className="p-2 bg-blue-500/10 rounded-lg">
+                                <div className="p-2 bg-blue-500/10 rounded-xl">
                                     <Code className="h-6 w-6 text-blue-400" />
                                 </div>
                                 <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-1 rounded">Built-in</span>
                             </div>
-                            <h3 className="text-lg font-bold text-white mb-2">{strategy.name}</h3>
-                            <p className="text-sm text-slate-400 mb-4 line-clamp-2">
+                            <h3 className="text-lg font-bold text-foreground mb-2">{strategy.name}</h3>
+                            <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
                                 {strategy.description}
                             </p>
                             <div className="flex gap-2">
@@ -147,8 +147,8 @@ class CustomStrategy(TradingStrategy):
                                     </GlassButton>
                                 </Link>
                                 <Link href={`/dashboard/backtesting/strategies/new?clone=${strategy.id}`}>
-                                    <GlassButton size="sm" variant="secondary" className="px-3 hover:bg-white/20">
-                                        <Code className="h-4 w-4 mr-2" /> Clone
+                                    <GlassButton size="sm" variant="secondary" className="px-3 hover:bg-white/20 active:scale-95">
+                                        <Code className="h-5 w-5 mr-2" /> Clone
                                     </GlassButton>
                                 </Link>
                             </div>
@@ -159,18 +159,18 @@ class CustomStrategy(TradingStrategy):
                     {strategies.map((strategy) => (
                         <GlassCard
                             key={strategy.id}
-                            className="p-6 h-full hover:border-sky-500/50 transition-colors cursor-pointer group relative flex flex-col justify-between"
+                            className="p-6 h-full hover:border-sky-500/50 transition-all duration-150 cursor-pointer group relative flex flex-col justify-between"
                             onClick={() => router.push(`/dashboard/backtesting/strategies/${strategy.id}`)}
                         >
                             <div>
                                 <div className="flex justify-between items-start mb-4">
-                                    <div className="p-2 bg-purple-500/10 rounded-lg">
+                                    <div className="p-2 bg-purple-500/10 rounded-xl">
                                         <Code className="h-6 w-6 text-purple-400" />
                                     </div>
                                     <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded">Custom</span>
                                 </div>
-                                <h3 className="text-lg font-bold text-white mb-2">{strategy.name}</h3>
-                                <p className="text-sm text-slate-400 mb-4 line-clamp-2">
+                                <h3 className="text-lg font-bold text-foreground mb-2">{strategy.name}</h3>
+                                <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
                                     {strategy.description || "No description provided."}
                                 </p>
                             </div>
@@ -181,20 +181,20 @@ class CustomStrategy(TradingStrategy):
                                         e.stopPropagation();
                                         router.push(`/dashboard/backtesting/strategies/${strategy.id}`);
                                     }}
-                                    className="p-2 bg-sky-500/10 hover:bg-sky-500/20 rounded-lg text-sky-400 transition-colors"
+                                    className="p-2 bg-sky-500/10 hover:bg-sky-500/20 rounded-xl text-sky-400 transition-all duration-150 active:scale-95"
                                     title="Edit Strategy"
                                 >
-                                    <Code className="h-4 w-4" />
+                                    <Code className="h-5 w-5" />
                                 </button>
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         handleDelete(strategy.id, e);
                                     }}
-                                    className="p-2 bg-red-500/10 hover:bg-red-500/20 rounded-lg text-red-400 transition-colors"
+                                    className="p-2 bg-red-500/10 hover:bg-red-500/20 rounded-xl text-red-400 transition-all duration-150 active:scale-95"
                                     title="Delete Strategy"
                                 >
-                                    <Trash2 className="h-4 w-4" />
+                                    <Trash2 className="h-5 w-5" />
                                 </button>
                             </div>
                         </GlassCard>

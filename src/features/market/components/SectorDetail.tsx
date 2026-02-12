@@ -40,10 +40,10 @@ export function SectorDetail() {
 
     return (
         <GlassCard>
-            <h3 className="text-sm font-bold text-white mb-4">Market Movers by Sector</h3>
+            <h3 className="text-sm font-bold text-foreground mb-4">Market Movers by Sector</h3>
             <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left text-slate-400">
-                    <thead className="text-xs uppercase bg-white/5 text-slate-300">
+                <table className="w-full text-sm text-left text-muted-foreground">
+                    <thead className="text-xs uppercase bg-card/20 text-foreground/80">
                         <tr>
                             <th className="px-4 py-3 rounded-l-lg">Stock</th>
                             <th className="px-4 py-3">Price</th>
@@ -53,8 +53,8 @@ export function SectorDetail() {
                     </thead>
                     <tbody className="divide-y divide-white/5">
                         {constituents.map((stock) => (
-                            <tr key={stock.symbol} className="hover:bg-white/5 transition-colors">
-                                <td className="px-4 py-3 font-medium text-white">{stock.symbol}</td>
+                            <tr key={stock.symbol} className="hover:bg-card/20 transition-all duration-150 active:scale-95">
+                                <td className="px-4 py-3 font-medium text-foreground">{stock.symbol}</td>
                                 <td className="px-4 py-3">₹{stock.last_price?.toLocaleString()}</td>
                                 <td className={`px-4 py-3 font-bold ${stock.percent_change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                                     {stock.percent_change > 0 ? '+' : ''}{stock.percent_change}%

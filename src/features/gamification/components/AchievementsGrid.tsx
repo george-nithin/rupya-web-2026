@@ -52,8 +52,8 @@ export function AchievementsGrid() {
                     <div className="flex items-center gap-4">
                         <div className="text-4xl">🔥</div>
                         <div>
-                            <h2 className="text-2xl font-bold text-white">{streak} Day Streak!</h2>
-                            <p className="text-sm text-slate-400">You're on fire. Keep journaling to maintain it.</p>
+                            <h2 className="text-2xl font-bold text-foreground">{streak} Day Streak!</h2>
+                            <p className="text-sm text-muted-foreground">You're on fire. Keep journaling to maintain it.</p>
                         </div>
                     </div>
                     <div className="flex gap-1">
@@ -70,8 +70,8 @@ export function AchievementsGrid() {
                     <GlassCard key={badge.id} className={`p-6 flex flex-col items-center text-center relative overflow-hidden group ${badge.status === 'locked' ? 'opacity-60 grayscale' : ''
                         }`}>
                         {badge.status === 'locked' && (
-                            <div className="absolute top-3 right-3 text-slate-500">
-                                <Lock className="h-4 w-4" />
+                            <div className="absolute top-3 right-3 text-muted-foreground">
+                                <Lock className="h-5 w-5" />
                             </div>
                         )}
 
@@ -82,8 +82,8 @@ export function AchievementsGrid() {
                             <badge.icon className="h-8 w-8" />
                         </div>
 
-                        <h3 className="text-white font-bold mb-1">{badge.name}</h3>
-                        <p className="text-xs text-slate-400 mb-3">{badge.desc}</p>
+                        <h3 className="text-foreground font-bold mb-1">{badge.name}</h3>
+                        <p className="text-xs text-muted-foreground mb-3">{badge.desc}</p>
 
                         {badge.status === 'unlocked' && (
                             <span className="text-[10px] text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full">

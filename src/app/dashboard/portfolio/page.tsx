@@ -3,24 +3,46 @@
 import { GlassCard } from "@/components/ui/GlassCard";
 import { GlassButton } from "@/components/ui/GlassButton";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from "recharts";
-
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
+import { PortfolioHealthMeter } from "@/features/portfolio/components/PortfolioHealthMeter";
+import { RiskMetrics } from "@/features/portfolio/components/RiskMetrics";
+import { StockScoreCard } from "@/features/portfolio/components/StockScoreCard";
+import { BrokerConnectionModal } from "@/features/portfolio/components/BrokerConnectionModal";
+import { Sparkles, Link as LinkIcon } from "lucide-react";
 
 export default function PortfolioPage() {
     const [holdings, setHoldings] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [analytics, setAnalytics] = useState<any>(null);
+    const [analyzing, setAnalyzing] = useState(false);
+    const [allocation, setAllocation] = useState<any[]>([]);
+    const [showBrokerModal, setShowBrokerModal] = useState(false);
 
     useEffect(() => {
         fetchPortfolio();
     }, []);
+
+    const analyzePortfolio = async () => {
+        setAnalyzing(true);
+        try {
+            const response = await fetch('/api/portfolio/analyze', {
+                method: 'POST',
+            });
+            const data = await response.json();
+            setAnalytics(data);
+        } catch (error) {
+            console.error('Error analyzing portfolio:', error);
+        } finally {
+            setAnalyzing(false);
+        }
+    };
 
     const fetchPortfolio = async () => {
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
 
-            // 1. Get Portfolio
             const { data: port, error: pError } = await supabase
                 .from('user_portfolio')
                 .select('*')
@@ -35,7 +57,6 @@ export default function PortfolioPage() {
 
             const symbols = port.map(p => p.symbol);
 
-            // 2. Get Market Data
             const { data: quotes, error: qError } = await supabase
                 .from('market_equity_quotes')
                 .select('symbol, last_price, sector')
@@ -43,7 +64,6 @@ export default function PortfolioPage() {
 
             if (qError) throw qError;
 
-            // 3. Merge and Calculate Allocation
             const sectorMap: { [key: string]: number } = {};
             const merged = port.map(p => {
                 const quote = quotes?.find(q => q.symbol === p.symbol);
@@ -70,7 +90,6 @@ export default function PortfolioPage() {
 
             setHoldings(merged);
 
-            // 4. Map sectors to colors
             const colors = ["#38bdf8", "#c084fc", "#34d399", "#fbbf24", "#f87171", "#818cf8"];
             const alloc = Object.entries(sectorMap).map(([name, value], i) => ({
                 name,
@@ -86,8 +105,6 @@ export default function PortfolioPage() {
         }
     };
 
-    const [allocation, setAllocation] = useState<any[]>([]);
-
     const totalValue = holdings.reduce((acc, curr) => acc + curr.value, 0);
     const totalInvested = holdings.reduce((acc, curr) => acc + (curr.avg * curr.qty), 0);
     const totalPnl = totalValue - totalInvested;
@@ -95,12 +112,33 @@ export default function PortfolioPage() {
 
     return (
         <div className="space-y-6">
+            <BrokerConnectionModal
+                isOpen={showBrokerModal}
+                onClose={() => setShowBrokerModal(false)}
+            />
+
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-foreground">Portfolio</h1>
-                    <p className="text-muted-foreground">Track your investments</p>
+                    <h1 className="text-2xl font-bold text-foreground">Portfolio Intelligence</h1>
+                    <p className="text-muted-foreground">AI-powered portfolio analysis & forecasting</p>
                 </div>
-                <GlassButton variant="secondary">Sync with Broker</GlassButton>
+                <div className="flex gap-3">
+                    <GlassButton
+                        variant="secondary"
+                        onClick={() => setShowBrokerModal(true)}
+                    >
+                        <LinkIcon className="h-4 w-4 mr-2" />
+                        Connect Broker
+                    </GlassButton>
+                    <GlassButton
+                        variant="primary"
+                        onClick={analyzePortfolio}
+                        disabled={analyzing || holdings.length === 0}
+                    >
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        {analyzing ? "Analyzing..." : "Analyze Portfolio"}
+                    </GlassButton>
+                </div>
             </div>
 
             {/* Summary Cards */}
@@ -120,6 +158,48 @@ export default function PortfolioPage() {
                     </div>
                 </GlassCard>
             </div>
+
+            {/* Portfolio Intelligence Dashboard */}
+            {analytics && (
+                <div className="space-y-6">
+                    <PortfolioHealthMeter
+                        healthScore={analytics.healthScore}
+                        classification={analytics.classification}
+                        expectedReturn={analytics.forecast.expectedReturn}
+                        downside5={analytics.forecast.downside5}
+                        upside95={analytics.forecast.upside95}
+                        warnings={analytics.portfolioAnalysis.warnings}
+                    />
+
+                    <RiskMetrics
+                        portfolioBeta={analytics.portfolioAnalysis.riskMetrics.portfolioBeta}
+                        portfolioVolatility={analytics.portfolioAnalysis.riskMetrics.portfolioVolatility}
+                        sharpeRatio={analytics.portfolioAnalysis.riskMetrics.sharpeRatio}
+                        diversificationScore={analytics.portfolioAnalysis.diversification.diversificationScore}
+                        top3Concentration={analytics.portfolioAnalysis.allocation.top3Concentration}
+                        sectorAllocation={analytics.portfolioAnalysis.allocation.sectorAllocation}
+                    />
+
+                    {/* Stock Scores */}
+                    <div>
+                        <h2 className="text-xl font-bold text-foreground mb-4">Stock Fundamental Analysis</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {analytics.stockScores.map((score: any) => (
+                                <StockScoreCard
+                                    key={score.symbol}
+                                    symbol={score.symbol}
+                                    qualityScore={score.qualityScore}
+                                    growthScore={score.growthScore}
+                                    valuationScore={score.valuationScore}
+                                    stabilityScore={score.stabilityScore}
+                                    totalScore={score.totalScore}
+                                    rating={score.rating}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Allocation Chart */}
@@ -173,7 +253,7 @@ export default function PortfolioPage() {
                             </thead>
                             <tbody className="divide-y divide-border/10">
                                 {holdings.map((stock) => (
-                                    <tr key={stock.symbol} className="hover:bg-muted/50 transition-colors">
+                                    <tr key={stock.symbol} className="hover:bg-muted/50 transition-all duration-150">
                                         <td className="py-3 pl-2 font-medium text-foreground">{stock.symbol}</td>
                                         <td className="py-3 text-right text-foreground">{stock.qty}</td>
                                         <td className="py-3 text-right text-foreground">₹{stock.avg.toLocaleString()}</td>

@@ -104,12 +104,12 @@ export function CodeEditor({ initialCode = DEFAULT_CODE, readOnly = false, onRun
 
     return (
         <GlassCard className="h-[500px] flex flex-col p-0 overflow-hidden">
-            <div className="flex justify-between items-center p-4 border-b border-white/10 bg-white/5">
-                <div className="text-sm font-mono text-slate-300">strategy.py</div>
+            <div className="flex justify-between items-center p-4 border-b border-border bg-card/20">
+                <div className="text-sm font-mono text-foreground/80">strategy.py</div>
                 <div className="flex gap-2">
                     <GlassButton
                         size="sm"
-                        className="h-8 bg-green-500/20 text-green-400 hover:bg-green-500/30"
+                        className="h-8 bg-green-500/20 text-green-400 hover:bg-green-500/30 active:scale-95"
                         onClick={handleRunBacktest}
                         disabled={running || readOnly}
                     >
@@ -117,7 +117,7 @@ export function CodeEditor({ initialCode = DEFAULT_CODE, readOnly = false, onRun
                         {running ? "Running..." : "Run Backtest"}
                     </GlassButton>
                     {!readOnly && (
-                        <GlassButton size="sm" className="h-8 bg-primary/20 text-primary hover:bg-primary/30">
+                        <GlassButton size="sm" className="h-8 bg-primary/20 text-primary hover:bg-primary/30 active:scale-95">
                             <Save className="h-3 w-3 mr-2" /> Save
                         </GlassButton>
                     )}
@@ -129,7 +129,7 @@ export function CodeEditor({ initialCode = DEFAULT_CODE, readOnly = false, onRun
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
                     readOnly={readOnly}
-                    className="w-full h-full bg-[#1e1e1e] text-slate-300 font-mono text-sm p-4 outline-none resize-none"
+                    className="w-full h-full bg-[hsl(var(--card))] text-foreground/80 font-mono text-sm p-4 outline-none resize-none"
                     spellCheck={false}
                 />
             </div>

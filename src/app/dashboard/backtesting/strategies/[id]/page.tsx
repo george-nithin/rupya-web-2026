@@ -75,7 +75,7 @@ export default function StrategyEditorPage() {
         }
     };
 
-    if (isLoading) return <div className="text-center py-12 text-slate-500">Loading editor...</div>;
+    if (isLoading) return <div className="text-center py-12 text-muted-foreground">Loading editor...</div>;
     if (!strategy) return <div className="text-center py-12 text-red-500">Strategy not found</div>;
 
     return (
@@ -84,25 +84,25 @@ export default function StrategyEditorPage() {
                 <div className="flex items-center gap-4">
                     <Link href="/dashboard/backtesting/strategies">
                         <GlassButton size="sm" variant="ghost">
-                            <ArrowLeft className="h-4 w-4" />
+                            <ArrowLeft className="h-5 w-5" />
                         </GlassButton>
                     </Link>
                     <div>
-                        <h1 className="text-2xl font-bold text-white">Edit Strategy</h1>
-                        <p className="text-slate-400 text-sm">ID: {id}</p>
+                        <h1 className="text-2xl font-bold text-foreground">Edit Strategy</h1>
+                        <p className="text-muted-foreground text-sm">ID: {id}</p>
                     </div>
                 </div>
                 <div className="flex gap-2">
                     <GlassButton variant="danger" size="sm" onClick={handleDelete}>
-                        <Trash2 className="h-4 w-4 mr-2" /> Delete
+                        <Trash2 className="h-5 w-5 mr-2" /> Delete
                     </GlassButton>
                     <Link href={`/dashboard/backtesting?strategy=${id}`}>
                         <GlassButton variant="secondary" size="sm">
-                            <Play className="h-4 w-4 mr-2" /> Run Backtest
+                            <Play className="h-5 w-5 mr-2" /> Run Backtest
                         </GlassButton>
                     </Link>
                     <GlassButton onClick={handleSave} disabled={isSaving}>
-                        <Save className="h-4 w-4 mr-2" />
+                        <Save className="h-5 w-5 mr-2" />
                         {isSaving ? "Saving..." : "Save Code"}
                     </GlassButton>
                 </div>
@@ -112,24 +112,24 @@ export default function StrategyEditorPage() {
                 {/* Metadata Column */}
                 <div className="lg:col-span-1 space-y-6 overflow-y-auto">
                     <GlassCard className="p-6 space-y-4">
-                        <h3 className="text-lg font-semibold text-white">Details</h3>
+                        <h3 className="text-lg font-semibold text-foreground">Details</h3>
                         <div>
-                            <label className="block text-sm font-medium text-slate-400 mb-1">Name</label>
+                            <label className="block text-sm font-medium text-muted-foreground mb-1">Name</label>
                             <GlassInput value={name} onChange={(e) => setName(e.target.value)} />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-400 mb-1">Description</label>
+                            <label className="block text-sm font-medium text-muted-foreground mb-1">Description</label>
                             <textarea
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                className="w-full h-32 bg-white/5 border border-white/10 rounded-lg p-3 text-white text-sm outline-none focus:border-sky-500/50 resize-none"
+                                className="w-full h-32 bg-card/20 border border-border rounded-xl p-3 text-foreground text-sm outline-none focus:border-sky-500/50 resize-none"
                             />
                         </div>
                     </GlassCard>
 
                     <GlassCard className="p-6">
-                        <h3 className="text-lg font-semibold text-white mb-2">Instructions</h3>
-                        <ul className="list-disc list-inside text-sm text-slate-400 space-y-2">
+                        <h3 className="text-lg font-semibold text-foreground mb-2">Instructions</h3>
+                        <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2">
                             <li>Must define a class inheriting <code>TradingStrategy</code>.</li>
                             <li>Should override <code>initialize</code> and <code>on_data</code>.</li>
                             <li>Use <code>self.data</code> to access OHLCv dataframe.</li>
@@ -140,8 +140,8 @@ export default function StrategyEditorPage() {
 
                 {/* Code Editor Column */}
                 <div className="lg:col-span-2 flex flex-col min-h-0">
-                    <GlassCard className="flex-1 p-0 overflow-hidden flex flex-col border border-white/10">
-                        <div className="bg-slate-900/50 p-2 border-b border-white/5 text-xs text-slate-400 font-mono">
+                    <GlassCard className="flex-1 p-0 overflow-hidden flex flex-col border border-border">
+                        <div className="bg-card/50 p-2 border-b border-border/50 text-xs text-muted-foreground font-mono">
                             main.py
                         </div>
                         <textarea

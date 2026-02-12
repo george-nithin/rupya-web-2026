@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { ArrowLeft, TrendingUp, TrendingDown, Activity, RefreshCw } from "lucide-react";
+import { PerformanceHeatmap } from "@/components/ui/PerformanceHeatmap";
 
 interface Stock {
     symbol: string;
@@ -92,12 +93,12 @@ export default function SectorDetailsPage() {
             <div className="flex items-center gap-4 mb-8">
                 <button
                     onClick={() => router.back()}
-                    className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-muted-foreground hover:text-foreground"
+                    className="p-2 rounded-xl bg-card/20 hover:bg-card/30 transition-all duration-150 text-muted-foreground hover:text-foreground active:scale-95"
                 >
                     <ArrowLeft className="h-5 w-5" />
                 </button>
                 <div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">{sectorId}</h1>
+                    <h1 className="text-3xl font-bold text-foreground tracking-tight">{sectorId}</h1>
                     <p className="text-muted-foreground mt-1">
                         {priceData ? (
                             <span className={`font-mono ${priceData.p_change >= 0 ? "text-green-500" : "text-red-500"}`}>
@@ -109,18 +110,31 @@ export default function SectorDetailsPage() {
                 <div className="ml-auto">
                     <button
                         onClick={fetchData}
-                        className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-muted-foreground hover:text-white"
+                        className="p-2 rounded-xl bg-card/20 hover:bg-card/30 transition-all duration-150 text-muted-foreground hover:text-foreground active:scale-95"
                     >
                         <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                     </button>
                 </div>
             </div>
 
+            {/* Heatmap Section */}
+            {!loading && stocks.length > 0 && (
+                <PerformanceHeatmap
+                    title="Constituent Heatmap"
+                    items={stocks.map(s => ({
+                        label: s.symbol,
+                        value: s.percent_change,
+                        sublabel: formatNumber(s.last_price),
+                        onClick: () => router.push(`/dashboard/market/${s.symbol}`)
+                    }))}
+                />
+            )}
+
             {/* Content */}
             <GlassCard className="overflow-hidden border-border/50">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left">
-                        <thead className="bg-white/5 text-muted-foreground font-medium uppercase text-xs">
+                        <thead className="bg-card/20 text-muted-foreground font-medium uppercase text-xs">
                             <tr>
                                 <th className="px-6 py-4">Symbol</th>
                                 <th className="px-6 py-4">Sector</th>
@@ -133,11 +147,11 @@ export default function SectorDetailsPage() {
                             {loading ? (
                                 Array(5).fill(0).map((_, i) => (
                                     <tr key={i} className="animate-pulse">
-                                        <td className="px-6 py-4"><div className="h-4 w-24 bg-white/5 rounded" /></td>
-                                        <td className="px-6 py-4"><div className="h-4 w-32 bg-white/5 rounded" /></td>
-                                        <td className="px-6 py-4 text-right"><div className="h-4 w-16 bg-white/5 rounded ml-auto" /></td>
-                                        <td className="px-6 py-4 text-right"><div className="h-4 w-12 bg-white/5 rounded ml-auto" /></td>
-                                        <td className="px-6 py-4 text-right"><div className="h-4 w-20 bg-white/5 rounded ml-auto" /></td>
+                                        <td className="px-6 py-4"><div className="h-4 w-24 bg-card/20 rounded" /></td>
+                                        <td className="px-6 py-4"><div className="h-4 w-32 bg-card/20 rounded" /></td>
+                                        <td className="px-6 py-4 text-right"><div className="h-4 w-16 bg-card/20 rounded ml-auto" /></td>
+                                        <td className="px-6 py-4 text-right"><div className="h-4 w-12 bg-card/20 rounded ml-auto" /></td>
+                                        <td className="px-6 py-4 text-right"><div className="h-4 w-20 bg-card/20 rounded ml-auto" /></td>
                                     </tr>
                                 ))
                             ) : stocks.length === 0 ? (
@@ -153,9 +167,9 @@ export default function SectorDetailsPage() {
                                     <tr
                                         key={stock.symbol}
                                         onClick={() => router.push(`/dashboard/market/${stock.symbol}`)}
-                                        className="hover:bg-white/5 transition-colors cursor-pointer group"
+                                        className="hover:bg-card/20 transition-all duration-150 cursor-pointer group active:scale-95"
                                     >
-                                        <td className="px-6 py-4 font-medium text-foreground group-hover:text-primary transition-colors">
+                                        <td className="px-6 py-4 font-medium text-foreground group-hover:text-primary transition-all duration-150">
                                             {stock.symbol}
                                         </td>
                                         <td className="px-6 py-4 text-muted-foreground">

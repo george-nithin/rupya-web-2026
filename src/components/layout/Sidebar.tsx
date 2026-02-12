@@ -85,7 +85,7 @@ export function Sidebar() {
                     "flex items-center gap-3 group hover:opacity-90 transition-opacity",
                     !isHovered && "w-full justify-center"
                 )}>
-                    <div className="relative flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden bg-gradient-to-br from-orange-500 to-red-500 shadow-lg shadow-orange-500/20 hover-glow-orange">
+                    <div className="relative flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden bg-gradient-to-br from-orange-500 to-red-500 shadow-strong shadow-orange-500/20 hover-glow-orange">
                         <img
                             src="/rupya-logo-circle.png"
                             alt="Rupya"
@@ -122,15 +122,15 @@ export function Sidebar() {
                                         className={cn(
                                             "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
                                             isActive
-                                                ? "text-white bg-gradient-to-r from-orange-500/20 to-orange-600/10 border-l-2 border-orange-500"
+                                                ? "text-foreground bg-gradient-to-r from-orange-500/20 to-orange-600/10 border-l-2 border-orange-500"
                                                 : "text-muted-foreground hover:text-foreground hover:bg-secondary",
                                             !isHovered && "justify-center px-2"
                                         )}
                                         title={!isHovered ? item.name : undefined}
                                     >
                                         <Icon className={cn(
-                                            "h-5 w-5 transition-colors flex-shrink-0",
-                                            isActive ? "text-orange-400" : "text-muted-foreground group-hover:text-foreground"
+                                            "h-5 w-5 transition-all duration-200 flex-shrink-0",
+                                            isActive ? "text-orange-400" : "text-muted-foreground group-hover:text-foreground group-hover:scale-110"
                                         )} />
                                         {isHovered && <span className="whitespace-nowrap">{item.name}</span>}
                                     </Link>
@@ -152,7 +152,7 @@ export function Sidebar() {
                     )}
                     title={!isHovered ? "Settings" : undefined}
                 >
-                    <Settings className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
+                    <Settings className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-all duration-200 group-hover:scale-110" />
                     {isHovered && <span className="whitespace-nowrap">Settings</span>}
                 </Link>
                 <button
@@ -167,7 +167,7 @@ export function Sidebar() {
                     )}
                     title={!isHovered ? "Logout" : undefined}
                 >
-                    <LogOut className="h-5 w-5" />
+                    <LogOut className="h-5 w-5 transition-all duration-200 group-hover:scale-110" />
                     {isHovered && <span className="whitespace-nowrap">Logout</span>}
                 </button>
             </div>

@@ -30,13 +30,13 @@ export function JournalAnalytics() {
     }, []);
 
     if (loading) {
-        return <div className="text-center text-slate-500 py-10">Loading Journal Data...</div>;
+        return <div className="text-center text-muted-foreground py-10">Loading Journal Data...</div>;
     }
 
     return (
         <div className="space-y-8">
             <div>
-                <h3 className="text-lg font-semibold text-white mb-4">Monthly Statistics</h3>
+                <h3 className="text-lg font-semibold text-foreground mb-4">Monthly Statistics</h3>
                 <MonthlyStatsGrid trades={trades} />
             </div>
 

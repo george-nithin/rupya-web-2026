@@ -20,7 +20,7 @@ export function NotificationItem({ notification, onRead }: NotificationItemProps
     };
 
     const getBorderColor = () => {
-        if (notification.is_read) return "border-white/5";
+        if (notification.is_read) return "border-border/50";
         switch (notification.type) {
             case 'alert': return "border-red-500/30";
             case 'trade': return "border-green-500/30";
@@ -30,19 +30,19 @@ export function NotificationItem({ notification, onRead }: NotificationItemProps
 
     const Content = (
         <div className="flex gap-4">
-            <div className={`p-2 rounded-full bg-white/5 h-fit ${!notification.is_read ? 'animate-pulse' : ''}`}>
+            <div className={`p-2 rounded-full bg-card/20 h-fit ${!notification.is_read ? 'animate-pulse' : ''}`}>
                 {getIcon()}
             </div>
             <div className="flex-1 space-y-1">
                 <div className="flex justify-between items-start">
-                    <h4 className={`font-medium ${notification.is_read ? 'text-slate-400' : 'text-white'}`}>
+                    <h4 className={`font-medium ${notification.is_read ? 'text-muted-foreground' : 'text-foreground'}`}>
                         {notification.title}
                     </h4>
-                    <span className="text-xs text-slate-500 whitespace-nowrap ml-2">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
                         {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
                     </span>
                 </div>
-                <p className="text-sm text-slate-400 leading-relaxed">
+                <p className="text-sm text-muted-foreground leading-relaxed">
                     {notification.message}
                 </p>
             </div>
@@ -51,7 +51,7 @@ export function NotificationItem({ notification, onRead }: NotificationItemProps
 
     return (
         <GlassCard
-            className={`p-4 transition-all hover:bg-white/5 cursor-pointer ${getBorderColor()}`}
+            className={`p-4 transition-all hover:bg-card/20 cursor-pointer ${getBorderColor()}`}
             onClick={() => onRead && !notification.is_read && onRead(notification.id)}
         >
             {notification.link ? (

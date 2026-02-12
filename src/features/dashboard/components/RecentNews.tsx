@@ -78,8 +78,8 @@ export function RecentNews() {
     if (loading) {
         return (
             <div className="space-y-4">
-                <h2 className="text-lg font-semibold text-white">Market News</h2>
-                <div className="text-slate-500 text-sm">Loading news...</div>
+                <h2 className="text-lg font-semibold text-foreground">Market News</h2>
+                <div className="text-muted-foreground text-sm">Loading news...</div>
             </div>
         );
     }
@@ -87,10 +87,10 @@ export function RecentNews() {
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-white">Market News</h2>
+                <h2 className="text-lg font-semibold text-foreground">Market News</h2>
                 <Link
                     href="/dashboard/news"
-                    className="text-sm text-sky-400 hover:text-sky-300 flex items-center transition-colors"
+                    className="text-sm text-sky-400 hover:text-sky-300 flex items-center transition-all duration-150"
                 >
                     View All <ArrowRight className="ml-1 h-3 w-3" />
                 </Link>
@@ -98,7 +98,7 @@ export function RecentNews() {
 
             {newsItems.length === 0 ? (
                 <GlassCard>
-                    <div className="text-center text-slate-500 text-sm py-8">
+                    <div className="text-center text-muted-foreground text-sm py-8">
                         No market news available yet. Run the news aggregator script to populate news.
                     </div>
                 </GlassCard>
@@ -110,7 +110,7 @@ export function RecentNews() {
 
                         const CardContent = (
                             <GlassCard
-                                className="hover:bg-white/10 transition-all cursor-pointer group h-full"
+                                className="hover:bg-card/30 transition-all cursor-pointer group h-full active:scale-95"
                                 variant="frosted"
                             >
                                 <div className="space-y-3">
@@ -120,21 +120,21 @@ export function RecentNews() {
                                             {item.category.replace('_', ' ').toUpperCase()}
                                         </span>
                                         <div className="flex items-center gap-1">
-                                            <span className="text-xs text-slate-500 whitespace-nowrap">
+                                            <span className="text-xs text-muted-foreground whitespace-nowrap">
                                                 {new Date(item.published_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}
                                             </span>
                                             {item.news_url && (
-                                                <ArrowRight className="h-3 w-3 text-slate-500 group-hover:text-sky-400 transition-colors" />
+                                                <ArrowRight className="h-3 w-3 text-slate-500 group-hover:text-sky-400 transition-all duration-150" />
                                             )}
                                         </div>
                                     </div>
 
-                                    <h3 className="text-sm font-medium text-white leading-relaxed line-clamp-2 group-hover:text-sky-300 transition-colors">
+                                    <h3 className="text-sm font-medium text-white leading-relaxed line-clamp-2 group-hover:text-sky-300 transition-all duration-150">
                                         {item.title}
                                     </h3>
 
                                     {item.summary && (
-                                        <p className="text-xs text-slate-400 line-clamp-2">
+                                        <p className="text-xs text-muted-foreground line-clamp-2">
                                             {item.summary}
                                         </p>
                                     )}
@@ -144,13 +144,13 @@ export function RecentNews() {
                                             {item.symbols.slice(0, 3).map((symbol) => (
                                                 <span
                                                     key={symbol}
-                                                    className="text-[10px] font-medium text-slate-300 bg-white/5 px-1.5 py-0.5 rounded border border-white/10"
+                                                    className="text-[10px] font-medium text-foreground/80 bg-card/20 px-1.5 py-0.5 rounded border border-border"
                                                 >
                                                     {symbol}
                                                 </span>
                                             ))}
                                             {item.symbols.length > 3 && (
-                                                <span className="text-[10px] text-slate-500">
+                                                <span className="text-[10px] text-muted-foreground">
                                                     +{item.symbols.length - 3} more
                                                 </span>
                                             )}

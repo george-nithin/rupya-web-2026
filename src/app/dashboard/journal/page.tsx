@@ -58,7 +58,7 @@ export default function JournalPage() {
                 </div>
                 <Link href="/dashboard/journal/create">
                     <GlassButton>
-                        <Plus className="h-4 w-4 mr-2" />
+                        <Plus className="h-5 w-5 mr-2" />
                         New Trade
                     </GlassButton>
                 </Link>
@@ -71,9 +71,9 @@ export default function JournalPage() {
             {/* Recent Trades Timeline */}
             <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-semibold text-white">Trade History</h3>
+                    <h3 className="text-lg font-semibold text-foreground">Trade History</h3>
                     <GlassButton onClick={downloadPDF} size="sm" variant="secondary">
-                        <FileDown className="h-4 w-4 mr-2" /> Download Report
+                        <FileDown className="h-5 w-5 mr-2" /> Download Report
                     </GlassButton>
                 </div>
                 <JournalTimeline />

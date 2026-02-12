@@ -23,11 +23,11 @@ export function BacktestPerformance({ data = MOCK_DATA }: BacktestPerformancePro
         <GlassCard className="h-[400px] flex flex-col">
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h3 className="font-bold text-white">Backtest Performance</h3>
-                    <p className="text-sm text-slate-400">Equity Curve</p>
+                    <h3 className="font-bold text-foreground">Backtest Performance</h3>
+                    <p className="text-sm text-muted-foreground">Equity Curve</p>
                 </div>
                 <div className="text-right">
-                    <div className="text-xs text-slate-400">Total Return</div>
+                    <div className="text-xs text-muted-foreground">Total Return</div>
                     <div className={`text-xl font-bold ${totalReturn >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                         {totalReturn > 0 ? '+' : ''}{totalReturn.toFixed(2)}%
                     </div>

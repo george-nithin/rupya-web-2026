@@ -53,13 +53,13 @@ export function JournalCalendar({ trades }: JournalCalendarProps) {
             cells.push(
                 <div
                     key={day}
-                    className={`h-24 border border-white/5 p-2 relative group hover:bg-white/5 transition-colors ${data ? (data.pnl >= 0 ? 'bg-green-500/5' : 'bg-red-500/5') : ''
+                    className={`h-24 border border-white/5 p-2 relative group hover:bg-white/5 transition-all duration-150 ${data ? (data.pnl >= 0 ? 'bg-green-500/5' : 'bg-red-500/5') : ''
                         }`}
                 >
                     <div className="flex justify-between items-start">
-                        <span className={`text-sm font-medium ${data ? 'text-white' : 'text-slate-600'}`}>{day}</span>
+                        <span className={`text-sm font-medium ${data ? 'text-foreground' : 'text-slate-600'}`}>{day}</span>
                         {data && (
-                            <span className="text-[10px] bg-slate-800 text-slate-400 px-1 rounded">
+                            <span className="text-[10px] bg-secondary text-muted-foreground px-1 rounded">
                                 {data.trades}
                             </span>
                         )}
@@ -88,25 +88,25 @@ export function JournalCalendar({ trades }: JournalCalendarProps) {
     };
 
     return (
-        <GlassCard className="p-6">
-            <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-white">Calendar View</h3>
-                <div className="flex items-center gap-4">
-                    <button onClick={prevMonth} className="p-1 hover:bg-white/10 rounded-full transition-colors">
-                        <ChevronLeft className="h-5 w-5 text-slate-400" />
+        <GlassCard className="p-8 border-white/5 bg-card/30">
+            <div className="flex items-center justify-between mb-8">
+                <h3 className="text-xl font-black text-white tracking-tight uppercase">Calendar View</h3>
+                <div className="flex items-center gap-6">
+                    <button onClick={prevMonth} className="h-10 w-10 flex items-center justify-center hover:bg-white/10 rounded-xl transition-all duration-300 active:scale-90 border border-white/5">
+                        <ChevronLeft className="h-5 w-5 text-white/40 group-hover:text-white" />
                     </button>
-                    <span className="text-sm font-medium text-white w-32 text-center">
+                    <span className="text-sm font-black text-white w-40 text-center uppercase tracking-widest">
                         {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
                     </span>
-                    <button onClick={nextMonth} className="p-1 hover:bg-white/10 rounded-full transition-colors">
-                        <ChevronRight className="h-5 w-5 text-slate-400" />
+                    <button onClick={nextMonth} className="h-10 w-10 flex items-center justify-center hover:bg-white/10 rounded-xl transition-all duration-300 active:scale-90 border border-white/5">
+                        <ChevronRight className="h-5 w-5 text-white/40 group-hover:text-white" />
                     </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-7 gap-px bg-slate-800/50 border border-white/5 rounded-lg overflow-hidden">
+            <div className="grid grid-cols-7 gap-px bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                    <div key={day} className="p-3 text-center text-xs font-medium text-slate-500 bg-[#0f172a]">
+                    <div key={day} className="p-4 text-center text-[10px] font-black text-white/30 bg-slate-950 uppercase tracking-[0.2em] border-b border-white/5">
                         {day}
                     </div>
                 ))}

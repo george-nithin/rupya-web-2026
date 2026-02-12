@@ -150,13 +150,13 @@ export default function ResearchPage() {
         const values = stockData.map(s => calculateFn ? calculateFn(s) : (s[key as keyof StockData] as number));
 
         return (
-            <tr className="hover:bg-muted/50 transition-colors group">
-                <td className="p-4 text-sm font-medium text-muted-foreground sticky left-0 bg-background/95 backdrop-blur-sm border-r border-border/50 group-hover:bg-muted/50 z-10 flex items-center gap-2">
+            <tr className="hover:bg-muted/50 transition-all duration-150 group active:scale-95">
+                <td className="p-4 text-sm font-medium text-muted-foreground sticky left-0 bg-background/95 backdrop-blur-sm border-r border-border/50 group-hover:bg-muted/50 z-10 flex items-center gap-2 active:scale-95">
                     {label}
                     {tooltip && (
                         <div className="relative group/tooltip">
-                            <Info className="h-3 w-3 text-muted-foreground/50 cursor-help hover:text-primary transition-colors" />
-                            <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 w-48 p-2 bg-popover text-popover-foreground text-xs rounded-md shadow-md opacity-0 group-hover/tooltip:opacity-100 pointer-events-none transition-opacity z-50 border border-border">
+                            <Info className="h-3 w-3 text-muted-foreground/50 cursor-help hover:text-primary transition-all duration-150" />
+                            <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 w-48 p-2 bg-popover text-popover-foreground text-xs rounded-lg shadow-md opacity-0 group-hover/tooltip:opacity-100 pointer-events-none transition-opacity z-50 border border-border">
                                 {tooltip}
                             </div>
                         </div>
@@ -215,11 +215,11 @@ export default function ResearchPage() {
             {/* Selection Chips */}
             <div className="flex flex-wrap gap-3">
                 {selectedSymbols.map(stock => (
-                    <div key={stock} className="flex items-center gap-2 pl-3 pr-2 py-1.5 bg-card border border-border/50 rounded-full shadow-sm animate-in fade-in zoom-in duration-200">
+                    <div key={stock} className="flex items-center gap-2 pl-3 pr-2 py-1.5 bg-card border border-border/50 rounded-full shadow-soft animate-in fade-in zoom-in duration-200">
                         <span className="font-bold text-sm text-foreground">{stock}</span>
                         <button
                             onClick={() => removeSymbol(stock)}
-                            className="p-1 hover:bg-destructive/10 rounded-full text-muted-foreground hover:text-destructive transition-colors"
+                            className="p-1 hover:bg-destructive/10 rounded-full text-muted-foreground hover:text-destructive transition-all duration-150 active:scale-95"
                         >
                             <X className="h-3 w-3" />
                         </button>
@@ -238,7 +238,7 @@ export default function ResearchPage() {
                     Add stocks to start comparing
                 </div>
             ) : (
-                <GlassCard className="overflow-hidden p-0 border-border/50 shadow-lg">
+                <GlassCard className="overflow-hidden p-0 border-border/50 shadow-strong">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
@@ -273,8 +273,8 @@ export default function ResearchPage() {
                                     <td className="p-4 text-sm font-medium text-muted-foreground sticky left-0 bg-background/95 backdrop-blur-sm border-r border-border/50 flex items-center gap-2">
                                         vs Sector PE
                                         <div className="relative group/tooltip">
-                                            <Info className="h-3 w-3 text-muted-foreground/50 cursor-help hover:text-primary transition-colors" />
-                                            <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 w-48 p-2 bg-popover text-popover-foreground text-xs rounded-md shadow-md opacity-0 group-hover/tooltip:opacity-100 pointer-events-none transition-opacity z-50 border border-border">
+                                            <Info className="h-3 w-3 text-muted-foreground/50 cursor-help hover:text-primary transition-all duration-150" />
+                                            <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 w-48 p-2 bg-popover text-popover-foreground text-xs rounded-lg shadow-md opacity-0 group-hover/tooltip:opacity-100 pointer-events-none transition-opacity z-50 border border-border">
                                                 Is the stock cheaper or more expensive than its peers?
                                             </div>
                                         </div>

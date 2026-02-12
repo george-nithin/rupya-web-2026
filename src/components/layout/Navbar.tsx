@@ -9,7 +9,7 @@ export function Navbar() {
         <div className="h-16 border-b border-border/40 bg-background/80 backdrop-blur-md fixed top-0 right-0 md:left-64 left-0 z-40 flex items-center justify-between px-4 md:px-8 transition-all duration-300">
             {/* Search Bar (Hidden on Mobile) */}
             <div className="hidden md:flex items-center gap-3 w-96 bg-secondary/50 rounded-xl px-4 py-2 border border-border/50">
-                <Search className="h-4 w-4 text-muted-foreground" />
+                <Search className="h-5 w-5 text-muted-foreground" />
                 <input
                     type="text"
                     placeholder="Search stocks, news, or commands..."
@@ -23,7 +23,7 @@ export function Navbar() {
 
             {/* Mobile Logo (Visible only on mobile) */}
             <Link href="/dashboard" className="md:hidden flex items-center gap-2">
-                <div className="relative flex h-8 w-8 items-center justify-center rounded-lg overflow-hidden bg-gradient-to-br from-orange-500 to-red-500">
+                <div className="relative flex h-8 w-8 items-center justify-center rounded-xl overflow-hidden bg-gradient-to-br from-orange-500 to-red-500">
                     <img
                         src="/rupya-logo-circle.png"
                         alt="Rupya"
@@ -37,18 +37,18 @@ export function Navbar() {
             <div className="flex items-center gap-4">
                 <ThemeToggle /> {/* Added ThemeToggle */}
                 <Link href="/notifications">
-                    <button className="relative p-2 text-slate-400 hover:text-white transition-colors">
+                    <button className="relative p-2 text-muted-foreground hover:text-foreground transition-all duration-150">
                         <Bell className="h-5 w-5" />
                         <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-sky-500 ring-2 ring-slate-900" />
                     </button>
                 </Link>
 
-                <div className="h-8 w-px bg-white/10" />
+                <div className="h-8 w-px bg-card/30" />
 
                 <div className="flex items-center gap-3">
                     <div className="text-right hidden sm:block">
-                        <div className="text-sm font-medium text-white">Nithin Kamath</div>
-                        <div className="text-xs text-slate-400">Pro Trader</div>
+                        <div className="text-sm font-medium text-foreground">Nithin Kamath</div>
+                        <div className="text-xs text-muted-foreground">Pro Trader</div>
                     </div>
                     <div className="h-9 w-9 rounded-full bg-sky-500/20 border border-sky-500/50 flex items-center justify-center text-sky-400 font-medium">
                         NK

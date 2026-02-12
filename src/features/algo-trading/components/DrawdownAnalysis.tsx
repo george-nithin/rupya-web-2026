@@ -12,7 +12,7 @@ const MOCK_DRAWDOWN = Array.from({ length: 30 }, (_, i) => ({
 export function DrawdownAnalysis() {
     return (
         <GlassCard className="h-[300px] flex flex-col">
-            <h3 className="font-bold text-white mb-6">Drawdown Analysis</h3>
+            <h3 className="font-bold text-foreground mb-6">Drawdown Analysis</h3>
 
             <div className="flex-1 min-h-0">
                 <ResponsiveContainer width="100%" height="100%">

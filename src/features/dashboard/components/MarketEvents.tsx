@@ -61,9 +61,9 @@ export function MarketEvents() {
                 <div className="space-y-4">
                     <div className="flex items-center gap-2">
                         <Calendar className="h-5 w-5 text-sky-400" />
-                        <h3 className="text-lg font-semibold text-white">Upcoming Events</h3>
+                        <h3 className="text-lg font-semibold text-foreground">Upcoming Events</h3>
                     </div>
-                    <div className="text-slate-500 text-sm">Loading events...</div>
+                    <div className="text-muted-foreground text-sm">Loading events...</div>
                 </div>
             </GlassCard>
         );
@@ -74,12 +74,12 @@ export function MarketEvents() {
             <div className="space-y-4">
                 <div className="flex items-center gap-2">
                     <Calendar className="h-5 w-5 text-sky-400" />
-                    <h3 className="text-lg font-semibold text-white">Upcoming Events</h3>
-                    <span className="text-xs text-slate-400">(Next 7 Days)</span>
+                    <h3 className="text-lg font-semibold text-foreground">Upcoming Events</h3>
+                    <span className="text-xs text-muted-foreground">(Next 7 Days)</span>
                 </div>
 
                 {events.length === 0 ? (
-                    <div className="text-center text-slate-500 text-sm py-6">
+                    <div className="text-center text-muted-foreground text-sm py-6">
                         <Calendar className="h-8 w-8 mx-auto mb-2 opacity-20" />
                         <p>No upcoming events in the next 7 days.</p>
                     </div>
@@ -92,17 +92,17 @@ export function MarketEvents() {
                             return (
                                 <div
                                     key={event.id}
-                                    className="p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
+                                    className="p-3 rounded-xl bg-card/20 border border-border hover:bg-card/30 transition-all active:scale-95"
                                 >
                                     <div className="flex items-start gap-3">
-                                        <div className={`p-2 rounded-lg bg-${color}-500/10`}>
+                                        <div className={`p-2 rounded-xl bg-${color}-500/10`}>
                                             <Icon className={`h-4 w-4 text-${color}-400`} />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <div className="text-sm font-medium text-white line-clamp-1">
+                                            <div className="text-sm font-medium text-foreground line-clamp-1">
                                                 {event.title}
                                             </div>
-                                            <div className="text-xs text-slate-400 mt-1">
+                                            <div className="text-xs text-muted-foreground mt-1">
                                                 {event.event_type.replace('_', ' ').toUpperCase()}
                                             </div>
                                             {event.symbols && event.symbols.length > 0 && (
@@ -110,19 +110,19 @@ export function MarketEvents() {
                                                     {event.symbols.slice(0, 2).map((symbol) => (
                                                         <span
                                                             key={symbol}
-                                                            className="text-[10px] font-medium text-slate-300 bg-white/5 px-1.5 py-0.5 rounded border border-white/10"
+                                                            className="text-[10px] font-medium text-foreground/80 bg-card/20 px-1.5 py-0.5 rounded border border-border"
                                                         >
                                                             {symbol}
                                                         </span>
                                                     ))}
                                                     {event.symbols.length > 2 && (
-                                                        <span className="text-[10px] text-slate-500">
+                                                        <span className="text-[10px] text-muted-foreground">
                                                             +{event.symbols.length - 2}
                                                         </span>
                                                     )}
                                                 </div>
                                             )}
-                                            <div className="text-xs text-slate-500 mt-2">
+                                            <div className="text-xs text-muted-foreground mt-2">
                                                 {event.days_until === 0 ? (
                                                     <span className="text-orange-400 font-medium">Today</span>
                                                 ) : event.days_until === 1 ? (

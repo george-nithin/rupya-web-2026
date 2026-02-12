@@ -34,17 +34,17 @@ export function RuleBuilder() {
     return (
         <GlassCard className="h-full">
             <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
                     <CheckCircle className="h-5 w-5 text-sky-400" /> Trading Rules
                 </h2>
-                <span className="text-xs text-slate-500 bg-white/5 px-2 py-1 rounded">
+                <span className="text-xs text-muted-foreground bg-card/20 px-2 py-1 rounded">
                     {rules.length} Active Rules
                 </span>
             </div>
 
             <div className="flex gap-2 mb-6">
                 <select
-                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm outline-none"
+                    className="bg-card/20 border border-border rounded-xl px-3 py-2 text-foreground text-sm outline-none"
                     value={severity}
                     onChange={(e) => setSeverity(e.target.value as "Hard" | "Soft")}
                 >
@@ -58,25 +58,25 @@ export function RuleBuilder() {
                     className="flex-1"
                 />
                 <GlassButton onClick={addRule}>
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-5 w-5" />
                 </GlassButton>
             </div>
 
             <div className="space-y-3">
                 {rules.map((rule) => (
-                    <div key={rule.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5 hover:border-white/20 transition-all group">
+                    <div key={rule.id} className="flex items-center justify-between p-3 bg-card/20 rounded-xl border border-border/50 hover:border-border transition-all group">
                         <div className="flex items-center gap-3">
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${rule.severity === 'Hard' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'
                                 }`}>
                                 {rule.severity}
                             </span>
-                            <span className="text-sm text-slate-200">{rule.text}</span>
+                            <span className="text-sm text-foreground">{rule.text}</span>
                         </div>
                         <button
                             onClick={() => deleteRule(rule.id)}
                             className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
                         >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-5 w-5" />
                         </button>
                     </div>
                 ))}

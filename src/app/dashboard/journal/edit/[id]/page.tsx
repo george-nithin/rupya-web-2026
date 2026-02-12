@@ -13,8 +13,8 @@ export default async function EditTradePage({
     return (
         <div className="max-w-4xl mx-auto space-y-6">
             <div>
-                <h1 className="text-2xl font-bold text-white">Edit Trade</h1>
-                <p className="text-slate-400">Update your trade details</p>
+                <h1 className="text-2xl font-bold text-foreground">Edit Trade</h1>
+                <p className="text-muted-foreground">Update your trade details</p>
             </div>
             <TradeEntryForm tradeId={id} />
         </div>

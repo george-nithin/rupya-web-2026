@@ -191,13 +191,13 @@ export default function ScreenerPage() {
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-foreground">Stock Screener</h1>
-                    <p className="text-slate-400">Discover trading opportunities with preset and custom screeners</p>
+                    <p className="text-muted-foreground">Discover trading opportunities with preset and custom screeners</p>
                 </div>
                 <GlassButton
                     onClick={() => setShowCustomBuilder(!showCustomBuilder)}
                     variant="primary"
                 >
-                    <Plus className="h-4 w-4 mr-2" />
+                    <Plus className="h-5 w-5 mr-2" />
                     Custom Screener
                 </GlassButton>
             </div>
@@ -217,14 +217,14 @@ export default function ScreenerPage() {
                         >
                             <div className="flex items-start justify-between">
                                 <div className="flex items-start gap-3">
-                                    <div className={`p-3 rounded-lg bg-${screener.color}-500/10`}>
+                                    <div className={`p-3 rounded-xl bg-${screener.color}-500/10`}>
                                         <Icon className={`h-6 w-6 text-${screener.color}-400`} />
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-semibold text-white mb-1">
+                                        <h3 className="text-lg font-semibold text-foreground mb-1">
                                             {screener.name}
                                         </h3>
-                                        <p className="text-sm text-slate-400">
+                                        <p className="text-sm text-muted-foreground">
                                             {screener.description}
                                         </p>
                                     </div>
@@ -237,7 +237,7 @@ export default function ScreenerPage() {
                                         runScreener(screener.id);
                                     }}
                                 >
-                                    <Play className="h-4 w-4" />
+                                    <Play className="h-5 w-5" />
                                 </GlassButton>
                             </div>
                         </GlassCard>
@@ -260,21 +260,21 @@ export default function ScreenerPage() {
                 <GlassCard>
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-semibold text-white">
+                            <h3 className="text-lg font-semibold text-foreground">
                                 {defaultScreeners.find(s => s.id === activeScreener)?.name} Results
                             </h3>
-                            <span className="text-sm text-slate-400">
+                            <span className="text-sm text-muted-foreground">
                                 {results.length} stocks found
                             </span>
                         </div>
 
                         {loading ? (
-                            <div className="text-center py-12 text-slate-400">
+                            <div className="text-center py-12 text-muted-foreground">
                                 <div className="animate-spin h-8 w-8 border-2 border-sky-500 border-t-transparent rounded-full mx-auto mb-4"></div>
                                 <p>Running screener...</p>
                             </div>
                         ) : results.length === 0 ? (
-                            <div className="text-center py-12 text-slate-400">
+                            <div className="text-center py-12 text-muted-foreground">
                                 <Search className="h-12 w-12 mx-auto mb-4 opacity-20" />
                                 <p>No results found. Try a different screener.</p>
                             </div>
@@ -282,26 +282,26 @@ export default function ScreenerPage() {
                             <div className="overflow-x-auto">
                                 <table className="w-full">
                                     <thead>
-                                        <tr className="border-b border-white/10">
-                                            <th className="text-left text-sm font-medium text-slate-400 pb-3">#</th>
-                                            <th className="text-left text-sm font-medium text-slate-400 pb-3">Symbol</th>
-                                            <th className="text-right text-sm font-medium text-slate-400 pb-3">Price</th>
-                                            <th className="text-right text-sm font-medium text-slate-400 pb-3">Change</th>
-                                            <th className="text-right text-sm font-medium text-slate-400 pb-3">% Change</th>
-                                            <th className="text-right text-sm font-medium text-slate-400 pb-3">Volume</th>
+                                        <tr className="border-b border-border">
+                                            <th className="text-left text-sm font-medium text-muted-foreground pb-3">#</th>
+                                            <th className="text-left text-sm font-medium text-muted-foreground pb-3">Symbol</th>
+                                            <th className="text-right text-sm font-medium text-muted-foreground pb-3">Price</th>
+                                            <th className="text-right text-sm font-medium text-muted-foreground pb-3">Change</th>
+                                            <th className="text-right text-sm font-medium text-muted-foreground pb-3">% Change</th>
+                                            <th className="text-right text-sm font-medium text-muted-foreground pb-3">Volume</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {results.map((stock, index) => (
                                             <tr
                                                 key={stock.symbol}
-                                                className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                                                className="border-b border-border/50 hover:bg-card/20 transition-all duration-150 active:scale-95"
                                             >
-                                                <td className="py-3 text-slate-500 text-sm">{index + 1}</td>
+                                                <td className="py-3 text-muted-foreground text-sm">{index + 1}</td>
                                                 <td className="py-3">
-                                                    <div className="font-medium text-white">{stock.symbol}</div>
+                                                    <div className="font-medium text-foreground">{stock.symbol}</div>
                                                 </td>
-                                                <td className="py-3 text-right text-white">
+                                                <td className="py-3 text-right text-foreground">
                                                     ₹{stock.last_price?.toFixed(2)}
                                                 </td>
                                                 <td className={`py-3 text-right font-medium ${stock.change >= 0 ? 'text-green-400' : 'text-red-400'
@@ -312,7 +312,7 @@ export default function ScreenerPage() {
                                                     }`}>
                                                     {stock.percent_change >= 0 ? '+' : ''}{stock.percent_change?.toFixed(2)}%
                                                 </td>
-                                                <td className="py-3 text-right text-slate-400 text-sm">
+                                                <td className="py-3 text-right text-muted-foreground text-sm">
                                                     {stock.volume?.toLocaleString('en-IN')}
                                                 </td>
                                             </tr>
@@ -328,7 +328,7 @@ export default function ScreenerPage() {
             {/* Empty State */}
             {!activeScreener && !showCustomBuilder && (
                 <GlassCard>
-                    <div className="text-center py-16 text-slate-400">
+                    <div className="text-center py-16 text-muted-foreground">
                         <Search className="h-16 w-16 mx-auto mb-4 opacity-20" />
                         <p className="text-lg font-medium mb-2">Select a screener to get started</p>
                         <p className="text-sm">

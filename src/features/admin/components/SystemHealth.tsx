@@ -18,8 +18,8 @@ export function SystemHealth() {
                         <Server className="h-6 w-6" />
                     </div>
                     <div>
-                        <div className="text-xs text-slate-400">Server Status</div>
-                        <div className="text-xl font-bold text-white flex items-center gap-2">
+                        <div className="text-xs text-muted-foreground">Server Status</div>
+                        <div className="text-xl font-bold text-foreground flex items-center gap-2">
                             Online <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                         </div>
                     </div>
@@ -29,8 +29,8 @@ export function SystemHealth() {
                         <Activity className="h-6 w-6" />
                     </div>
                     <div>
-                        <div className="text-xs text-slate-400">API Latency</div>
-                        <div className="text-xl font-bold text-white">45ms</div>
+                        <div className="text-xs text-muted-foreground">API Latency</div>
+                        <div className="text-xl font-bold text-foreground">45ms</div>
                     </div>
                 </GlassCard>
                 <GlassCard className="p-4 flex items-center gap-4">
@@ -38,15 +38,15 @@ export function SystemHealth() {
                         <Users className="h-6 w-6" />
                     </div>
                     <div>
-                        <div className="text-xs text-slate-400">Active Users</div>
-                        <div className="text-xl font-bold text-white">1,248</div>
+                        <div className="text-xs text-muted-foreground">Active Users</div>
+                        <div className="text-xl font-bold text-foreground">1,248</div>
                     </div>
                 </GlassCard>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <GlassCard>
-                    <h3 className="text-sm font-bold text-white mb-4">Traffic (Last 24h)</h3>
+                    <h3 className="text-sm font-bold text-foreground mb-4">Traffic (Last 24h)</h3>
                     <div className="h-[200px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={trafficData}>
@@ -67,27 +67,27 @@ export function SystemHealth() {
                 </GlassCard>
 
                 <GlassCard>
-                    <h3 className="text-sm font-bold text-white mb-4">Recent System Logs</h3>
+                    <h3 className="text-sm font-bold text-foreground mb-4">Recent System Logs</h3>
                     <div className="space-y-3">
-                        <div className="flex items-start gap-3 p-2 hover:bg-white/5 rounded-lg transition-colors">
-                            <CheckCircle className="h-4 w-4 text-green-400 mt-1" />
+                        <div className="flex items-start gap-3 p-2 hover:bg-card/20 rounded-xl transition-all duration-150 active:scale-95">
+                            <CheckCircle className="h-5 w-5 text-green-400 mt-1" />
                             <div>
-                                <div className="text-sm text-slate-200">Database Backup Successful</div>
-                                <div className="text-[10px] text-slate-500">2 mins ago</div>
+                                <div className="text-sm text-foreground">Database Backup Successful</div>
+                                <div className="text-[10px] text-muted-foreground">2 mins ago</div>
                             </div>
                         </div>
-                        <div className="flex items-start gap-3 p-2 hover:bg-white/5 rounded-lg transition-colors">
-                            <AlertTriangle className="h-4 w-4 text-orange-400 mt-1" />
+                        <div className="flex items-start gap-3 p-2 hover:bg-card/20 rounded-xl transition-all duration-150 active:scale-95">
+                            <AlertTriangle className="h-5 w-5 text-orange-400 mt-1" />
                             <div>
-                                <div className="text-sm text-slate-200">High Memory Usage (Redis)</div>
-                                <div className="text-[10px] text-slate-500">15 mins ago</div>
+                                <div className="text-sm text-foreground">High Memory Usage (Redis)</div>
+                                <div className="text-[10px] text-muted-foreground">15 mins ago</div>
                             </div>
                         </div>
-                        <div className="flex items-start gap-3 p-2 hover:bg-white/5 rounded-lg transition-colors">
-                            <CheckCircle className="h-4 w-4 text-green-400 mt-1" />
+                        <div className="flex items-start gap-3 p-2 hover:bg-card/20 rounded-xl transition-all duration-150 active:scale-95">
+                            <CheckCircle className="h-5 w-5 text-green-400 mt-1" />
                             <div>
-                                <div className="text-sm text-slate-200">Cron Jobs Executed</div>
-                                <div className="text-[10px] text-slate-500">1 hour ago</div>
+                                <div className="text-sm text-foreground">Cron Jobs Executed</div>
+                                <div className="text-[10px] text-muted-foreground">1 hour ago</div>
                             </div>
                         </div>
                     </div>

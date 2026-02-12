@@ -38,8 +38,8 @@ const levels = [
 export function ExperienceStep({ value, onChange }: ExperienceStepProps) {
     return (
         <div className="space-y-4">
-            <h2 className="text-xl font-bold text-white text-center">What's your trading experience?</h2>
-            <p className="text-slate-400 text-center text-sm mb-6">We'll customize your dashboard based on this.</p>
+            <h2 className="text-xl font-bold text-foreground text-center">What's your trading experience?</h2>
+            <p className="text-muted-foreground text-center text-sm mb-6">We'll customize your dashboard based on this.</p>
 
             <div className="grid grid-cols-1 gap-4">
                 {levels.map((level) => (
@@ -47,7 +47,7 @@ export function ExperienceStep({ value, onChange }: ExperienceStepProps) {
                         key={level.id}
                         className={`cursor-pointer transition-all border-2 flex items-center gap-4 ${value === level.id
                                 ? "border-sky-500 bg-sky-500/5"
-                                : "border-transparent hover:border-white/10"
+                                : "border-transparent hover:border-border"
                             }`}
                         onClick={() => onChange(level.id)}
                     >
@@ -55,8 +55,8 @@ export function ExperienceStep({ value, onChange }: ExperienceStepProps) {
                             <level.icon className="h-6 w-6" />
                         </div>
                         <div>
-                            <div className="font-semibold text-white">{level.title}</div>
-                            <div className="text-xs text-slate-400">{level.description}</div>
+                            <div className="font-semibold text-foreground">{level.title}</div>
+                            <div className="text-xs text-muted-foreground">{level.description}</div>
                         </div>
                     </GlassCard>
                 ))}

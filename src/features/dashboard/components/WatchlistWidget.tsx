@@ -91,15 +91,15 @@ export function WatchlistWidget() {
         <GlassCard className="col-span-1 lg:col-span-4 h-full flex flex-col">
             <div className="flex items-center justify-between mb-4">
                 <div>
-                    <h2 className="text-lg font-semibold text-white">Watchlist</h2>
-                    <div className="flex gap-2 text-xs text-slate-400 mt-1">
-                        <span className="cursor-pointer hover:text-white transition-colors" onClick={() => setFilter('all')}>All</span>
-                        <span className="cursor-pointer hover:text-green-400 transition-colors" onClick={() => setFilter('gainers')}>Gainers</span>
-                        <span className="cursor-pointer hover:text-red-400 transition-colors" onClick={() => setFilter('losers')}>Losers</span>
+                    <h2 className="text-lg font-semibold text-foreground">Watchlist</h2>
+                    <div className="flex gap-2 text-xs text-muted-foreground mt-1">
+                        <span className="cursor-pointer hover:text-foreground transition-all duration-150" onClick={() => setFilter('all')}>All</span>
+                        <span className="cursor-pointer hover:text-green-400 transition-all duration-150" onClick={() => setFilter('gainers')}>Gainers</span>
+                        <span className="cursor-pointer hover:text-red-400 transition-all duration-150" onClick={() => setFilter('losers')}>Losers</span>
                     </div>
                 </div>
                 <GlassButton size="sm" variant="ghost">
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-5 w-5" />
                 </GlassButton>
             </div>
 
@@ -107,21 +107,21 @@ export function WatchlistWidget() {
                 {watchlistData.map((item) => (
                     <div
                         key={item.symbol}
-                        className="group p-3 rounded-lg hover:bg-white/5 transition-all cursor-pointer border border-transparent hover:border-white/5"
+                        className="group p-3 rounded-xl hover:bg-card/20 transition-all cursor-pointer border border-transparent hover:border-border/50 active:scale-95"
                     >
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
-                                <span className="font-bold text-white">{item.symbol}</span>
+                                <span className="font-bold text-foreground">{item.symbol}</span>
                                 {item.momentum === 'bullish' && <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />}
                                 {item.momentum === 'bearish' && <div className="h-2 w-2 rounded-full bg-red-500" />}
                             </div>
                             <div className="text-right">
-                                <div className="text-sm font-medium text-slate-200">₹{item.ltp.toLocaleString()}</div>
+                                <div className="text-sm font-medium text-foreground">₹{item.ltp.toLocaleString()}</div>
                             </div>
                         </div>
 
                         <div className="flex items-center justify-between text-xs">
-                            <div className="flex items-center text-slate-500 gap-3">
+                            <div className="flex items-center text-muted-foreground gap-3">
                                 <span className={`flex items-center ${item.dayPercent >= 0 ? "text-green-400" : "text-red-400"}`}>
                                     {item.dayPercent >= 0 ? "+" : ""}{item.dayPercent}% (Day)
                                 </span>
@@ -137,8 +137,8 @@ export function WatchlistWidget() {
                 ))}
             </div>
 
-            <div className="pt-4 mt-2 border-t border-white/10">
-                <GlassButton variant="ghost" className="w-full text-xs text-slate-400 hover:text-white justify-between">
+            <div className="pt-4 mt-2 border-t border-border">
+                <GlassButton variant="ghost" className="w-full text-xs text-muted-foreground hover:text-foreground justify-between">
                     View Analytics <ArrowRight className="h-3 w-3" />
                 </GlassButton>
             </div>

@@ -4,18 +4,47 @@ import { useState, useEffect } from "react";
 import { AlgoStrategyCard } from "./AlgoStrategyCard";
 import { AlgoStrategy } from "../types";
 import { supabase } from "@/lib/supabase";
-import { Search, Filter } from "lucide-react";
-import { GlassInput } from "@/components/ui/GlassInput";
+import { Search } from "lucide-react";
+import { StrategyFilters, FilterState } from "@/features/strategy/components/StrategyFilters";
 
-// Mock data for initial development/fallback
-const MOCK_STRATEGIES: AlgoStrategy[] = [
+const PREDEFINED_STRATEGIES: AlgoStrategy[] = [
+    {
+        id: "expanding_range_breakout",
+        name: "Momentum Option Buying",
+        description: "Captures volatility expansion with multi-timeframe confirmation.",
+        manager_name: "Rupya Core",
+        risk_level: "High",
+        capital_required: 30000,
+        min_amount: 30000,
+        max_amount: 5000000,
+        tags: ["Options Buying", "Breakout", "Nifty"],
+        cagr: 42.5,
+        win_rate: 55.0,
+        max_drawdown: -18.5,
+        created_at: new Date().toISOString()
+    },
+    {
+        id: "nifty_short_strangle",
+        name: "Nifty Short Strangle",
+        description: "Standard delta-neutral strategy for low volatility periods.",
+        manager_name: "Rupya Core",
+        risk_level: "High",
+        capital_required: 250000,
+        min_amount: 250000,
+        max_amount: 5000000,
+        tags: ["Options Selling", "Intraday", "Nifty"],
+        cagr: 18.5,
+        win_rate: 68.0,
+        max_drawdown: -8.5,
+        created_at: new Date().toISOString()
+    },
     {
         id: "ma_crossover",
         name: "Moving Average Crossover",
         description: "Classic trend following using fast/slow MA crossover.",
         manager_name: "Rupya Core",
         risk_level: "Low",
-        capital_required: 10000,
+        capital_required: 15000,
         min_amount: 10000,
         max_amount: 1000000,
         tags: ["Trend", "Technical", "Equity"],
@@ -48,7 +77,7 @@ const MOCK_STRATEGIES: AlgoStrategy[] = [
         capital_required: 50000,
         min_amount: 25000,
         max_amount: 1000000,
-        tags: ["Breakout", "Momentum", "High Volatility"],
+        tags: ["Breakout", "Momentum", "Equity"],
         cagr: 35.0,
         win_rate: 40.0,
         max_drawdown: -25.0,
@@ -63,34 +92,40 @@ const MOCK_STRATEGIES: AlgoStrategy[] = [
         capital_required: 5000,
         min_amount: 1000,
         max_amount: 10000000,
-        tags: ["Passive", "Long Term", "Investment"],
+        tags: ["Passive", "Long Term", "Others"],
         cagr: 12.0,
         win_rate: 100.0,
         max_drawdown: -20.0,
         created_at: new Date().toISOString()
-    },
+    }
+];
+
+const MOCK_FALLBACK_STRATEGIES: AlgoStrategy[] = [
     {
         id: "mock-1",
-        name: "Damper Credit Spread",
+        name: "Credit Spread PE",
         description: "A smart market shock absorber that profits from turbulence.",
         manager_name: "Stratzy",
         risk_level: "High",
-        capital_required: 100000,
-        min_amount: 100000,
+        capital_required: 45000,
+        min_amount: 45000,
         max_amount: 320000,
-        tags: ["Nifty", "Hedged", "Directional"],
+        tags: ["Nifty", "Hedged", "Options Selling"],
         cagr: 205.69,
         win_rate: 66.67,
         max_drawdown: -20.27,
         created_at: new Date().toISOString()
-    },
-    // ... other mocks can remain or be removed if too many
+    }
 ];
 
 export function AlgoStrategyList() {
     const [strategies, setStrategies] = useState<AlgoStrategy[]>([]);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState("");
+    const [filters, setFilters] = useState<FilterState>({
+        margin: [],
+        category: [],
+        instruments: []
+    });
 
     useEffect(() => {
         fetchStrategies();
@@ -102,100 +137,102 @@ export function AlgoStrategyList() {
                 .from('algo_strategies')
                 .select('*');
 
-            if (error || !data || data.length === 0) {
-                // Fallback to mock data if DB is empty or error
-                setStrategies(MOCK_STRATEGIES);
-            } else {
-                setStrategies(data);
-            }
+            if (error) throw error;
+
+            const customStrategies = (data && data.length > 0) ? data : MOCK_FALLBACK_STRATEGIES;
+            setStrategies([...PREDEFINED_STRATEGIES, ...customStrategies]);
+
         } catch (e) {
             console.error("Error fetching strategies:", e);
-            setStrategies(MOCK_STRATEGIES);
+            setStrategies([...PREDEFINED_STRATEGIES, ...MOCK_FALLBACK_STRATEGIES]);
         } finally {
             setLoading(false);
         }
     };
 
-    const [activeTab, setActiveTab] = useState<'predefined' | 'custom'>('predefined');
+    const isMarginMatch = (capital: number) => {
+        if (filters.margin.length === 0) return true;
+        return filters.margin.some((range: string) => {
+            if (range === 'under-25k') return capital < 25000;
+            if (range === '25k-1l') return capital >= 25000 && capital < 100000;
+            if (range === '1l-2l') return capital >= 100000 && capital < 200000;
+            if (range === 'above-2l') return capital >= 200000;
+            return false;
+        });
+    };
 
-    // Split strategies into predefined (static IDs) and custom
-    const PREDEFINED_IDS = ['ma_crossover', 'rsi_mean_reversion', 'breakout', 'buy_and_hold'];
+    const isCategoryMatch = (tags: string[]) => {
+        if (filters.category.length === 0) return true;
+        return filters.category.some((cat: string) => tags.includes(cat));
+    };
 
-    const predefinedList = strategies.filter(s => PREDEFINED_IDS.includes(s.id));
-    const customList = strategies.filter(s => !PREDEFINED_IDS.includes(s.id));
-
-    // Use the active list for searching/filtering
-    const currentList = activeTab === 'predefined' ? predefinedList : customList;
-
-    const filteredStrategies = currentList.filter(s =>
-        s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        s.manager_name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredStrategies = strategies.filter((s: AlgoStrategy) => {
+        const searchTerm = filters.instruments[0] || "";
+        const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            s.manager_name.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesMargin = isMarginMatch(s.capital_required || s.min_amount || 0);
+        const matchesCategory = isCategoryMatch(s.tags || []);
+        return matchesSearch && matchesMargin && matchesCategory;
+    });
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center gap-4 border-b border-white/10">
-                <button
-                    onClick={() => setActiveTab('predefined')}
-                    className={`pb-3 px-1 text-sm font-medium transition-colors relative ${activeTab === 'predefined'
-                            ? 'text-primary'
-                            : 'text-slate-400 hover:text-slate-200'
-                        }`}
-                >
-                    Predefined Strategies
-                    {activeTab === 'predefined' && (
-                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full" />
-                    )}
-                </button>
-                <button
-                    onClick={() => setActiveTab('custom')}
-                    className={`pb-3 px-1 text-sm font-medium transition-colors relative ${activeTab === 'custom'
-                            ? 'text-primary'
-                            : 'text-slate-400 hover:text-slate-200'
-                        }`}
-                >
-                    My Custom Strategies
-                    {activeTab === 'custom' && (
-                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full" />
-                    )}
-                </button>
-            </div>
+        <div className="flex gap-8">
+            <StrategyFilters
+                filters={filters}
+                setFilters={setFilters}
+                onClearAll={() => setFilters({ margin: [], category: [], instruments: [] })}
+            />
 
-            <div className="flex gap-4">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                    <GlassInput
-                        placeholder="Search strategies or managers..."
-                        className="pl-10"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+            <div className="flex-1 space-y-6">
+                <div className="flex justify-between items-center mb-8">
+                    <div className="text-sm font-medium text-slate-400">
+                        {filteredStrategies.length} Strategies Available
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <span className="text-xs text-slate-500 uppercase tracking-widest font-bold">Show by</span>
+                        <select className="bg-slate-900 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-sky-500 transition-colors">
+                            <option>10</option>
+                            <option>20</option>
+                            <option>50</option>
+                        </select>
+                    </div>
                 </div>
-                <button className="h-10 px-4 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2 text-sm font-medium text-slate-300 hover:bg-white/10 transition-colors">
-                    <Filter className="h-4 w-4" />
-                    Filters
-                </button>
-            </div>
 
-            {loading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {[1, 2, 3].map(i => (
-                        <div key={i} className="h-[280px] rounded-2xl bg-white/5 animate-pulse" />
-                    ))}
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredStrategies.length > 0 ? (
-                        filteredStrategies.map(strategy => (
-                            <AlgoStrategyCard key={strategy.id} strategy={strategy} />
-                        ))
-                    ) : (
-                        <div className="col-span-full text-center py-12 text-slate-500">
-                            No strategies found in {activeTab === 'predefined' ? 'predefined' : 'custom'} list.
-                        </div>
-                    )}
-                </div>
-            )}
+                {loading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {[1, 2, 3, 4].map(i => (
+                            <div key={i} className="h-[280px] rounded-2xl bg-card/10 animate-pulse border border-white/5" />
+                        ))}
+                    </div>
+                ) : (
+                    <>
+                        {filteredStrategies.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
+                                {filteredStrategies.map(strategy => (
+                                    <AlgoStrategyCard key={strategy.id} strategy={strategy} />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-24 text-center">
+                                <div className="h-20 w-20 rounded-full bg-slate-900/50 flex items-center justify-center mb-6 border border-white/5">
+                                    <Search className="w-8 h-8 text-slate-600" />
+                                </div>
+                                <h3 className="text-xl font-bold text-white mb-2">No Strategies Available</h3>
+                                <p className="text-slate-400 max-w-xs mx-auto">
+                                    Try refining your search results or removing some filters
+                                </p>
+                                <button
+                                    onClick={() => setFilters({ margin: [], category: [], instruments: [] })}
+                                    className="mt-6 px-6 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium hover:bg-slate-700 transition-colors border border-white/10"
+                                >
+                                    Clear Filters
+                                </button>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
         </div>
     );
 }
+

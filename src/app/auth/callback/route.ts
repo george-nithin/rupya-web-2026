@@ -7,8 +7,6 @@ export async function GET(request: Request) {
     const code = searchParams.get('code')
     const next = searchParams.get('next') ?? '/dashboard'
 
-    console.log('Auth Callback initiated', { code: code ? 'PRESENT' : 'MISSING', next, origin });
-
     if (code) {
         const cookieStore = await cookies()
         const supabase = createServerClient(
@@ -20,7 +18,7 @@ export async function GET(request: Request) {
                         return cookieStore.get(name)?.value
                     },
                     set(name: string, value: string, options: CookieOptions) {
-                        console.log('Setting cookie:', name);
+
                         try {
                             cookieStore.set({ name, value, ...options })
                         } catch (error) {
@@ -28,7 +26,7 @@ export async function GET(request: Request) {
                         }
                     },
                     remove(name: string, options: CookieOptions) {
-                        console.log('Removing cookie:', name);
+
                         try {
                             cookieStore.delete({ name, ...options })
                         } catch (error) {
@@ -42,7 +40,7 @@ export async function GET(request: Request) {
         const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
         if (!error) {
-            console.log('Session exchange successful', { user: data.user?.id });
+            // Session exchange successful
             return NextResponse.redirect(`${origin}${next}`)
         } else {
             console.error('Session exchange error:', error);

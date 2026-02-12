@@ -25,13 +25,13 @@ export function MarketDepth() {
     return (
         <GlassCard>
             <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-bold text-white">Market Depth</h3>
+                <h3 className="text-sm font-bold text-foreground">Market Depth</h3>
                 <span className={`text-xs px-2 py-0.5 rounded border ${sentiment === 'Bullish' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
                     {sentiment}
                 </span>
             </div>
 
-            <div className="flex gap-4 mb-2 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+            <div className="flex gap-4 mb-2 text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
                 <div className="flex-1">Bid (Buy)</div>
                 <div className="flex-1 text-right">Ask (Sell)</div>
             </div>
@@ -43,11 +43,11 @@ export function MarketDepth() {
                         <div key={i} className="relative h-6 flex items-center justify-between px-2 text-xs">
                             {/* Bar Background */}
                             <div className="absolute inset-y-0 left-0 bg-green-500/10 rounded-sm" style={{ width: `${bid.percent}%` }} />
-                            <span className="relative z-10 text-slate-300 font-mono">{bid.qty}</span>
+                            <span className="relative z-10 text-foreground/80 font-mono">{bid.qty}</span>
                             <span className="relative z-10 text-green-400 font-bold font-mono">{bid.price}</span>
                         </div>
                     ))}
-                    <div className="pt-2 mt-2 border-t border-white/5 flex justify-between text-xs font-bold text-slate-400">
+                    <div className="pt-2 mt-2 border-t border-border/50 flex justify-between text-xs font-bold text-muted-foreground">
                         <span>Total</span>
                         <span className="text-green-400">{totalBuy}</span>
                     </div>
@@ -60,10 +60,10 @@ export function MarketDepth() {
                             {/* Bar Background (Right aligned visually handled by flex-row-reverse if needed, but simple width from right is tricky in CSS without dir=rtl or flex hack. Using simple bg for now) */}
                             <div className="absolute inset-y-0 right-0 bg-red-500/10 rounded-sm" style={{ width: `${ask.percent}%` }} />
                             <span className="relative z-10 text-red-400 font-bold font-mono">{ask.price}</span>
-                            <span className="relative z-10 text-slate-300 font-mono">{ask.qty}</span>
+                            <span className="relative z-10 text-foreground/80 font-mono">{ask.qty}</span>
                         </div>
                     ))}
-                    <div className="pt-2 mt-2 border-t border-white/5 flex justify-between text-xs font-bold text-slate-400">
+                    <div className="pt-2 mt-2 border-t border-border/50 flex justify-between text-xs font-bold text-muted-foreground">
                         <span className="text-red-400">{totalSell}</span>
                         <span>Total</span>
                     </div>

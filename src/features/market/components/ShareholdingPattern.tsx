@@ -13,7 +13,7 @@ const data = [
 export function ShareholdingPattern() {
     return (
         <GlassCard className="h-full flex flex-col">
-            <h3 className="text-sm font-bold text-white mb-2">Shareholding Pattern</h3>
+            <h3 className="text-sm font-bold text-foreground mb-2">Shareholding Pattern</h3>
             <div className="flex-1 min-h-[200px] relative">
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -43,7 +43,7 @@ export function ShareholdingPattern() {
                 </ResponsiveContainer>
                 {/* Center Text */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none pb-8">
-                    <span className="text-xs font-bold text-slate-500">Dec 2025</span>
+                    <span className="text-xs font-bold text-muted-foreground">Dec 2025</span>
                 </div>
             </div>
         </GlassCard>

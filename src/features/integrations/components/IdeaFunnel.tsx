@@ -5,7 +5,7 @@ import { GlassButton } from "@/components/ui/GlassButton";
 import { ArrowRight, Filter, ShoppingCart, CheckCircle, Search } from "lucide-react";
 
 const funnelStages = [
-    { id: 1, name: "Watchlist Idea", count: 12, icon: Search, color: "text-slate-400", bg: "bg-slate-500/10" },
+    { id: 1, name: "Watchlist Idea", count: 12, icon: Search, color: "text-muted-foreground", bg: "bg-slate-500/10" },
     { id: 2, name: "Analysis Phase", count: 5, icon: Filter, color: "text-sky-400", bg: "bg-sky-500/10" },
     { id: 3, name: "Ready to Execute", count: 2, icon: ShoppingCart, color: "text-yellow-400", bg: "bg-yellow-500/10" },
     { id: 4, name: "Trade Taken", count: 8, icon: CheckCircle, color: "text-green-400", bg: "bg-green-500/10" },
@@ -31,8 +31,8 @@ export function IdeaFunnel() {
                             <div className={`p-3 rounded-full mb-3 ${stage.bg} ${stage.color}`}>
                                 <stage.icon className="h-6 w-6" />
                             </div>
-                            <div className="text-2xl font-bold text-white mb-1">{stage.count}</div>
-                            <div className="text-xs text-slate-400 uppercase tracking-widest">{stage.name}</div>
+                            <div className="text-2xl font-bold text-foreground mb-1">{stage.count}</div>
+                            <div className="text-xs text-muted-foreground uppercase tracking-widest">{stage.name}</div>
                         </GlassCard>
                         {index < funnelStages.length - 1 && (
                             <div className="hidden md:block absolute top-1/2 -right-3 transform -translate-y-1/2 z-10 text-slate-600">
@@ -45,17 +45,17 @@ export function IdeaFunnel() {
 
             {/* Active Ideas List */}
             <GlassCard>
-                <h3 className="text-sm font-bold text-white mb-4">Active Ideas in Pipeline</h3>
+                <h3 className="text-sm font-bold text-foreground mb-4">Active Ideas in Pipeline</h3>
                 <div className="space-y-2">
                     {activeIdeas.map((idea) => (
-                        <div key={idea.symbol} className="p-3 bg-white/5 rounded-lg border border-white/5 flex items-center justify-between hover:bg-white/10 transition-colors group">
+                        <div key={idea.symbol} className="p-3 bg-card/20 rounded-xl border border-border/50 flex items-center justify-between hover:bg-card/30 transition-all duration-150 group active:scale-95">
                             <div className="flex items-center gap-4">
                                 <div className="h-10 w-10 rounded bg-indigo-500/20 flex items-center justify-center text-xs font-bold text-indigo-400">
                                     {idea.symbol.slice(0, 2)}
                                 </div>
                                 <div>
-                                    <div className="font-bold text-white">{idea.symbol}</div>
-                                    <div className="text-xs text-slate-400">{idea.note}</div>
+                                    <div className="font-bold text-foreground">{idea.symbol}</div>
+                                    <div className="text-xs text-muted-foreground">{idea.note}</div>
                                 </div>
                             </div>
 
@@ -66,7 +66,7 @@ export function IdeaFunnel() {
                                         }`}>
                                         {idea.stage}
                                     </div>
-                                    <div className="text-[10px] text-slate-500 mt-1">{idea.added}</div>
+                                    <div className="text-[10px] text-muted-foreground mt-1">{idea.added}</div>
                                 </div>
                                 <GlassButton size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
                                     Move Next

@@ -48,16 +48,16 @@ export function UserVsIndex() {
     return (
         <GlassCard className="h-[400px]">
             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-bold text-white">Performance vs Benchmark</h3>
+                <h3 className="text-lg font-bold text-foreground">Performance vs Benchmark</h3>
                 <div className="flex gap-2 text-xs">
                     <span className="flex items-center gap-1 text-sky-400"><div className="w-2 h-2 bg-sky-400 rounded-full"></div> Portfolio</span>
-                    <span className="flex items-center gap-1 text-slate-400"><div className="w-2 h-2 bg-slate-400 rounded-full"></div> NIFTY 50</span>
+                    <span className="flex items-center gap-1 text-muted-foreground"><div className="w-2 h-2 bg-slate-400 rounded-full"></div> NIFTY 50</span>
                 </div>
             </div>
 
             <div className="h-[80%] min-w-0">
                 {loading ? (
-                    <div className="h-full flex items-center justify-center text-slate-500 text-sm">Loading performance metrics...</div>
+                    <div className="h-full flex items-center justify-center text-muted-foreground text-sm">Loading performance metrics...</div>
                 ) : (
                     <ResponsiveContainer width="100%" height={320}>
                         <LineChart data={data}>

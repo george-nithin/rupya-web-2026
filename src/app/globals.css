@@ -59,14 +59,14 @@
   --radius: 0.75rem;
 }
 
-.dark {
-  /* Modern Vibrant Dark - Rich Gradients & Colorful Accents */
+:root.dark {
+  /* Modern Vibrant Dark - Improved Contrast */
   --background: #020617;
-  /* Deep Slate Base */
+  /* Deep Slate */
   --foreground: #f8fafc;
-
-  --card: #0f172a;
-  /* Slate 900 - richer than before */
+  /* Light text */
+  --card: #1e293b;
+  /* Lighter slate for better contrast */
   --card-foreground: #f8fafc;
 
   --popover: #0f172a;
@@ -81,7 +81,8 @@
   --secondary-foreground: #e2e8f0;
 
   --muted: #1e293b;
-  --muted-foreground: #94a3b8;
+  --muted-foreground: #cbd5e1;
+  /* Lighter gray for better visibility */
 
   --accent: #FF6B35;
   /* Orange Accent */
@@ -118,22 +119,41 @@
 }
 
 body {
-  background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #1e1b4b 100%);
-  background-attachment: fixed;
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
 
+/* Light mode gradient background */
+body:not(.dark) {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+  background-attachment: fixed;
+}
+
+/* Dark mode gradient background */
+.dark body {
+  background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #1e1b4b 100%);
+  background-attachment: fixed;
+}
+
 /* Enhanced Glass Effect with Gradient Borders */
 .glass-effect {
-  @apply backdrop-blur-xl bg-slate-900/40 border border-white/10;
+  @apply backdrop-blur-xl bg-card/40 border border-border;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+}
+
+.dark .glass-effect {
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
 .glass-effect-strong {
-  @apply backdrop-blur-2xl bg-slate-900/60 border border-white/20;
+  @apply backdrop-blur-2xl bg-card/60 border border-border;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+}
+
+.dark .glass-effect-strong {
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
 }
 

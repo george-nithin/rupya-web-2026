@@ -116,46 +116,46 @@ export default function GameArenaPage() {
         setTimeout(() => setNotification(null), 2000);
     };
 
-    if (loading) return <div className="h-screen flex items-center justify-center text-slate-500 font-mono">Loading Battlefield...</div>;
+    if (loading) return <div className="h-screen flex items-center justify-center text-muted-foreground font-mono">Loading Battlefield...</div>;
 
     const progress = Math.min((currentAmount / (plan?.target_amount || 1)) * 100, 100);
 
     return (
         <div className="h-[calc(100vh-80px)] overflow-hidden flex flex-col relative bg-[#1c1c22]">
             {/* Top HUD */}
-            <div className="p-4 border-b border-white/5 bg-[#111316] flex justify-between items-center z-20 shadow-xl">
+            <div className="p-4 border-b border-border/50 bg-[#111316] flex justify-between items-center z-20 shadow-xl">
                 <div className="flex items-center gap-4">
                     <GlassButton size="sm" variant="ghost" onClick={() => router.push('/planning')}>
-                        <ArrowLeft className="h-4 w-4" />
+                        <ArrowLeft className="h-5 w-5" />
                     </GlassButton>
                     <div>
-                        <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">Target</div>
-                        <div className="text-lg font-mono font-bold text-white">₹{plan?.target_amount?.toLocaleString()}</div>
+                        <div className="text-xs text-muted-foreground font-bold uppercase tracking-wider">Target</div>
+                        <div className="text-lg font-mono font-bold text-foreground">₹{plan?.target_amount?.toLocaleString()}</div>
                     </div>
                 </div>
 
                 {/* Central Timer & Progress */}
                 <div className="flex-1 max-w-xl mx-4">
-                    <div className="flex justify-between text-xs text-slate-400 mb-1">
+                    <div className="flex justify-between text-xs text-muted-foreground mb-1">
                         <span className="flex items-center gap-1"><Shield className="h-3 w-3" /> Fortress Integrity</span>
                         <span className="font-mono">{progress.toFixed(1)}%</span>
                     </div>
-                    <div className="h-4 bg-black/40 rounded-full overflow-hidden border border-white/5 relative">
+                    <div className="h-4 bg-black/40 rounded-full overflow-hidden border border-border/50 relative">
                         <motion.div
                             className="h-full bg-gradient-to-r from-amber-500 to-orange-600"
                             initial={{ width: 0 }}
                             animate={{ width: `${progress}%` }}
-                            transition={{ type: "spring", stiffness: 50 }}
+                            transition-all duration-200={{ type: "spring", stiffness: 50 }}
                         />
                         {/* Shimmer effect */}
-                        <div className="absolute inset-0 bg-white/10 w-full -skew-x-12 animate-[shimmer_2s_infinite]" />
+                        <div className="absolute inset-0 bg-card/30 w-full -skew-x-12 animate-[shimmer_2s_infinite]" />
                     </div>
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <div className="px-4 py-2 bg-white/5 rounded-lg border border-white/10 flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-sky-400" />
-                        <span className="font-mono font-bold text-slate-200">29D 23H</span>
+                    <div className="px-4 py-2 bg-card/20 rounded-xl border border-border flex items-center gap-2">
+                        <Clock className="h-5 w-5 text-sky-400" />
+                        <span className="font-mono font-bold text-foreground">29D 23H</span>
                     </div>
                 </div>
             </div>
@@ -175,8 +175,8 @@ export default function GameArenaPage() {
                                     initial={{ y: -500, opacity: 0, scale: 0.5, rotate: Math.random() * 10 - 5 }}
                                     animate={{ y: 0, opacity: 1, scale: 1, rotate: 0 }}
                                     exit={{ scale: 0, opacity: 0, rotate: 180 }}
-                                    transition={{ type: "spring", stiffness: 120, damping: 15 }}
-                                    className={`h-12 rounded-sm border-t border-l border-white/20 shadow-lg ${brick.color} flex items-center justify-center`}
+                                    transition-all duration-200={{ type: "spring", stiffness: 120, damping: 15 }}
+                                    className={`h-12 rounded-sm border-t border-l border-border shadow-strong ${brick.color} flex items-center justify-center`}
                                     style={{
                                         width: brick.width === 1 ? '80px' : brick.width === 2 ? '160px' : '240px',
                                         zIndex: i
@@ -207,13 +207,13 @@ export default function GameArenaPage() {
             </div>
 
             {/* Bottom Dock (Armory) */}
-            <div className="h-28 bg-[#0B0E11] border-t border-white/10 z-30 flex items-center justify-center gap-4 px-4 overflow-x-auto pb-safe">
-                <div className="flex items-center gap-4 pr-8 border-r border-white/10 mr-4">
+            <div className="h-28 bg-[#0B0E11] border-t border-border z-30 flex items-center justify-center gap-4 px-4 overflow-x-auto pb-safe">
+                <div className="flex items-center gap-4 pr-8 border-r border-border mr-4">
                     <button
                         onClick={useHammer}
                         className="group flex flex-col items-center gap-1 min-w-[80px] hover:scale-105 transition-transform"
                     >
-                        <div className="h-14 w-14 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center group-hover:bg-red-500/20 transition-colors">
+                        <div className="h-14 w-14 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center group-hover:bg-red-500/20 transition-all duration-150 active:scale-95">
                             <Hammer className="h-6 w-6 text-red-400 group-hover:rotate-[-45deg] transition-transform" />
                         </div>
                         <span className="text-[10px] font-bold text-red-400 uppercase">Expense Hit</span>
@@ -227,8 +227,8 @@ export default function GameArenaPage() {
                             onClick={() => addBrick(brick)}
                             className="group flex flex-col items-center gap-1 min-w-[70px] hover:scale-105 transition-transform"
                         >
-                            <div className={`h-12 w-full rounded shadow-md border-t border-l border-white/20 ${brick.color} opacity-90 group-hover:opacity-100`}></div>
-                            <span className="text-[10px] font-bold text-slate-400">{brick.label}</span>
+                            <div className={`h-12 w-full rounded shadow-md border-t border-l border-border ${brick.color} opacity-90 group-hover:opacity-100`}></div>
+                            <span className="text-[10px] font-bold text-muted-foreground">{brick.label}</span>
                         </button>
                     ))}
                 </div>

@@ -30,8 +30,8 @@ export function TechIndictorsSelector() {
     return (
         <GlassCard className="p-4 mb-4">
             <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-slate-300">Technical Indicators</h3>
-                <span className="text-xs text-slate-500">{activeIndicators.length} Active</span>
+                <h3 className="text-sm font-semibold text-foreground/80">Technical Indicators</h3>
+                <span className="text-xs text-muted-foreground">{activeIndicators.length} Active</span>
             </div>
             <div className="flex flex-wrap gap-2">
                 {indicators.map((ind) => {
@@ -41,8 +41,8 @@ export function TechIndictorsSelector() {
                             key={ind.id}
                             onClick={() => toggleIndicator(ind.id)}
                             className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${isActive
-                                    ? "bg-sky-500 text-white shadow-lg shadow-sky-500/20"
-                                    : "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white border border-white/5"
+                                    ? "bg-sky-500 text-white shadow-strong shadow-sky-500/20"
+                                    : "bg-card/20 text-muted-foreground hover:bg-card/30 hover:text-foreground border border-border/50"
                                 }`}
                         >
                             {ind.label}

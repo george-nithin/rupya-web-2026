@@ -38,12 +38,12 @@ export function OptionChain() {
 
     return (
         <GlassCard className="h-full overflow-hidden flex flex-col p-0">
-            <div className="p-4 border-b border-white/10 flex justify-between items-center bg-slate-900/50">
+            <div className="p-4 border-b border-border flex justify-between items-center bg-card/50">
                 <div className="flex items-center gap-4">
                     <select
                         value={symbol}
                         onChange={(e) => setSymbol(e.target.value)}
-                        className="bg-sky-500/10 border border-sky-500/20 rounded-lg px-2 py-1 text-sm font-bold text-white outline-none"
+                        className="bg-sky-500/10 border border-sky-500/20 rounded-xl px-2 py-1 text-sm font-bold text-white outline-none"
                     >
                         <option value="NIFTY">NIFTY</option>
                         <option value="BANKNIFTY">BANKNIFTY</option>
@@ -51,32 +51,32 @@ export function OptionChain() {
                     <select
                         value={expiry}
                         onChange={(e) => setExpiry(e.target.value)}
-                        className="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-white outline-none"
+                        className="bg-card/20 border border-border rounded-xl px-2 py-1 text-xs text-foreground outline-none"
                     >
                         {chainData?.records?.expiryDates?.slice(0, 5).map((exp: string) => (
                             <option key={exp} value={exp}>{exp}</option>
                         ))}
                     </select>
                 </div>
-                <div className="text-xs text-slate-400">
-                    Spot: <span className="text-white font-bold">{spotPrice.toLocaleString()}</span>
+                <div className="text-xs text-muted-foreground">
+                    Spot: <span className="text-foreground font-bold">{spotPrice.toLocaleString()}</span>
                 </div>
             </div>
 
 
             <div className="flex-1 overflow-auto">
                 {loading ? (
-                    <div className="h-full flex items-center justify-center text-slate-500">Loading live chain...</div>
+                    <div className="h-full flex items-center justify-center text-muted-foreground">Loading live chain...</div>
                 ) : (
                     <table className="w-full text-xs border-collapse">
-                        <thead className="text-slate-500 bg-white/5 sticky top-0 z-10 font-medium">
+                        <thead className="text-muted-foreground bg-card/20 sticky top-0 z-10 font-medium">
                             <tr>
                                 <th className="py-2 px-2 text-green-400/80">OI</th>
                                 <th className="py-2 px-2 text-green-400/80">OI Chg</th>
                                 <th className="py-2 px-2 text-green-400/80">Vol</th>
                                 <th className="py-2 px-2 text-green-400/80">IV</th>
                                 <th className="py-2 px-2 text-green-400/80 border-r border-white/10">LTP</th>
-                                <th className="py-2 px-4 bg-slate-800 text-white">STRIKE</th>
+                                <th className="py-2 px-4 bg-secondary text-foreground">STRIKE</th>
                                 <th className="py-2 px-2 text-red-400/80 border-l border-white/10">LTP</th>
                                 <th className="py-2 px-2 text-red-400/80">IV</th>
                                 <th className="py-2 px-2 text-red-400/80">Vol</th>
@@ -84,7 +84,7 @@ export function OptionChain() {
                                 <th className="py-2 px-2 text-red-400/80">OI</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/5 text-slate-300">
+                        <tbody className="divide-y divide-white/5 text-foreground/80">
                             {(() => {
                                 // Filter strikes around ATM (±500 points for NIFTY, ±1000 for BANKNIFTY)
                                 const range = symbol === "NIFTY" ? 500 : 1000;
@@ -95,7 +95,7 @@ export function OptionChain() {
                                 return atmStrikes.map((strike: any) => {
                                     const isATM = Math.abs(strike.strikePrice - spotPrice) < 50;
                                     return (
-                                        <tr key={strike.strikePrice} className={`hover:bg-white/5 transition-colors ${isATM ? 'bg-sky-500/10' : ''}`}>
+                                        <tr key={strike.strikePrice} className={`hover:bg-white/5 transition-all duration-150 ${isATM ? 'bg-sky-500/10' : ''}`}>
                                             {/* CALLS */}
                                             <td className="py-2 px-2 text-center">{strike.CE?.openInterest?.toLocaleString() || '-'}</td>
                                             <td className="py-2 px-2 text-center">
@@ -103,17 +103,17 @@ export function OptionChain() {
                                                     {strike.CE?.changeinOpenInterest?.toLocaleString() || '-'}
                                                 </span>
                                             </td>
-                                            <td className="py-2 px-2 text-center text-slate-400">{strike.CE?.totalTradedVolume?.toLocaleString() || '-'}</td>
-                                            <td className="py-2 px-2 text-center text-slate-400">{strike.CE?.impliedVolatility || '-'}</td>
-                                            <td className="py-2 px-2 font-medium text-white border-r border-white/10 text-center">{strike.CE?.lastPrice || '-'}</td>
+                                            <td className="py-2 px-2 text-center text-muted-foreground">{strike.CE?.totalTradedVolume?.toLocaleString() || '-'}</td>
+                                            <td className="py-2 px-2 text-center text-muted-foreground">{strike.CE?.impliedVolatility || '-'}</td>
+                                            <td className="py-2 px-2 font-medium text-foreground border-r border-border text-center">{strike.CE?.lastPrice || '-'}</td>
 
                                             {/* STRIKE */}
                                             <td className={`py-2 px-4 font-bold bg-slate-800 text-center ${isATM ? 'text-sky-400' : 'text-white'}`}>{strike.strikePrice}</td>
 
                                             {/* PUTS */}
-                                            <td className="py-2 px-2 font-medium text-white border-l border-white/10 text-center">{strike.PE?.lastPrice || '-'}</td>
-                                            <td className="py-2 px-2 text-center text-slate-400">{strike.PE?.impliedVolatility || '-'}</td>
-                                            <td className="py-2 px-2 text-center text-slate-400">{strike.PE?.totalTradedVolume?.toLocaleString() || '-'}</td>
+                                            <td className="py-2 px-2 font-medium text-foreground border-l border-border text-center">{strike.PE?.lastPrice || '-'}</td>
+                                            <td className="py-2 px-2 text-center text-muted-foreground">{strike.PE?.impliedVolatility || '-'}</td>
+                                            <td className="py-2 px-2 text-center text-muted-foreground">{strike.PE?.totalTradedVolume?.toLocaleString() || '-'}</td>
                                             <td className="py-2 px-2 text-center">
                                                 <span className={strike.PE?.changeinOpenInterest > 0 ? 'text-green-400' : 'text-red-400'}>
                                                     {strike.PE?.changeinOpenInterest?.toLocaleString() || '-'}

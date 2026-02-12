@@ -246,7 +246,7 @@ export default function TradeEntryForm({ tradeId }: TradeEntryFormProps) {
 
     return (
         <GlassCard className="max-w-5xl mx-auto p-6">
-            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-sky-400" />
                 {tradeId ? "Edit Trade" : "Log New Trade"}
             </h2>
@@ -262,7 +262,7 @@ export default function TradeEntryForm({ tradeId }: TradeEntryFormProps) {
                             {/* Section 1: Instrument & Type */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="relative" ref={wrapperRef}>
-                                    <label className="block text-sm font-medium text-slate-400 mb-1">Symbol</label>
+                                    <label className="block text-sm font-medium text-muted-foreground mb-1">Symbol</label>
                                     <GlassInput
                                         {...register("symbol")}
                                         placeholder="e.g. RELIANCE"
@@ -272,18 +272,18 @@ export default function TradeEntryForm({ tradeId }: TradeEntryFormProps) {
                                         }}
                                     />
                                     {showSuggestions && suggestions.length > 0 && (
-                                        <div className="absolute z-50 w-full mt-1 bg-slate-900/95 border border-white/10 rounded-lg shadow-xl backdrop-blur-md max-h-60 overflow-y-auto">
+                                        <div className="absolute z-50 w-full mt-1 bg-card/95 border border-border rounded-xl shadow-xl backdrop-blur-md max-h-60 overflow-y-auto">
                                             {suggestions.map((item) => (
                                                 <div
                                                     key={item.symbol}
-                                                    className="px-4 py-3 hover:bg-white/10 cursor-pointer transition-colors border-b border-white/5 last:border-0"
+                                                    className="px-4 py-3 hover:bg-card/30 cursor-pointer transition-all duration-150 border-b border-border/50 last:border-0 active:scale-95"
                                                     onClick={() => {
                                                         setValue("symbol", item.symbol);
                                                         setShowSuggestions(false);
                                                     }}
                                                 >
-                                                    <div className="text-white font-medium">{item.symbol}</div>
-                                                    <div className="text-xs text-slate-400 truncate">{item.company_name}</div>
+                                                    <div className="text-foreground font-medium">{item.symbol}</div>
+                                                    <div className="text-xs text-muted-foreground truncate">{item.company_name}</div>
                                                 </div>
                                             ))}
                                         </div>
@@ -293,12 +293,12 @@ export default function TradeEntryForm({ tradeId }: TradeEntryFormProps) {
 
                                 <div className="grid grid-cols-2 gap-2">
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-400 mb-1">Date</label>
+                                        <label className="block text-sm font-medium text-muted-foreground mb-1">Date</label>
                                         <GlassInput type="date" {...register("entryDate")} />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-400 mb-1">Type</label>
-                                        <select {...register("tradeType")} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-sky-500/50">
+                                        <label className="block text-sm font-medium text-muted-foreground mb-1">Type</label>
+                                        <select {...register("tradeType")} className="w-full bg-card/20 border border-border rounded-xl px-3 py-2 text-foreground outline-none focus:border-sky-500/50">
                                             {tradeTypes.map(t => <option key={t} value={t}>{t}</option>)}
                                         </select>
                                     </div>
@@ -308,22 +308,22 @@ export default function TradeEntryForm({ tradeId }: TradeEntryFormProps) {
                             {/* Section 2: Strategy & Setup */}
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-400 mb-1">Direction</label>
-                                    <select {...register("direction")} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-sky-500/50">
+                                    <label className="block text-sm font-medium text-muted-foreground mb-1">Direction</label>
+                                    <select {...register("direction")} className="w-full bg-card/20 border border-border rounded-xl px-3 py-2 text-foreground outline-none focus:border-sky-500/50">
                                         <option value="LONG">LONG 🟢</option>
                                         <option value="SHORT">SHORT 🔴</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-400 mb-1">Strategy</label>
-                                    <select {...register("strategy")} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-sky-500/50">
+                                    <label className="block text-sm font-medium text-muted-foreground mb-1">Strategy</label>
+                                    <select {...register("strategy")} className="w-full bg-card/20 border border-border rounded-xl px-3 py-2 text-foreground outline-none focus:border-sky-500/50">
                                         <option value="">Select Strategy</option>
                                         {strategies.map(s => <option key={s} value={s}>{s}</option>)}
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-400 mb-1">Session</label>
-                                    <select {...register("session")} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-sky-500/50">
+                                    <label className="block text-sm font-medium text-muted-foreground mb-1">Session</label>
+                                    <select {...register("session")} className="w-full bg-card/20 border border-border rounded-xl px-3 py-2 text-foreground outline-none focus:border-sky-500/50">
                                         <option value="">Select Session</option>
                                         {sessions.map(s => <option key={s} value={s}>{s}</option>)}
                                     </select>
@@ -331,38 +331,38 @@ export default function TradeEntryForm({ tradeId }: TradeEntryFormProps) {
                             </div>
 
                             {/* Section 3: Execution Numbers */}
-                            <div className="grid grid-cols-4 gap-4 p-4 bg-white/5 rounded-xl border border-white/10">
+                            <div className="grid grid-cols-4 gap-4 p-4 bg-card/20 rounded-xl border border-border">
                                 <div className="col-span-1">
-                                    <label className="block text-xs font-medium text-slate-400 mb-1">Qty</label>
+                                    <label className="block text-xs font-medium text-muted-foreground mb-1">Qty</label>
                                     <GlassInput {...register("quantity")} type="number" />
                                 </div>
                                 <div className="col-span-1">
-                                    <label className="block text-xs font-medium text-slate-400 mb-1">Entry</label>
+                                    <label className="block text-xs font-medium text-muted-foreground mb-1">Entry</label>
                                     <GlassInput {...register("entryPrice")} type="number" step="0.05" />
                                 </div>
                                 <div className="col-span-1">
-                                    <label className="block text-xs font-medium text-slate-400 mb-1">SL</label>
+                                    <label className="block text-xs font-medium text-muted-foreground mb-1">SL</label>
                                     <GlassInput {...register("stopLoss")} type="number" step="0.05" className="border-red-500/30 focus:border-red-500" />
                                 </div>
                                 <div className="col-span-1">
-                                    <label className="block text-xs font-medium text-slate-400 mb-1">Target</label>
+                                    <label className="block text-xs font-medium text-muted-foreground mb-1">Target</label>
                                     <GlassInput {...register("target")} type="number" step="0.05" className="border-green-500/30 focus:border-green-500" />
                                 </div>
                             </div>
 
                             {/* Edit Mode: Exit Details */}
                             {tradeId && (
-                                <div className="grid grid-cols-2 gap-4 p-4 bg-white/5 rounded-xl border border-white/10">
+                                <div className="grid grid-cols-2 gap-4 p-4 bg-card/20 rounded-xl border border-border">
                                     <div>
-                                        <label className="block text-xs font-medium text-slate-400 mb-1">Status</label>
-                                        <select {...register("status")} className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-white outline-none">
+                                        <label className="block text-xs font-medium text-muted-foreground mb-1">Status</label>
+                                        <select {...register("status")} className="w-full bg-card border border-border rounded-xl px-3 py-2 text-foreground outline-none">
                                             <option value="OPEN">OPEN</option>
                                             <option value="CLOSED">CLOSED</option>
                                             <option value="CANCELLED">CANCELLED</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-slate-400 mb-1">Exit Price</label>
+                                        <label className="block text-xs font-medium text-muted-foreground mb-1">Exit Price</label>
                                         <GlassInput {...register("exitPrice")} type="number" step="0.05" />
                                     </div>
                                 </div>
@@ -370,10 +370,10 @@ export default function TradeEntryForm({ tradeId }: TradeEntryFormProps) {
 
                             {/* Section 4: Text Areas */}
                             <div>
-                                <label className="block text-sm font-medium text-slate-400 mb-1">Trade Reasoning (Setup & Confluence)</label>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1">Trade Reasoning (Setup & Confluence)</label>
                                 <textarea
                                     {...register("reasoning")}
-                                    className="w-full h-24 bg-white/5 border border-white/10 rounded-lg p-3 text-white text-sm outline-none focus:border-sky-500/50 resize-none font-sans"
+                                    className="w-full h-24 bg-card/20 border border-border rounded-xl p-3 text-foreground text-sm outline-none focus:border-sky-500/50 resize-none font-sans"
                                     placeholder="Why did you take this trade? Market context, confluences..."
                                 />
                             </div>
@@ -381,15 +381,15 @@ export default function TradeEntryForm({ tradeId }: TradeEntryFormProps) {
                             {/* New Section: Tags & Screenshot */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-400 mb-1 flex items-center gap-2">
-                                        <Tag className="h-4 w-4" /> Tags
+                                    <label className="block text-sm font-medium text-muted-foreground mb-1 flex items-center gap-2">
+                                        <Tag className="h-5 w-5" /> Tags
                                     </label>
                                     <GlassInput {...register("tags")} placeholder="e.g. nfp, news, breakout, error" />
-                                    <p className="text-[10px] text-slate-500 mt-1">Comma separated values</p>
+                                    <p className="text-[10px] text-muted-foreground mt-1">Comma separated values</p>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-400 mb-1 flex items-center gap-2">
-                                        <Camera className="h-4 w-4" /> Screenshot
+                                    <label className="block text-sm font-medium text-muted-foreground mb-1 flex items-center gap-2">
+                                        <Camera className="h-5 w-5" /> Screenshot
                                     </label>
                                     <input
                                         type="file"
@@ -399,7 +399,7 @@ export default function TradeEntryForm({ tradeId }: TradeEntryFormProps) {
                                                 setScreenshot(e.target.files[0]);
                                             }
                                         }}
-                                        className="block w-full text-xs text-slate-400
+                                        className="block w-full text-xs text-muted-foreground
                                       file:mr-4 file:py-2 file:px-4
                                       file:rounded-full file:border-0
                                       file:text-xs file:font-semibold
@@ -416,25 +416,25 @@ export default function TradeEntryForm({ tradeId }: TradeEntryFormProps) {
                         {/* Right Column: Risk & Psychology (1 col wide) */}
                         <div className="space-y-6">
                             {/* Risk Card */}
-                            <div className="bg-slate-900/50 rounded-xl p-5 border border-white/10">
+                            <div className="bg-card/50 rounded-xl p-5 border border-border">
                                 <h3 className="text-sm font-semibold text-sky-400 mb-4 flex items-center gap-2">
-                                    <Target className="h-4 w-4" /> Risk Calc
+                                    <Target className="h-5 w-5" /> Risk Calc
                                 </h3>
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-xs text-slate-400">R:R Ratio</span>
+                                        <span className="text-xs text-muted-foreground">R:R Ratio</span>
                                         <span className={`text-lg font-mono font-bold ${rrRatio && rrRatio >= 2 ? 'text-green-400' : 'text-orange-400'}`}>
                                             {rrRatio ? `1 : ${rrRatio}` : "-"}
                                         </span>
                                     </div>
                                     <div className="flex justify-between items-center">
-                                        <span className="text-xs text-slate-400">Risk Amount</span>
+                                        <span className="text-xs text-muted-foreground">Risk Amount</span>
                                         <span className="text-lg font-mono font-bold text-red-400">
                                             {riskAmt ? `₹${riskAmt}` : "-"}
                                         </span>
                                     </div>
-                                    <div className="pt-2 border-t border-white/5">
-                                        <label className="block text-xs font-medium text-slate-400 mb-1">Est. Fees/Brokerage</label>
+                                    <div className="pt-2 border-t border-border/50">
+                                        <label className="block text-xs font-medium text-muted-foreground mb-1">Est. Fees/Brokerage</label>
                                         <GlassInput {...register("fees")} type="number" placeholder="20" className="h-8 text-sm" />
                                     </div>
                                 </div>
@@ -447,9 +447,9 @@ export default function TradeEntryForm({ tradeId }: TradeEntryFormProps) {
                             </div>
 
                             {/* Psychology Card */}
-                            <div className="bg-slate-900/50 rounded-xl p-5 border border-white/10">
+                            <div className="bg-card/50 rounded-xl p-5 border border-border">
                                 <h3 className="text-sm font-semibold text-purple-400 mb-4 flex items-center gap-2">
-                                    <Brain className="h-4 w-4" /> Psychology
+                                    <Brain className="h-5 w-5" /> Psychology
                                 </h3>
                                 <div className="flex flex-wrap gap-2">
                                     {emotionsList.map(emoji => (
@@ -459,7 +459,7 @@ export default function TradeEntryForm({ tradeId }: TradeEntryFormProps) {
                                             onClick={() => toggleEmotion(emoji)}
                                             className={`px-3 py-1.5 rounded-full text-xs transition-all border ${selectedEmotions.includes(emoji)
                                                 ? "bg-purple-500/20 border-purple-500 text-purple-200"
-                                                : "bg-white/5 border-white/10 text-slate-400 hover:bg-white/10"
+                                                : "bg-card/20 border-border text-muted-foreground hover:bg-card/30"
                                                 }`}
                                         >
                                             {emoji}
@@ -470,7 +470,7 @@ export default function TradeEntryForm({ tradeId }: TradeEntryFormProps) {
                         </div>
                     </div>
 
-                    <div className="pt-6 border-t border-white/5 flex justify-end gap-4">
+                    <div className="pt-6 border-t border-border/50 flex justify-end gap-4">
                         <GlassButton variant="ghost" type="button" onClick={() => router.back()}>Cancel</GlassButton>
                         <GlassButton type="submit" disabled={isSubmitting} className="w-40">
                             {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Save Trade"}

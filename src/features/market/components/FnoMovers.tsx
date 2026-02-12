@@ -67,7 +67,7 @@ export function FnoMovers() {
         if (data.length === 0) {
             return (
                 <tr>
-                    <td colSpan={4} className="py-8 text-center text-slate-500 text-xs">
+                    <td colSpan={4} className="py-8 text-center text-muted-foreground text-xs">
                         No data available for this category
                     </td>
                 </tr>
@@ -75,12 +75,12 @@ export function FnoMovers() {
         }
 
         return data.map((item) => (
-            <tr key={item.symbol} className="hover:bg-white/5 transition-colors group border-b border-white/5 last:border-0">
+            <tr key={item.symbol} className="hover:bg-card/20 transition-all duration-150 group border-b border-border/50 last:border-0 active:scale-95">
                 <td className="py-3 pl-2">
-                    <div className="font-bold text-white text-xs group-hover:text-sky-400 transition-colors uppercase">{item.symbol}</div>
-                    <div className="text-[10px] text-slate-500">24 Feb 2026</div>
+                    <div className="font-bold text-white text-xs group-hover:text-sky-400 transition-all duration-150 uppercase">{item.symbol}</div>
+                    <div className="text-[10px] text-muted-foreground">24 Feb 2026</div>
                 </td>
-                <td className="py-3 text-right font-medium text-white text-xs">
+                <td className="py-3 text-right font-medium text-foreground text-xs">
                     ₹{item.ltp.toLocaleString()}
                 </td>
                 <td className={`py-3 text-right text-xs font-medium ${item.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
@@ -101,9 +101,9 @@ export function FnoMovers() {
     const TabButton = ({ active, label, onClick }: any) => (
         <button
             onClick={onClick}
-            className={`px-3 py-1.5 text-[10px] font-medium rounded-lg transition-all border uppercase tracking-wider ${active
+            className={`px-3 py-1.5 text-[10px] font-medium rounded-xl transition-all border uppercase tracking-wider ${active
                     ? 'bg-sky-500/10 text-sky-400 border-sky-500/20 shadow-[0_0_10px_rgba(14,165,233,0.1)]'
-                    : 'text-slate-400 border-transparent hover:text-white hover:bg-white/5'
+                    : 'text-muted-foreground border-transparent hover:text-foreground hover:bg-card/20'
                 }`}
         >
             {label}
@@ -113,7 +113,7 @@ export function FnoMovers() {
     return (
         <div className="space-y-4 w-full">
             <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
                     <Activity className="h-5 w-5 text-sky-400" />
                     Movers and Buildups
                 </h2>
@@ -121,8 +121,8 @@ export function FnoMovers() {
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">
                 {/* MOVERS PANEL */}
-                <GlassCard className="p-0 overflow-hidden flex flex-col h-full w-full bg-slate-900/40 backdrop-blur-md border border-white/10">
-                    <div className="p-4 border-b border-white/5 bg-white/[0.02]">
+                <GlassCard className="p-0 overflow-hidden flex flex-col h-full w-full bg-card/40 backdrop-blur-md border border-border">
+                    <div className="p-4 border-b border-border/50 bg-white/[0.02]">
                         <div className="flex flex-wrap gap-2">
                             {['Price Gainers', 'Price Losers', 'OI Gainers', 'OI Losers'].map(tab => (
                                 <TabButton
@@ -137,12 +137,12 @@ export function FnoMovers() {
 
                     <div className="p-0 flex-1 w-full">
                         {loading ? (
-                            <div className="h-64 flex items-center justify-center text-slate-500 text-xs animate-pulse">Loading market data...</div>
+                            <div className="h-64 flex items-center justify-center text-muted-foreground text-xs animate-pulse">Loading market data...</div>
                         ) : (
                             <div className="overflow-x-auto w-full">
                                 <table className="w-full text-left">
                                     <thead>
-                                        <tr className="border-b border-white/5 text-slate-500 text-[10px] uppercase tracking-wider bg-white/[0.01]">
+                                        <tr className="border-b border-border/50 text-muted-foreground text-[10px] uppercase tracking-wider bg-white/[0.01]">
                                             <th className="py-2 pl-4 font-medium">F&O Scrips</th>
                                             <th className="py-2 text-right font-medium">LTP</th>
                                             <th className="py-2 text-right font-medium">Chng</th>
@@ -157,7 +157,7 @@ export function FnoMovers() {
                         )}
                     </div>
 
-                    <div className="p-3 border-t border-white/5 bg-white/[0.01] flex justify-end">
+                    <div className="p-3 border-t border-border/50 bg-white/[0.01] flex justify-end">
                         <button className="text-[10px] text-sky-400 hover:text-sky-300 font-bold uppercase tracking-wider flex items-center gap-1">
                             View All <ArrowUpRight className="h-3 w-3" />
                         </button>
@@ -165,8 +165,8 @@ export function FnoMovers() {
                 </GlassCard>
 
                 {/* BUILDUPS PANEL */}
-                <GlassCard className="p-0 overflow-hidden flex flex-col h-full w-full bg-slate-900/40 backdrop-blur-md border border-white/10">
-                    <div className="p-4 border-b border-white/5 bg-white/[0.02]">
+                <GlassCard className="p-0 overflow-hidden flex flex-col h-full w-full bg-card/40 backdrop-blur-md border border-border">
+                    <div className="p-4 border-b border-border/50 bg-white/[0.02]">
                         <div className="flex flex-wrap gap-2">
                             {['Long Buildup', 'Short Buildup', 'Short Covering', 'Long Unwinding'].map(tab => (
                                 <TabButton
@@ -181,12 +181,12 @@ export function FnoMovers() {
 
                     <div className="p-0 flex-1 w-full">
                         {loading ? (
-                            <div className="h-64 flex items-center justify-center text-slate-500 text-xs animate-pulse">Loading data...</div>
+                            <div className="h-64 flex items-center justify-center text-muted-foreground text-xs animate-pulse">Loading data...</div>
                         ) : (
                             <div className="overflow-x-auto w-full">
                                 <table className="w-full text-left">
                                     <thead>
-                                        <tr className="border-b border-white/5 text-slate-500 text-[10px] uppercase tracking-wider bg-white/[0.01]">
+                                        <tr className="border-b border-border/50 text-muted-foreground text-[10px] uppercase tracking-wider bg-white/[0.01]">
                                             <th className="py-2 pl-4 font-medium">F&O Scrips</th>
                                             <th className="py-2 text-right font-medium">LTP</th>
                                             <th className="py-2 text-right font-medium">Chng</th>
@@ -201,7 +201,7 @@ export function FnoMovers() {
                         )}
                     </div>
 
-                    <div className="p-3 border-t border-white/5 bg-white/[0.01] flex justify-end">
+                    <div className="p-3 border-t border-border/50 bg-white/[0.01] flex justify-end">
                         <button className="text-[10px] text-sky-400 hover:text-sky-300 font-bold uppercase tracking-wider flex items-center gap-1">
                             View All <ArrowUpRight className="h-3 w-3" />
                         </button>

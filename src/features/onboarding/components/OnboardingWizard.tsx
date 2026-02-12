@@ -45,13 +45,13 @@ export default function OnboardingWizard() {
         <div className="w-full max-w-lg mx-auto">
             {/* Progress Bar */}
             <div className="mb-8">
-                <div className="flex justify-between text-xs font-medium text-slate-500 mb-2">
+                <div className="flex justify-between text-xs font-medium text-muted-foreground mb-2">
                     <span>Start</span>
                     <span>Experience</span>
                     <span>Markets</span>
                     <span>Finish</span>
                 </div>
-                <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+                <div className="h-1 bg-card/30 rounded-full overflow-hidden">
                     <div
                         className="h-full bg-sky-500 transition-all duration-500 ease-out"
                         style={{ width: `${(step / totalSteps) * 100}%` }}
@@ -67,7 +67,7 @@ export default function OnboardingWizard() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
-                            transition={{ duration: 0.3 }}
+                            transition-all duration-200={{ duration: 0.3 }}
                         >
                             {step === 1 && (
                                 <ExperienceStep
@@ -91,14 +91,14 @@ export default function OnboardingWizard() {
                     </AnimatePresence>
                 </div>
 
-                <div className="mt-8 flex justify-between pt-6 border-t border-white/5">
+                <div className="mt-8 flex justify-between pt-6 border-t border-border/50">
                     <GlassButton
                         variant="ghost"
                         onClick={prevStep}
                         disabled={step === 1}
                         className={step === 1 ? "invisible" : ""}
                     >
-                        <ChevronLeft className="h-4 w-4 mr-2" />
+                        <ChevronLeft className="h-5 w-5 mr-2" />
                         Back
                     </GlassButton>
 
@@ -109,9 +109,9 @@ export default function OnboardingWizard() {
                     >
                         {step === totalSteps ? "Finish Setup" : "Continue"}
                         {step === totalSteps ? (
-                            <CheckCircle className="h-4 w-4 ml-2" />
+                            <CheckCircle className="h-5 w-5 ml-2" />
                         ) : (
-                            <ChevronRight className="h-4 w-4 ml-2" />
+                            <ChevronRight className="h-5 w-5 ml-2" />
                         )}
                     </GlassButton>
                 </div>

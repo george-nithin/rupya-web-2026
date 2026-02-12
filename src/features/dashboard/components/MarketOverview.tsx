@@ -80,16 +80,16 @@ export function MarketOverview() {
     return (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
             {indices.map((index) => (
-                <GlassCard key={index.index_name} className="relative overflow-hidden group hover:border-white/20 transition-all cursor-pointer p-3">
+                <GlassCard key={index.index_name} className="relative overflow-hidden group hover:border-border transition-all cursor-pointer p-3">
                     <div className="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition-opacity">
                         <Activity className="h-6 w-6" />
                     </div>
 
                     <div className="space-y-1 relative z-10">
-                        <div className="text-[9px] font-medium text-slate-400 uppercase tracking-wider">
+                        <div className="text-[9px] font-medium text-muted-foreground uppercase tracking-wider">
                             {index.index_name}
                         </div>
-                        <div className="text-base font-bold text-white tracking-tight">
+                        <div className="text-base font-bold text-foreground tracking-tight">
                             {index.last_price?.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                         </div>
 

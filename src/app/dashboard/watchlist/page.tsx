@@ -84,7 +84,7 @@ export default function WatchlistPage() {
 
     const addToWatchlist = async (symbol: string) => {
         try {
-            console.log("Adding to watchlist:", symbol);
+            // Adding to watchlist
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
                 console.error("No user found");
@@ -97,7 +97,7 @@ export default function WatchlistPage() {
                 return;
             }
 
-            console.log("Successfully added to watchlist");
+            // Successfully added to watchlist
             setShowSearchBox(false);
             setSearchQuery("");
             await fetchWatchlist();
@@ -141,7 +141,7 @@ export default function WatchlistPage() {
                                 {searchResults.map((res) => (
                                     <div
                                         key={res.symbol}
-                                        className="p-3 hover:bg-secondary/50 flex justify-between items-center cursor-pointer border-b border-border/50 last:border-0"
+                                        className="p-3 hover:bg-secondary/50 flex justify-between items-center cursor-pointer border-b border-border/50 last:border-0 active:scale-95"
                                         onMouseDown={(e) => {
                                             e.preventDefault();
                                             addToWatchlist(res.symbol);
@@ -151,7 +151,7 @@ export default function WatchlistPage() {
                                             <div className="text-sm font-bold text-foreground">{res.symbol}</div>
                                             <div className="text-[10px] text-muted-foreground truncate max-w-[150px]">{res.company_name}</div>
                                         </div>
-                                        <Plus className="h-4 w-4 text-primary" />
+                                        <Plus className="h-5 w-5 text-primary" />
                                     </div>
                                 ))}
                             </div>
@@ -207,14 +207,14 @@ export default function WatchlistPage() {
                                     ) : watchlist.length === 0 ? (
                                         <tr><td colSpan={6} className="text-center py-20 text-muted-foreground">Your watchlist is empty. Search above to add stocks.</td></tr>
                                     ) : watchlist.map((stock) => (
-                                        <tr key={stock.symbol} className="group hover:bg-secondary/30 transition-all">
+                                        <tr key={stock.symbol} className="group hover:bg-secondary/30 transition-all active:scale-95">
                                             <td className="px-4 md:px-6 py-3">
                                                 <Link href={`/dashboard/market/${stock.symbol}`} className="flex items-center gap-3">
-                                                    <div className="h-8 w-8 rounded-lg bg-secondary/50 flex items-center justify-center font-bold text-primary text-xs md:text-sm">
+                                                    <div className="h-8 w-8 rounded-xl bg-secondary/50 flex items-center justify-center font-bold text-primary text-xs md:text-sm">
                                                         {stock.symbol[0]}
                                                     </div>
                                                     <div>
-                                                        <div className="font-bold text-foreground group-hover:text-primary transition-colors">{stock.symbol}</div>
+                                                        <div className="font-bold text-foreground group-hover:text-primary transition-all duration-150">{stock.symbol}</div>
                                                         <div className="text-[10px] text-muted-foreground truncate max-w-[100px] md:max-w-[160px]">{stock.company_name}</div>
                                                     </div>
                                                 </Link>
@@ -236,9 +236,9 @@ export default function WatchlistPage() {
                                             <td className="px-4 md:px-6 py-3 text-right">
                                                 <button
                                                     onClick={() => removeFromWatchlist(stock.symbol)}
-                                                    className="p-2 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 rounded-lg text-destructive transition-all"
+                                                    className="p-2 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 rounded-xl text-destructive transition-all active:scale-95"
                                                 >
-                                                    <Trash2 className="h-4 w-4" />
+                                                    <Trash2 className="h-5 w-5" />
                                                 </button>
                                             </td>
                                         </tr>
@@ -253,11 +253,11 @@ export default function WatchlistPage() {
                 <div className="lg:col-span-3 space-y-6">
                     <GlassCard>
                         <h3 className="text-sm font-bold text-foreground mb-4 flex justify-between items-center">
-                            Top Gainers <TrendingUp className="h-4 w-4 text-emerald-500" />
+                            Top Gainers <TrendingUp className="h-5 w-5 text-emerald-500" />
                         </h3>
                         <div className="space-y-3">
                             {topGainers.map((stock) => (
-                                <Link key={stock.symbol} href={`/dashboard/market/${stock.symbol}`} className="flex justify-between items-center p-2 hover:bg-secondary/50 rounded-lg transition-colors">
+                                <Link key={stock.symbol} href={`/dashboard/market/${stock.symbol}`} className="flex justify-between items-center p-2 hover:bg-secondary/50 rounded-xl transition-all duration-150 active:scale-95">
                                     <span className="text-sm font-medium text-foreground">{stock.symbol}</span>
                                     <span className="text-[10px] font-bold text-emerald-500">+{stock.percent_change}%</span>
                                 </Link>
@@ -267,11 +267,11 @@ export default function WatchlistPage() {
 
                     <GlassCard>
                         <h3 className="text-sm font-bold text-foreground mb-4 flex justify-between items-center">
-                            Top Losers <ArrowDownRight className="h-4 w-4 text-red-500" />
+                            Top Losers <ArrowDownRight className="h-5 w-5 text-red-500" />
                         </h3>
                         <div className="space-y-3">
                             {topLosers.map((stock) => (
-                                <Link key={stock.symbol} href={`/dashboard/market/${stock.symbol}`} className="flex justify-between items-center p-2 hover:bg-secondary/50 rounded-lg transition-colors">
+                                <Link key={stock.symbol} href={`/dashboard/market/${stock.symbol}`} className="flex justify-between items-center p-2 hover:bg-secondary/50 rounded-xl transition-all duration-150 active:scale-95">
                                     <span className="text-sm font-medium text-foreground">{stock.symbol}</span>
                                     <span className="text-[10px] font-bold text-red-500">{stock.percent_change}%</span>
                                 </Link>

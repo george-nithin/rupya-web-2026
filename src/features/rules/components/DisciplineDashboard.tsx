@@ -22,17 +22,17 @@ export function DisciplineDashboard() {
         <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
                 <GlassCard className="p-4 text-center">
-                    <div className="text-xs text-slate-400 mb-1">Current Streak</div>
+                    <div className="text-xs text-muted-foreground mb-1">Current Streak</div>
                     <div className="text-3xl font-bold text-green-400">{currentStreak} Days</div>
                 </GlassCard>
                 <GlassCard className="p-4 text-center">
-                    <div className="text-xs text-slate-400 mb-1">Adherence Rate</div>
+                    <div className="text-xs text-muted-foreground mb-1">Adherence Rate</div>
                     <div className="text-3xl font-bold text-sky-400">{adherenceRate}%</div>
                 </GlassCard>
             </div>
 
             <GlassCard>
-                <h3 className="text-sm font-semibold text-white mb-4">Discipline Trend (Last 7 Days)</h3>
+                <h3 className="text-sm font-semibold text-foreground mb-4">Discipline Trend (Last 7 Days)</h3>
                 <div className="h-[200px]">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={disciplineData}>

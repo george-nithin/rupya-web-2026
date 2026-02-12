@@ -15,6 +15,8 @@ import {
     ArrowDownRight,
     RefreshCw
 } from "lucide-react";
+import { PerformanceHeatmap } from "@/components/ui/PerformanceHeatmap";
+import { useRouter } from "next/navigation";
 
 interface SectorData {
     symbol: string;
@@ -33,6 +35,7 @@ export default function SectorPage() {
     const [sectors, setSectors] = useState<SectorData[]>([]);
     const [loading, setLoading] = useState(true);
     const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+    const router = useRouter();
 
     const fetchSectors = async () => {
         setLoading(true);
@@ -75,7 +78,7 @@ export default function SectorPage() {
             {/* Header Area */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">Sector Performance</h1>
+                    <h1 className="text-3xl font-bold text-foreground tracking-tight">Sector Performance</h1>
                     <p className="text-muted-foreground mt-1">Real-time tracking of NSE Sectoral Indices</p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -84,7 +87,7 @@ export default function SectorPage() {
                     </span>
                     <button
                         onClick={fetchSectors}
-                        className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-muted-foreground hover:text-white"
+                        className="p-2 rounded-xl bg-card/20 hover:bg-card/30 transition-all duration-150 text-muted-foreground hover:text-foreground active:scale-95"
                     >
                         <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                     </button>
@@ -102,15 +105,15 @@ export default function SectorPage() {
                         <div className="flex justify-between items-start mb-4">
                             <div>
                                 <div className="text-xs font-semibold text-green-400 uppercase tracking-wider mb-1">Top Gainer</div>
-                                <h3 className="text-xl font-bold text-white">{sectors[0].symbol}</h3>
+                                <h3 className="text-xl font-bold text-foreground">{sectors[0].symbol}</h3>
                             </div>
                             <div className="h-8 w-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                                <ArrowUpRight className="h-4 w-4 text-green-500" />
+                                <ArrowUpRight className="h-5 w-5 text-green-500" />
                             </div>
                         </div>
                         <div className="flex items-end justify-between">
                             <div>
-                                <div className="text-2xl font-bold text-white mb-1">
+                                <div className="text-2xl font-bold text-foreground mb-1">
                                     {sectors[0].p_change > 0 ? "+" : ""}{sectors[0].p_change}%
                                 </div>
                                 <div className="text-sm text-muted-foreground">
@@ -128,15 +131,15 @@ export default function SectorPage() {
                         <div className="flex justify-between items-start mb-4">
                             <div>
                                 <div className="text-xs font-semibold text-red-400 uppercase tracking-wider mb-1">Top Loser</div>
-                                <h3 className="text-xl font-bold text-white">{sectors[sectors.length - 1].symbol}</h3>
+                                <h3 className="text-xl font-bold text-foreground">{sectors[sectors.length - 1].symbol}</h3>
                             </div>
                             <div className="h-8 w-8 rounded-full bg-red-500/20 flex items-center justify-center">
-                                <ArrowDownRight className="h-4 w-4 text-red-500" />
+                                <ArrowDownRight className="h-5 w-5 text-red-500" />
                             </div>
                         </div>
                         <div className="flex items-end justify-between">
                             <div>
-                                <div className="text-2xl font-bold text-white mb-1">
+                                <div className="text-2xl font-bold text-foreground mb-1">
                                     {sectors[sectors.length - 1].p_change}%
                                 </div>
                                 <div className="text-sm text-muted-foreground">
@@ -148,13 +151,26 @@ export default function SectorPage() {
                 </div>
             )}
 
+            {/* Heatmap Section */}
+            {!loading && sectors.length > 0 && (
+                <PerformanceHeatmap
+                    title="Sectoral Heatmap"
+                    items={sectors.map(s => ({
+                        label: s.symbol.replace("NIFTY ", ""),
+                        value: s.p_change,
+                        sublabel: formatNumber(s.last_price),
+                        onClick: () => router.push(`/dashboard/sectors/${encodeURIComponent(s.symbol)}`)
+                    }))}
+                />
+            )}
+
 
             {/* Main Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {loading ? (
                     // Skeleton Loaders
                     Array(8).fill(0).map((_, i) => (
-                        <div key={i} className="h-40 rounded-2xl bg-white/5 animate-pulse border border-white/5" />
+                        <div key={i} className="h-40 rounded-2xl bg-card/20 animate-pulse border border-border/50" />
                     ))
                 ) : (
                     sectors.map((sector) => {
@@ -166,7 +182,7 @@ export default function SectorPage() {
                                 className="block group"
                             >
                                 <GlassCard
-                                    className="p-6 h-full hover:bg-white/5 transition-all duration-300 border-white/5 relative overflow-hidden"
+                                    className="p-6 h-full hover:bg-card/20 transition-all duration-300 border-border/50 relative overflow-hidden active:scale-95"
                                     glow
                                 >
                                     {/* Background Glow */}
@@ -178,7 +194,7 @@ export default function SectorPage() {
                                                 {getSectorIcon(sector.symbol)}
                                             </div>
                                             <div>
-                                                <h3 className="font-bold text-white text-sm">{sector.symbol}</h3>
+                                                <h3 className="font-bold text-foreground text-sm">{sector.symbol}</h3>
                                                 <p className="text-xs text-muted-foreground">NSE Index</p>
                                             </div>
                                         </div>
@@ -190,7 +206,7 @@ export default function SectorPage() {
 
                                     <div className="flex items-end justify-between relative z-10">
                                         <div>
-                                            <div className="text-2xl font-bold text-white tracking-tight">
+                                            <div className="text-2xl font-bold text-foreground tracking-tight">
                                                 {formatNumber(sector.last_price)}
                                             </div>
                                             <div className={`text-xs mt-1 ${isPositive ? 'text-green-400' : 'text-red-400'}`}>

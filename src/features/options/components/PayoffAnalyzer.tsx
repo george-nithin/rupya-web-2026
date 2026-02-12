@@ -19,18 +19,18 @@ export function PayoffAnalyzer() {
     return (
         <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
-                <div className="bg-green-500/10 p-3 rounded-lg border border-green-500/20 text-center">
-                    <div className="text-xs text-slate-400 mb-1">Max Profit</div>
+                <div className="bg-green-500/10 p-3 rounded-xl border border-green-500/20 text-center">
+                    <div className="text-xs text-muted-foreground mb-1">Max Profit</div>
                     <div className="text-lg font-bold text-green-400">₹5,000</div>
                 </div>
-                <div className="bg-red-500/10 p-3 rounded-lg border border-red-500/20 text-center">
-                    <div className="text-xs text-slate-400 mb-1">Max Loss</div>
+                <div className="bg-red-500/10 p-3 rounded-xl border border-red-500/20 text-center">
+                    <div className="text-xs text-muted-foreground mb-1">Max Loss</div>
                     <div className="text-lg font-bold text-red-400">₹2,000</div>
                 </div>
             </div>
 
             <GlassCard className="p-2">
-                <h3 className="text-sm font-semibold text-white px-2 pt-2">Payoff Diagram (Iron Condor)</h3>
+                <h3 className="text-sm font-semibold text-foreground px-2 pt-2">Payoff Diagram (Iron Condor)</h3>
                 <div className="h-[250px] w-full mt-4">
                     <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={payoffData}>

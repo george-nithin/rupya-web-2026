@@ -101,7 +101,7 @@ export const MostTradedOptions = ({ ceData, peData, isLoading }: MostTradedProps
 
     return (
         <div className="w-full max-w-4xl mx-auto p-1">
-            <GlassCard className="relative overflow-hidden p-6 md:p-8 rounded-3xl border-white/5 bg-background/40">
+            <GlassCard className="relative overflow-hidden p-6 md:p-8 rounded-3xl border-border/50 bg-background/40">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-8">
                     <div className="flex gap-2 items-center">
@@ -109,8 +109,8 @@ export const MostTradedOptions = ({ ceData, peData, isLoading }: MostTradedProps
                         <h2 className="text-xl font-medium text-foreground/90">Most Traded Contracts</h2>
                     </div>
                     <div className="flex gap-2">
-                        <button className="p-2 rounded-full hover:bg-white/5 transition-colors text-muted-foreground">
-                            <ArrowRightLeft className="h-4 w-4" />
+                        <button className="p-2 rounded-full hover:bg-card/20 transition-all duration-150 text-muted-foreground active:scale-95">
+                            <ArrowRightLeft className="h-5 w-5" />
                         </button>
                     </div>
                 </div>
@@ -118,7 +118,7 @@ export const MostTradedOptions = ({ ceData, peData, isLoading }: MostTradedProps
                 <div className="flex flex-col md:flex-row gap-6 relative">
 
                     {/* Left Card: Call Option (CE) */}
-                    <GlassCard variant="dark" glow className="flex-1 p-6 relative group border-white/5">
+                    <GlassCard variant="dark" glow className="flex-1 p-6 relative group border-border/50">
                         <div className="flex justify-between items-start mb-6">
                             <div>
                                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Bullish Bet</span>
@@ -136,9 +136,9 @@ export const MostTradedOptions = ({ ceData, peData, isLoading }: MostTradedProps
                         </div>
 
                         <div className="space-y-4">
-                            <div className="p-4 bg-background/40 rounded-xl border border-white/5 flex justify-between items-center">
+                            <div className="p-4 bg-background/40 rounded-xl border border-border/50 flex justify-between items-center">
                                 <div className="flex items-center gap-3">
-                                    <div className="h-8 w-8 rounded-lg bg-secondary/50 flex items-center justify-center text-xs font-bold text-primary">
+                                    <div className="h-8 w-8 rounded-xl bg-secondary/50 flex items-center justify-center text-xs font-bold text-primary">
                                         NIF
                                     </div>
                                     <div>
@@ -176,13 +176,13 @@ export const MostTradedOptions = ({ ceData, peData, isLoading }: MostTradedProps
 
                     {/* Center Icon (Absolute or Flex) */}
                     <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-                        <div className="bg-card border border-white/10 p-2 rounded-full shadow-xl shadow-primary/10">
+                        <div className="bg-card border border-border p-2 rounded-full shadow-xl shadow-primary/10">
                             <ArrowRightLeft className="h-5 w-5 text-muted-foreground" />
                         </div>
                     </div>
 
                     {/* Right Card: Put Option (PE) */}
-                    <GlassCard variant="dark" glow className="flex-1 p-6 relative group border-white/5">
+                    <GlassCard variant="dark" glow className="flex-1 p-6 relative group border-border/50">
                         <div className="flex justify-between items-start mb-6">
                             <div>
                                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Bearish Bet</span>
@@ -200,9 +200,9 @@ export const MostTradedOptions = ({ ceData, peData, isLoading }: MostTradedProps
                         </div>
 
                         <div className="space-y-4">
-                            <div className="p-4 bg-background/40 rounded-xl border border-white/5 flex justify-between items-center">
+                            <div className="p-4 bg-background/40 rounded-xl border border-border/50 flex justify-between items-center">
                                 <div className="flex items-center gap-3">
-                                    <div className="h-8 w-8 rounded-lg bg-secondary/50 flex items-center justify-center text-xs font-bold text-primary">
+                                    <div className="h-8 w-8 rounded-xl bg-secondary/50 flex items-center justify-center text-xs font-bold text-primary">
                                         NIF
                                     </div>
                                     <div>
@@ -241,8 +241,8 @@ export const MostTradedOptions = ({ ceData, peData, isLoading }: MostTradedProps
 
                 {/* Footer / CTA */}
                 <div className="mt-8 flex justify-end">
-                    <button className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-3 px-6 rounded-xl flex items-center gap-2 transition-all shadow-lg hover:shadow-primary/20">
-                        Analyze Option Chain <ArrowRight className="h-4 w-4" />
+                    <button className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-3 px-6 rounded-xl flex items-center gap-2 transition-all shadow-strong hover:shadow-primary/20 active:scale-95">
+                        Analyze Option Chain <ArrowRight className="h-5 w-5" />
                     </button>
                 </div>
             </GlassCard>

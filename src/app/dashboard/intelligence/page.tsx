@@ -5,8 +5,8 @@ export default function IntelligencePage() {
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-2xl font-bold text-white">Market Intelligence</h1>
-                <p className="text-slate-400">Analyze performance and market breadth.</p>
+                <h1 className="text-2xl font-bold text-foreground">Market Intelligence</h1>
+                <p className="text-muted-foreground">Analyze performance and market breadth.</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">

@@ -80,9 +80,9 @@ export function AlertsWidget() {
                 <div className="space-y-4">
                     <div className="flex items-center gap-2">
                         <Bell className="h-5 w-5 text-sky-400" />
-                        <h3 className="text-lg font-semibold text-white">Active Alerts</h3>
+                        <h3 className="text-lg font-semibold text-foreground">Active Alerts</h3>
                     </div>
-                    <div className="text-slate-500 text-sm">Loading alerts...</div>
+                    <div className="text-muted-foreground text-sm">Loading alerts...</div>
                 </div>
             </GlassCard>
         );
@@ -94,21 +94,21 @@ export function AlertsWidget() {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <Bell className="h-5 w-5 text-sky-400" />
-                        <h3 className="text-lg font-semibold text-white">Active Alerts</h3>
+                        <h3 className="text-lg font-semibold text-foreground">Active Alerts</h3>
                         <span className="text-xs bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded-full">
                             {alerts.length}
                         </span>
                     </div>
                     <Link
                         href="/dashboard/alerts"
-                        className="text-sm text-sky-400 hover:text-sky-300 transition-colors"
+                        className="text-sm text-sky-400 hover:text-sky-300 transition-all duration-150"
                     >
                         Manage
                     </Link>
                 </div>
 
                 {alerts.length === 0 ? (
-                    <div className="text-center text-slate-500 text-sm py-6">
+                    <div className="text-center text-muted-foreground text-sm py-6">
                         <Bell className="h-8 w-8 mx-auto mb-2 opacity-20" />
                         <p>No active alerts. Create one to get started!</p>
                         <Link
@@ -127,18 +127,18 @@ export function AlertsWidget() {
                             return (
                                 <div
                                     key={alert.id}
-                                    className={`flex items-center justify-between p-3 rounded-lg border transition-all ${isTriggered
+                                    className={`flex items-center justify-between p-3 rounded-xl border transition-all ${isTriggered
                                             ? 'bg-orange-500/10 border-orange-500/30'
-                                            : 'bg-white/5 border-white/10 hover:bg-white/10'
+                                            : 'bg-card/20 border-border hover:bg-card/30'
                                         }`}
                                 >
                                     <div className="flex items-center gap-3">
                                         <Icon className={`h-4 w-4 ${isTriggered ? 'text-orange-400' : 'text-sky-400'}`} />
                                         <div>
-                                            <div className="text-sm font-medium text-white">
+                                            <div className="text-sm font-medium text-foreground">
                                                 {alert.symbol}
                                             </div>
-                                            <div className="text-xs text-slate-400">
+                                            <div className="text-xs text-muted-foreground">
                                                 {getAlertLabel(alert.alert_type)} ₹{alert.target_value.toFixed(2)}
                                             </div>
                                         </div>

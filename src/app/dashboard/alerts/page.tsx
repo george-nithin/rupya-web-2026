@@ -124,13 +124,13 @@ export default function AlertsPage() {
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-foreground">Price Alerts</h1>
-                    <p className="text-slate-400">Manage your stock and index price alerts</p>
+                    <p className="text-muted-foreground">Manage your stock and index price alerts</p>
                 </div>
                 <GlassButton
                     onClick={() => setShowCreateDialog(!showCreateDialog)}
                     variant="primary"
                 >
-                    <Plus className="h-4 w-4 mr-2" />
+                    <Plus className="h-5 w-5 mr-2" />
                     Create Alert
                 </GlassButton>
             </div>
@@ -139,11 +139,11 @@ export default function AlertsPage() {
             {showCreateDialog && (
                 <GlassCard>
                     <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-white">Create New Alert</h3>
+                        <h3 className="text-lg font-semibold text-foreground">Create New Alert</h3>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <label className="text-sm text-slate-400 mb-2 block">Symbol</label>
+                                <label className="text-sm text-muted-foreground mb-2 block">Symbol</label>
                                 <GlassInput
                                     placeholder="e.g. RELIANCE, NIFTY 50"
                                     value={newAlert.symbol}
@@ -152,9 +152,9 @@ export default function AlertsPage() {
                             </div>
 
                             <div>
-                                <label className="text-sm text-slate-400 mb-2 block">Alert Type</label>
+                                <label className="text-sm text-muted-foreground mb-2 block">Alert Type</label>
                                 <select
-                                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white"
+                                    className="w-full px-4 py-2 bg-card/20 border border-border rounded-xl text-foreground"
                                     value={newAlert.alert_type}
                                     onChange={(e) => setNewAlert({ ...newAlert, alert_type: e.target.value })}
                                 >
@@ -167,7 +167,7 @@ export default function AlertsPage() {
                             </div>
 
                             <div>
-                                <label className="text-sm text-slate-400 mb-2 block">Target Value</label>
+                                <label className="text-sm text-muted-foreground mb-2 block">Target Value</label>
                                 <GlassInput
                                     type="number"
                                     placeholder="e.g. 2500"
@@ -190,35 +190,35 @@ export default function AlertsPage() {
             )}
 
             {/* Tabs */}
-            <div className="flex gap-2 border-b border-white/10">
+            <div className="flex gap-2 border-b border-border">
                 <button
                     onClick={() => setActiveTab('active')}
                     className={`px-4 py-2 text-sm font-medium transition-all ${activeTab === 'active'
                             ? 'text-sky-400 border-b-2 border-sky-400'
-                            : 'text-slate-400 hover:text-white'
+                            : 'text-muted-foreground hover:text-foreground'
                         }`}
                 >
-                    <Clock className="h-4 w-4 inline mr-2" />
+                    <Clock className="h-5 w-5 inline mr-2" />
                     Active
                 </button>
                 <button
                     onClick={() => setActiveTab('triggered')}
                     className={`px-4 py-2 text-sm font-medium transition-all ${activeTab === 'triggered'
                             ? 'text-sky-400 border-b-2 border-sky-400'
-                            : 'text-slate-400 hover:text-white'
+                            : 'text-muted-foreground hover:text-foreground'
                         }`}
                 >
-                    <CheckCircle className="h-4 w-4 inline mr-2" />
+                    <CheckCircle className="h-5 w-5 inline mr-2" />
                     Triggered
                 </button>
                 <button
                     onClick={() => setActiveTab('expired')}
                     className={`px-4 py-2 text-sm font-medium transition-all ${activeTab === 'expired'
                             ? 'text-sky-400 border-b-2 border-sky-400'
-                            : 'text-slate-400 hover:text-white'
+                            : 'text-muted-foreground hover:text-foreground'
                         }`}
                 >
-                    <XCircle className="h-4 w-4 inline mr-2" />
+                    <XCircle className="h-5 w-5 inline mr-2" />
                     Expired
                 </button>
             </div>
@@ -227,11 +227,11 @@ export default function AlertsPage() {
             <div className="space-y-3">
                 {loading ? (
                     <GlassCard>
-                        <div className="text-center text-slate-500 py-8">Loading alerts...</div>
+                        <div className="text-center text-muted-foreground py-8">Loading alerts...</div>
                     </GlassCard>
                 ) : alerts.length === 0 ? (
                     <GlassCard>
-                        <div className="text-center text-slate-500 py-12">
+                        <div className="text-center text-muted-foreground py-12">
                             <Bell className="h-12 w-12 mx-auto mb-4 opacity-20" />
                             <p className="text-lg font-medium mb-2">No {activeTab} alerts</p>
                             <p className="text-sm">
@@ -246,10 +246,10 @@ export default function AlertsPage() {
                         const Icon = getAlertIcon(alert.alert_type);
 
                         return (
-                            <GlassCard key={alert.id} className="hover:bg-white/10 transition-all">
+                            <GlassCard key={alert.id} className="hover:bg-card/30 transition-all active:scale-95">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-4">
-                                        <div className={`p-3 rounded-lg ${alert.is_triggered
+                                        <div className={`p-3 rounded-xl ${alert.is_triggered
                                                 ? 'bg-orange-500/10'
                                                 : 'bg-sky-500/10'
                                             }`}>
@@ -260,10 +260,10 @@ export default function AlertsPage() {
                                         </div>
 
                                         <div>
-                                            <div className="text-lg font-semibold text-white">
+                                            <div className="text-lg font-semibold text-foreground">
                                                 {alert.symbol}
                                             </div>
-                                            <div className="text-sm text-slate-400">
+                                            <div className="text-sm text-muted-foreground">
                                                 {getAlertLabel(alert.alert_type)} ₹{alert.target_value.toFixed(2)}
                                             </div>
                                             {alert.is_triggered && alert.triggered_at && (
@@ -282,15 +282,15 @@ export default function AlertsPage() {
                                             </span>
                                         )}
                                         {!alert.is_active && !alert.is_triggered && (
-                                            <span className="text-xs bg-slate-500/20 text-slate-400 px-3 py-1 rounded-full">
+                                            <span className="text-xs bg-slate-500/20 text-muted-foreground px-3 py-1 rounded-full">
                                                 Expired
                                             </span>
                                         )}
                                         <button
                                             onClick={() => deleteAlert(alert.id)}
-                                            className="p-2 hover:bg-red-500/20 rounded-lg transition-all group"
+                                            className="p-2 hover:bg-red-500/20 rounded-xl transition-all group active:scale-95"
                                         >
-                                            <Trash2 className="h-4 w-4 text-slate-400 group-hover:text-red-400" />
+                                            <Trash2 className="h-5 w-5 text-slate-400 group-hover:text-red-400" />
                                         </button>
                                     </div>
                                 </div>

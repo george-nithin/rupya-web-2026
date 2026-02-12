@@ -42,10 +42,6 @@ export default function LoginForm() {
             //     return;
             // }
 
-            console.log('Attempting login with:', data.email);
-            console.log('Supabase client:', supabase);
-            console.log('Supabase auth:', supabase?.auth);
-
             const { error } = await supabase.auth.signInWithPassword({
                 email: data.email,
                 password: data.password,
@@ -91,7 +87,7 @@ export default function LoginForm() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div className="space-y-4">
                 <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <GlassInput
                         type="email"
                         placeholder="trader@rupya.com"
@@ -108,7 +104,7 @@ export default function LoginForm() {
                 </div>
 
                 <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <GlassInput
                         type="password"
                         placeholder="••••••••"
@@ -126,18 +122,18 @@ export default function LoginForm() {
             </div>
 
             <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center gap-2 cursor-pointer text-slate-400 hover:text-white transition-colors">
+                <label className="flex items-center gap-2 cursor-pointer text-muted-foreground hover:text-foreground transition-all duration-150">
                     <input type="checkbox" className="rounded border-white/10 bg-white/5 text-sky-500 focus:ring-sky-500/50" />
                     Remember me
                 </label>
-                <Link href="/forgot-password" className="text-sky-400 hover:text-sky-300 transition-colors">
+                <Link href="/forgot-password" className="text-sky-400 hover:text-sky-300 transition-all duration-150">
                     Forgot password?
                 </Link>
             </div>
 
             {error && (
-                <div className="rounded-lg bg-red-500/10 p-3 text-sm text-red-400 border border-red-500/20 flex items-center">
-                    <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
+                <div className="rounded-xl bg-red-500/10 p-3 text-sm text-red-400 border border-red-500/20 flex items-center">
+                    <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0" />
                     {error}
                 </div>
             )}
@@ -152,17 +148,17 @@ export default function LoginForm() {
 
             <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-white/10"></div>
+                    <div className="w-full border-t border-border"></div>
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-[#0f172a] px-2 text-slate-500">Or continue with</span>
+                    <span className="bg-[#0f172a] px-2 text-muted-foreground">Or continue with</span>
                 </div>
             </div>
 
             <button
                 type="button"
                 onClick={handleGoogleLogin}
-                className="flex w-full items-center justify-center gap-3 rounded-lg border border-white/10 bg-white/5 py-3 text-sm font-medium text-white transition-all hover:bg-white/10 hover:border-white/20"
+                className="flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-card/20 py-3 text-sm font-medium text-foreground transition-all hover:bg-card/30 hover:border-border active:scale-95"
             >
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
                     <path
@@ -185,9 +181,9 @@ export default function LoginForm() {
                 Continue with Google
             </button>
 
-            <div className="text-center text-sm text-slate-400 mt-6">
+            <div className="text-center text-sm text-muted-foreground mt-6">
                 Don&apos;t have an account?{" "}
-                <Link href="/register" className="font-semibold text-sky-400 hover:text-sky-300 transition-colors">
+                <Link href="/register" className="font-semibold text-sky-400 hover:text-sky-300 transition-all duration-150">
                     Create account
                 </Link>
             </div>

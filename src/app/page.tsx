@@ -15,10 +15,10 @@ export default function Home() {
           <div className="inline-block px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-sm font-medium">
             Pro Trading Terminal
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white">
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-foreground">
             Master the Markets with <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-purple-400">Rupya</span>
           </h1>
-          <p className="text-xl text-slate-400 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Advanced analytics, professional trading journal, and real-time portfolio tracking in one glass-morphic interface.
           </p>
         </div>
