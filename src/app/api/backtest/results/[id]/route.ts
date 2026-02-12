@@ -6,10 +6,10 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id } = params;
+        const { id } = await context.params;
 
         // Create Supabase client with service role key
         const supabase = createClient(supabaseUrl, supabaseServiceKey);

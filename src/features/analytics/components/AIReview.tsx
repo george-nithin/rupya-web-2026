@@ -42,7 +42,7 @@ export function AIReview() {
 
         const { data } = await supabase
             .from('journal_trades')
-            .select('symbol, pnl, exit_date, direction, entry_price, exit_price')
+            .select('id, symbol, pnl, exit_date, direction, entry_price, exit_price')
             .eq('user_id', user.id)
             .eq('status', 'CLOSED')
             .order('exit_date', { ascending: false })
@@ -148,16 +148,16 @@ export function AIReview() {
             {/* Insights Panel */}
             <div className="lg:col-span-1 space-y-4">
                 <div className="flex items-center gap-2 mb-2">
-                    <Sparkles className="h-4 w-4 text-sky-400" />
-                    <h3 className="text-sm font-semibold text-white">Automated Insights</h3>
+                    <Sparkles className="h-5 w-5 text-sky-400" />
+                    <h3 className="text-sm font-semibold text-foreground">Automated Insights</h3>
                 </div>
                 {insights.map((insight, i) => (
                     <GlassCard key={i} className={`p-4 border-l-2 ${insight.type === 'positive' ? 'border-l-green-400' :
                         insight.type === 'warning' ? 'border-l-orange-400' : 'border-l-sky-400'
                         }`}>
                         <div className="flex gap-3">
-                            <Lightbulb className="h-5 w-5 text-slate-400 shrink-0" />
-                            <p className="text-sm text-slate-200">{insight.text}</p>
+                            <Lightbulb className="h-5 w-5 text-muted-foreground shrink-0" />
+                            <p className="text-sm text-foreground">{insight.text}</p>
                         </div>
                     </GlassCard>
                 ))}
@@ -165,12 +165,12 @@ export function AIReview() {
 
             {/* Chat Interface */}
             <GlassCard className="lg:col-span-2 flex flex-col h-[500px] p-0 overflow-hidden">
-                <div className="flex items-center gap-3 p-4 border-b border-white/10 bg-white/5">
+                <div className="flex items-center gap-3 p-4 border-b border-border bg-card/20">
                     <div className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
-                        <Bot className="h-4 w-4 text-white" />
+                        <Bot className="h-5 w-5 text-foreground" />
                     </div>
                     <div>
-                        <h3 className="text-sm font-bold text-white">Rupya AI Assistant</h3>
+                        <h3 className="text-sm font-bold text-foreground">Rupya AI Assistant</h3>
                         <div className="text-xs text-green-400 flex items-center gap-1">
                             <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" /> Analyzes your Journal
                         </div>
@@ -182,7 +182,7 @@ export function AIReview() {
                         <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                             <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${msg.role === 'user'
                                 ? 'bg-sky-500/10 text-white rounded-br-sm border border-sky-500/20'
-                                : 'bg-white/5 text-slate-200 rounded-bl-sm border border-white/5'
+                                : 'bg-card/20 text-foreground rounded-bl-sm border border-border/50'
                                 }`}>
                                 {msg.text}
                             </div>
@@ -190,7 +190,7 @@ export function AIReview() {
                     ))}
                 </div>
 
-                <div className="p-4 border-t border-white/10 flex gap-2 bg-black/20">
+                <div className="p-4 border-t border-border flex gap-2 bg-black/20">
                     <GlassInput
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
@@ -199,7 +199,7 @@ export function AIReview() {
                         className="flex-1"
                     />
                     <GlassButton onClick={sendMessage}>
-                        <Send className="h-4 w-4" />
+                        <Send className="h-5 w-5" />
                     </GlassButton>
                 </div>
             </GlassCard>
