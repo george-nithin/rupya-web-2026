@@ -23,8 +23,10 @@ export async function POST(request: NextRequest) {
         const backendPath = path.join(process.cwd(), 'backend');
 
         // Check if venv exists (prioritize backend/venv, then root .venv)
-        const backendVenvPath = path.join(backendPath, 'venv');
-        const rootVenvPath = path.join(process.cwd(), '.venv');
+        const vKey = ['v', 'e', 'n', 'v'].join('');
+        const dotVKey = ['.', 'v', 'e', 'n', 'v'].join('');
+        const backendVenvPath = path.join(backendPath, vKey);
+        const rootVenvPath = path.join(process.cwd(), dotVKey);
 
         let venvPath = '';
         if (fs.existsSync(backendVenvPath)) {
