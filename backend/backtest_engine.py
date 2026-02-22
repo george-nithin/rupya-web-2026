@@ -228,17 +228,133 @@ def calculate_performance(data, signals):
     }
 
 
+# Predefined Strategy Codes
+PREDEFINED_STRATEGIES = {
+    'expanding_range_breakout': """
+def strategy(data):
+    # Expanding Range Breakout Logic
+    # Returns a list/series of signals aligned with data
+    
+    df = data.copy()
+    
+    # Calculate Daily Range
+    df['range'] = (df['high'] - df['low']).abs()
+    
+    # Calculate Expanding Range (Current > Prev > Prev2 > Prev3)
+    df['range_1'] = df['range'].shift(1)
+    df['range_2'] = df['range'].shift(2)
+    df['range_3'] = df['range'].shift(3)
+    df['range_4'] = df['range'].shift(4)
+
+    condition_expanding = (
+        (df['range'] > df['range_1']) &
+        (df['range_1'] > df['range_2']) &
+        (df['range_2'] > df['range_3']) &
+        (df['range_3'] > df['range_4'])
+    )
+
+    # Bullish Day
+    condition_bullish = df['close'] > df['open']
+    
+    # Turnover (Volume * Close) > 1M
+    df['turnover'] = df['volume'] * df['close']
+    condition_turnover = df['turnover'] >= 1000000
+
+    # Gap Strength: Low > (Prev Close - Abs(Prev Close / 222))
+    prev_close = df['close'].shift(1)
+    condition_gap = df['low'] > (prev_close - (prev_close / 222).abs())
+
+    # Final Signal
+    df['signal'] = "HOLD"
+    
+    long_condition = (
+        condition_expanding & 
+        condition_bullish & 
+        condition_turnover & 
+        condition_gap
+    )
+    
+    df.loc[long_condition, 'signal'] = "BUY"
+    
+    # Simple Exit: 3% Stop Loss, 6% Take Profit (Handled by execution engine implicitly?)
+    # For this simple "signal" returning function, we just return BUY signals.
+    # The engine handles position management (Hold until Sell signal or manually managed?)
+    # The current engine is simple: BUY enters, SELL exits.
+    # To implement SL/TP in this engine, we'd need to track position in the loop.
+    # But since execute_strategy returns signals only, let's just return expanding range BUYs.
+    # And let's add a trailing stop or partial exit logic mimicking the Pine Script?
+    # Pine Script: strategy.exit("Exit", stop=0.97, limit=1.06)
+    # Since our simple engine doesn't support complex bracket orders from a simple signal list easily,
+    # We will just return the BUY signals. The engine executes them.
+    # TODO: Enhance engine for SL/TP.
+    
+    return df['signal'].tolist()
+""",
+    'ma_crossover': """
+def strategy(data):
+    df = data.copy()
+    df['fast_ma'] = df['close'].rolling(window=20).mean()
+    df['slow_ma'] = df['close'].rolling(window=50).mean()
+    
+    df['signal'] = "HOLD"
+    df.loc[df['fast_ma'] > df['slow_ma'], 'signal'] = "BUY"
+    df.loc[df['fast_ma'] < df['slow_ma'], 'signal'] = "SELL"
+    
+    # Valid signals are crossovers only?
+    # Engine logic: if pos=0 and BUY -> Buy. If pos=1 and SELL -> Sell.
+    # So continuous BUY is fine (holds).
+    return df['signal'].tolist()
+""",
+    'rsi_mean_reversion': """
+import pandas_ta as ta
+def strategy(data):
+    df = data.copy()
+    df['rsi'] = ta.rsi(df['close'], length=14)
+    
+    df['signal'] = "HOLD"
+    df.loc[df['rsi'] < 30, 'signal'] = "BUY"
+    df.loc[df['rsi'] > 70, 'signal'] = "SELL"
+    return df['signal'].tolist()
+""",
+    'breakout': """
+def strategy(data):
+    df = data.copy()
+    df['rolling_max'] = df['high'].rolling(window=20).max()
+    df['signal'] = "HOLD"
+    # Breakout
+    df.loc[df['close'] > df['rolling_max'].shift(1), 'signal'] = "BUY"
+    # Exit if falls below 20 day low? Or simple trailing?
+    # For now, just BUY signals.
+    return df['signal'].tolist()
+""",
+    'buy_and_hold': """
+def strategy(data):
+    signals = ["HOLD"] * len(data)
+    if len(signals) > 0:
+        signals[0] = "BUY"
+    return signals
+"""
+}
+
 def process_backtest(job):
     print(f"Processing job {job['id']} for strategy {job['strategy_id']}")
     
     # 1. Fetch Strategy Code
     try:
-        strategy_resp = supabase.from('algo_strategies').select('code').eq('id', job['strategy_id']).single().execute()
-        if not strategy_resp.data:
-            print("Strategy not found")
+        code = None
+        strategy_id = job['strategy_id']
+        
+        if strategy_id in PREDEFINED_STRATEGIES:
+            print(f"Using predefined strategy: {strategy_id}")
+            code = PREDEFINED_STRATEGIES[strategy_id]
+        else:
+            strategy_resp = supabase.from('algo_strategies').select('code').eq('id', strategy_id).single().execute()
+            if strategy_resp.data:
+                code = strategy_resp.data['code']
+        
+        if not code:
+            print("Strategy code not found")
             return
-            
-        code = strategy_resp.data['code']
         
         # 2. Fetch Data
         # 2. Fetch Data

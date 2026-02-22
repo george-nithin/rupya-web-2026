@@ -21,7 +21,8 @@ from sample_strategies import (
     MovingAverageCrossover,
     RSIMeanReversion,
     BreakoutStrategy,
-    BuyAndHold
+    BuyAndHold,
+    ExpandingRangeBreakout
 )
 
 
@@ -29,7 +30,8 @@ STRATEGIES = {
     'ma_crossover': MovingAverageCrossover,
     'rsi_mean_reversion': RSIMeanReversion,
     'breakout': BreakoutStrategy,
-    'buy_and_hold': BuyAndHold
+    'buy_and_hold': BuyAndHold,
+    'expanding_range_breakout': ExpandingRangeBreakout
 }
 
 def load_custom_strategy(strategy_id: str) -> TradingStrategy:

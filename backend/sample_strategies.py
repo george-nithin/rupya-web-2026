@@ -364,3 +364,170 @@ class BuyAndHold(TradingStrategy):
                 self.has_bought = True
         
         return orders
+
+
+class ExpandingRangeBreakout(TradingStrategy):
+    """
+    Nifty 500 Expanding Range Breakout Strategy
+    Captures volatility expansion with multi-timeframe confirmation
+    """
+    
+    def __init__(
+        self,
+        stop_loss_percent: float = 3.0,
+        profit_target_percent: float = 6.0,
+        position_size_percent: float = 0.95
+    ):
+        super().__init__(
+            name="Expanding Range Breakout",
+            parameters={
+                'stop_loss_percent': stop_loss_percent,
+                'profit_target_percent': profit_target_percent,
+                'position_size_percent': position_size_percent
+            }
+        )
+        self.stop_loss_percent = stop_loss_percent
+        self.profit_target_percent = profit_target_percent
+        self.position_size_percent = position_size_percent
+        self.in_position = False
+        self.entry_price = None
+    
+    def calculate_signals(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Calculate Expanding Range Breakout signals"""
+        df = data.copy()
+        
+        # Calculate Daily Range
+        df['range'] = (df['high'] - df['low']).abs()
+        
+        # Calculate Expanding Range (Current > Prev > Prev2 > Prev3)
+        df['range_1'] = df['range'].shift(1)
+        df['range_2'] = df['range'].shift(2)
+        df['range_3'] = df['range'].shift(3)
+        df['range_4'] = df['range'].shift(4)
+
+        condition_expanding = (
+            (df['range'] > df['range_1']) &
+            (df['range_1'] > df['range_2']) &
+            (df['range_2'] > df['range_3']) &
+            (df['range_3'] > df['range_4'])
+        )
+
+        # Bullish Day
+        condition_bullish = df['close'] > df['open']
+        
+        # Turnover (Volume * Close) > 1M
+        df['turnover'] = df['volume'] * df['close']
+        condition_turnover = df['turnover'] >= 1000000 
+
+        # Gap Strength: Low > (Prev Close - Abs(Prev Close / 222))
+        prev_close = df['close'].shift(1)
+        condition_gap = df['low'] > (prev_close - (prev_close / 222).abs())
+
+        # Weekly Open Check
+        # Resample to weekly to get open, then map back to daily
+        # Assuming index is DatetimeIndex or we have timestamp col?
+        # The engine ensures 'timestamp' column or index. Let's rely on 'timestamp' column if available, else index.
+        if 'timestamp' in df.columns:
+            dates = df['timestamp']
+        else:
+            dates = df.index.to_series()
+        
+        # Create week/month identifiers
+        # Using period can be tricky with types, let's use strftime
+        week_id = dates.dt.strftime('%Y-%U') 
+        month_id = dates.dt.strftime('%Y-%m')
+        
+        df['week_id'] = week_id
+        df['month_id'] = month_id
+        
+        # Calculate Weekly Open
+        weekly_open = df.groupby('week_id')['open'].transform('first')
+        condition_weekly = df['close'] > weekly_open
+        
+        # Calculate Monthly Open
+        monthly_open = df.groupby('month_id')['open'].transform('first')
+        condition_monthly = df['close'] > monthly_open
+        
+        # Signal Generation
+        df['signal'] = 0
+        
+        # Buy Signal
+        long_condition = (
+            condition_expanding & 
+            condition_bullish & 
+            condition_turnover & 
+            condition_gap &
+            condition_weekly &
+            condition_monthly
+        )
+        
+        df.loc[long_condition, 'signal'] = 1
+
+        
+        return df
+
+    def on_data(
+        self,
+        timestamp: datetime,
+        current_bar: Dict,
+        historical_data: pd.DataFrame
+    ) -> List[Order]:
+        """Generate orders based on Expanding Range Breakout"""
+        orders = []
+        
+        # Need enough data for calculations (at least 5 days)
+        if len(historical_data) < 5:
+            return orders
+        
+        # Calculate signals
+        signals = self.calculate_signals(historical_data)
+        current_signal = signals.iloc[-1]
+        
+        current_price = current_bar['close']
+        
+        # Entry
+        if current_signal['signal'] == 1 and not self.in_position:
+            # Calculate position size
+            available_cash = self.portfolio.cash * self.position_size_percent
+            quantity = int(available_cash / current_price)
+            
+            if quantity > 0:
+                symbol = list(historical_data.columns)[0] if len(historical_data.columns) > 0 else 'UNKNOWN'
+                orders.append(Order(
+                    symbol=symbol,
+                    side=OrderSide.BUY,
+                    quantity=quantity,
+                    order_type=OrderType.MARKET
+                ))
+                self.in_position = True
+                self.entry_price = current_price
+        
+        # Exit: Stop-loss or Profit Target
+        elif self.in_position and self.entry_price:
+            pnl_percent = ((current_price - self.entry_price) / self.entry_price) * 100
+            
+            should_exit = False
+            
+            # Check stop-loss
+            if pnl_percent <= -self.stop_loss_percent:
+                should_exit = True
+            
+            # Check profit target
+            if pnl_percent >= self.profit_target_percent:
+                should_exit = True
+            
+            if should_exit:
+                # Sell entire position
+                symbol = list(self.portfolio.positions.keys())[0] if self.portfolio.positions else None
+                if symbol:
+                    position = self.portfolio.positions[symbol]
+                    orders.append(Order(
+                        symbol=symbol,
+                        side=OrderSide.SELL,
+                        quantity=position.quantity,
+                        order_type=OrderType.MARKET
+                    ))
+                    self.in_position = False
+                    self.entry_price = None
+        
+        return orders
