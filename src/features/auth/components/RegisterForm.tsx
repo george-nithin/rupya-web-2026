@@ -40,6 +40,12 @@ export default function RegisterForm() {
         setIsLoading(true);
         setError(null);
 
+        if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+            setError("Supabase configuration is missing. Please check your environment variables.");
+            setIsLoading(false);
+            return;
+        }
+
         try {
             const { error } = await supabase.auth.signUp({
                 email: data.email,

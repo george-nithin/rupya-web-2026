@@ -16,8 +16,13 @@ export default function LoginPage() {
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
         setError("");
+
+        if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+            setError("Supabase configuration is missing. Please check your environment variables.");
+            setLoading(false);
+            return;
+        }
 
         try {
             const { data, error } = await supabase.auth.signInWithPassword({
