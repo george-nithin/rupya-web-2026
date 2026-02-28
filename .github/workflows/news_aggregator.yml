@@ -1,0 +1,37 @@
+name: News Aggregator
+
+on:
+  schedule:
+    # Run every 2 hours
+    - cron: '0 */2 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update_news:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        cd backend
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run News Aggregator
+      env:
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
+        DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
+      run: |
+        cd backend
+        python news_aggregator.py
