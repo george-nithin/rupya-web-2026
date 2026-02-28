@@ -67,7 +67,7 @@ export default function OnboardingWizard() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
-                            transition-all duration-200={{ duration: 0.3 }}
+                            transition={{ duration: 0.3 }}
                         >
                             {step === 1 && (
                                 <ExperienceStep
