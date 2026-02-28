@@ -10,24 +10,8 @@ from supabase_manager import SupabaseManager
 from screener_fetcher import ScreenerFetcher
 from dhan_client import DhanClient
 from algo_engine import AlgoEngine
-from utils import log_info, log_error, sleep_random, log_success
+from utils import log_info, log_error, sleep_random, log_success, is_market_hours, get_seconds_until_market_open
 import random
-
-def is_market_hours():
-    """Check if current time is within 09:00 to 16:00 IST"""
-    # Get current time in UTC and adjust to IST (+5:30)
-    now_utc = datetime.datetime.now(datetime.timezone.utc)
-    ist_offset = datetime.timedelta(hours=5, minutes=30)
-    now_ist = now_utc + ist_offset
-    
-    # Check weekday (0=Monday, 6=Sunday)
-    if now_ist.weekday() >= 5: # Saturday or Sunday
-        return False
-        
-    start_time = now_ist.replace(hour=9, minute=0, second=0, microsecond=0)
-    end_time = now_ist.replace(hour=16, minute=0, second=0, microsecond=0)
-    
-    return start_time <= now_ist <= end_time
 
 def main():
     log_info("Starting Rupya Backend Orchestrator 🚀")
@@ -60,10 +44,15 @@ def main():
 
     while True:
         # Check market hours (unless running a single manual cycle)
-        # if not is_market_hours() and not run_once:
-        #    log_info("Outside Market Hours (09:00 - 16:00 IST). Sleeping for 5 minutes...")
-        #    time.sleep(300)
-        #    continue
+        if not is_market_hours() and not run_once:
+            seconds_to_wait, resumption_time = get_seconds_until_market_open()
+            log_info(f"Outside Market Hours (09:00 - 17:00 IST, Mon-Fri).")
+            log_info(f"Sleeping until {resumption_time.strftime('%Y-%m-%d %H:%M:%S')} IST ({seconds_to_wait} seconds)...")
+            
+            # Sleep in chunks to allow for potential interruptions or periodic checks
+            # but for 9-5 efficiency on Railway, we can just sleep the full duration
+            time.sleep(min(seconds_to_wait, 3600)) 
+            continue
 
         cycle_start_time = time.time()
         try:

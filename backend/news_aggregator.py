@@ -6,7 +6,7 @@ Fetches market news, corporate actions, dividends, and special events from real 
 import requests
 from bs4 import BeautifulSoup
 from supabase_manager import SupabaseManager
-from utils import log_info, log_error, log_success
+from utils import log_info, log_error, log_success, is_market_hours
 from datetime import datetime, timedelta
 import re
 import json
@@ -36,6 +36,10 @@ class NewsAggregator:
         
     def fetch_all_news(self):
         """Fetch all types of market news"""
+        if not is_market_hours():
+            log_info("Outside Market Hours (09:00 - 17:00 IST). Skipping news aggregation.")
+            return
+
         log_info("Starting news aggregation...")
         
         try:
