@@ -17,9 +17,8 @@ class NSEIndices:
         
         if data and "data" in data:
             indices = data["data"]
-            # Filter for key indices
-            key_indices = ["NIFTY 50", "NIFTY BANK", "NIFTY FIN SERVICE"]
-            filtered = [
+            # Map all indices available from NSE
+            mapped = [
                 {
                     "index": i.get("index"),
                     "last": i.get("last"),
@@ -31,9 +30,9 @@ class NSEIndices:
                     "previousClose": i.get("previousClose"),
                     "timestamp": data.get("timestamp")
                 }
-                for i in indices if i.get("index") in key_indices
+                for i in indices
             ]
-            return filtered
+            return mapped
         else:
             log_error("Failed to fetch indices data.")
             return []
