@@ -1,14 +1,51 @@
-"use client";
-
 import { GlassCard } from "@/components/ui/GlassCard";
-import { Info, Gauge } from "lucide-react";
-import { useMemo } from "react";
+import { Info } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 interface MarketSentimentMeterProps {
     score?: number; // 0 to 100
 }
 
-export function MarketSentimentMeter({ score = 64 }: MarketSentimentMeterProps) {
+export function MarketSentimentMeter({ score: initialScore = 64 }: MarketSentimentMeterProps) {
+    const [score, setScore] = useState(initialScore);
+    const [isFlash, setIsFlash] = useState(false);
+
+    useEffect(() => {
+        const calculateSentiment = async () => {
+            const { data } = await supabase
+                .from('market_indices')
+                .select('change, percent_change');
+
+            if (data && data.length > 0) {
+                const positive = data.filter(d => (d.change || 0) >= 0).length;
+                const total = data.length;
+                // Simple calculation: percentage of positive indices mapped to 0-100
+                const calculatedScore = Math.round((positive / total) * 100);
+                setScore(calculatedScore);
+            }
+        };
+
+        calculateSentiment();
+
+        const channel = supabase
+            .channel('sentiment_indices_updates')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'market_indices' },
+                () => {
+                    calculateSentiment();
+                    setIsFlash(true);
+                    setTimeout(() => setIsFlash(false), 800);
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, []);
+
     // 0-20: Extreme Fear, 20-40: Fear, 40-60: Balanced, 60-80: Greed, 80-100: Extreme Greed
     const getSentimentLabel = (val: number) => {
         if (val < 20) return "Extreme Fear";
@@ -24,13 +61,13 @@ export function MarketSentimentMeter({ score = 64 }: MarketSentimentMeterProps) 
     const needleRotation = (score / 100) * 180 - 90;
 
     return (
-        <GlassCard className="relative overflow-hidden border-white/5 bg-slate-950/80 p-8 flex flex-col items-center justify-between h-full group">
+        <GlassCard className={`relative overflow-hidden border-white/5 bg-slate-950/80 p-8 flex flex-col items-center justify-between h-full group transition-all duration-500 ${isFlash ? 'ring-2 ring-indigo-500/30 bg-indigo-500/5' : ''}`}>
             {/* Background Glow */}
-            <div className="absolute inset-x-0 top-0 h-40 bg-indigo-500/10 blur-[100px] pointer-events-none" />
+            <div className={`absolute inset-x-0 top-0 h-40 bg-indigo-500/10 blur-[100px] pointer-events-none transition-opacity duration-500 ${isFlash ? 'opacity-100' : 'opacity-50'}`} />
 
             <div className="w-full flex justify-between items-center mb-8 relative z-10">
                 <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.8)]" />
+                    <div className={`h-2 w-2 rounded-full bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.8)] ${isFlash ? 'animate-ping' : ''}`} />
                     <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.3em]">Market Sentiment</span>
                 </div>
                 <button className="text-white/20 hover:text-white transition-colors">
@@ -51,30 +88,10 @@ export function MarketSentimentMeter({ score = 64 }: MarketSentimentMeterProps) 
                     />
 
                     {/* Active Segments Highlight (Simplified for aesthetic) */}
-                    <path
-                        d="M 20 100 A 80 80 0 0 1 60 40"
-                        fill="none"
-                        stroke="rgba(239, 68, 68, 0.1)"
-                        strokeWidth="12"
-                    />
-                    <path
-                        d="M 60 40 A 80 80 0 0 1 100 20"
-                        fill="none"
-                        stroke="rgba(249, 115, 22, 0.1)"
-                        strokeWidth="12"
-                    />
-                    <path
-                        d="M 100 20 A 80 80 0 0 1 140 40"
-                        fill="none"
-                        stroke="rgba(251, 191, 36, 0.3)"
-                        strokeWidth="12"
-                    />
-                    <path
-                        d="M 140 40 A 80 80 0 0 1 180 100"
-                        fill="none"
-                        stroke="rgba(34, 197, 94, 0.1)"
-                        strokeWidth="12"
-                    />
+                    <path d="M 20 100 A 80 80 0 0 1 60 40" fill="none" stroke="rgba(239, 68, 68, 0.1)" strokeWidth="12" />
+                    <path d="M 60 40 A 80 80 0 0 1 100 20" fill="none" stroke="rgba(249, 115, 22, 0.1)" strokeWidth="12" />
+                    <path d="M 100 20 A 80 80 0 0 1 140 40" fill="none" stroke="rgba(251, 191, 36, 0.3)" strokeWidth="12" />
+                    <path d="M 140 40 A 80 80 0 0 1 180 100" fill="none" stroke="rgba(34, 197, 94, 0.1)" strokeWidth="12" />
 
                     {/* Glowing active segment based on score */}
                     <path
@@ -88,7 +105,7 @@ export function MarketSentimentMeter({ score = 64 }: MarketSentimentMeterProps) 
                     />
 
                     {/* Needle */}
-                    <g transform={`rotate(${needleRotation}, 100, 100)`}>
+                    <g className="transition-transform duration-1000 ease-out" style={{ transform: `rotate(${needleRotation}deg)`, transformOrigin: '100px 100px' }}>
                         <line x1="100" y1="100" x2="100" y2="25" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round" />
                         <circle cx="100" cy="100" r="4" fill="#fbbf24" />
                         <line x1="100" y1="100" x2="100" y2="20" stroke="white" strokeWidth="0.5" opacity="0.3" />
@@ -99,7 +116,7 @@ export function MarketSentimentMeter({ score = 64 }: MarketSentimentMeterProps) 
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1">
                     <div className="flex items-center gap-2">
                         <div className="w-1 h-1 bg-white/20 rotate-45" />
-                        <div className="px-4 py-1.5 rounded-lg border border-white/5 bg-white/5 backdrop-blur-md shadow-2xl">
+                        <div className={`px-4 py-1.5 rounded-lg border border-white/5 bg-white/5 backdrop-blur-md shadow-2xl transition-transform duration-500 ${isFlash ? 'scale-110' : 'scale-100'}`}>
                             <span className="text-xl font-black text-white tracking-widest uppercase">{label}</span>
                         </div>
                         <div className="w-1 h-1 bg-white/20 rotate-45" />
@@ -110,17 +127,17 @@ export function MarketSentimentMeter({ score = 64 }: MarketSentimentMeterProps) 
             <div className="w-full relative z-10 pt-4 border-t border-white/5">
                 <div className="flex justify-between items-center mb-6">
                     <div>
-                        <div className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1">Risk Strategy</div>
-                        <div className="text-xs font-bold text-white/80">Tailored Risk Management</div>
+                        <div className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1">Index Analysis</div>
+                        <div className="text-xs font-bold text-white/80">Sentiment Score</div>
                     </div>
                     <div className="text-right">
-                        <div className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1">Index</div>
-                        <div className="text-xs font-black text-indigo-400">0.64 G-UNIT</div>
+                        <div className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1">Live Score</div>
+                        <div className={`text-xs font-black transition-colors ${isFlash ? 'text-indigo-400' : 'text-indigo-400/60'}`}>{score} UNITS</div>
                     </div>
                 </div>
 
                 <div className="text-[10px] font-medium text-white/40 leading-relaxed text-center italic">
-                    "Full control, zero guesswork. Adjusting risk tolerance to your preference."
+                    "Automated market intelligence. Real-time index correlation tracking."
                 </div>
             </div>
 

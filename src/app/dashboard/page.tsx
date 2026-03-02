@@ -18,6 +18,7 @@ import { FeaturePromoGrid } from "@/features/dashboard/components/FeaturePromoGr
 import { SocialLinks } from "@/features/dashboard/components/SocialLinks";
 import { NiftyYearlyCard } from "@/features/dashboard/components/NiftyYearlyCard";
 import { MarketSentimentMeter } from "@/features/dashboard/components/MarketSentimentMeter";
+import { MarketMovers } from "@/features/dashboard/components/MarketMovers";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
@@ -58,6 +59,9 @@ export default function DashboardPage() {
 
             {/* Compact Market Indices */}
             <MarketOverview />
+
+            {/* Top Movers Section */}
+            <MarketMovers />
 
             {/* Feature Promo Cards */}
             <FeaturePromoGrid />
