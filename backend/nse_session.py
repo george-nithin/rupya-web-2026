@@ -44,8 +44,15 @@ class NSESession:
             response = self.session.get(url, params=params, timeout=config.NSE_TIMEOUT)
             
             # Handle Session Expiry (401/403)
-            if response.status_code in [401, 403]:
-                log_warning(f"Session expired or blocked ({response.status_code}). Re-initializing...")
+            if response.status_code == 403:
+                log_error(f"❌ ACCESS FORBIDDEN (403). NSE might be blocking this IP (Railway/Cloud).")
+                log_warning("Attempting to re-initialize cookies...")
+                self._initialize_cookies()
+                sleep_random(config.DELAY_MIN, config.DELAY_MAX)
+                # Retry once
+                response = self.session.get(url, params=params, timeout=config.NSE_TIMEOUT)
+            elif response.status_code == 401:
+                log_warning(f"Session expired (401). Re-initializing...")
                 self._initialize_cookies()
                 sleep_random(config.DELAY_MIN, config.DELAY_MAX)
                 # Retry once

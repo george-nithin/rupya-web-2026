@@ -4,9 +4,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Supabase Configuration
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-# IMPORTANT: Use the "service_role" key from "Legacy/JWT" settings (Starts with "ey...")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+# Try fallback names commonly used in Next.js/Railway
+SUPABASE_URL = os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL")
+# IMPORTANT: Use the "service_role" key for backend write access
+SUPABASE_KEY = os.getenv("SUPABASE_KEY") or os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("NEXT_PUBLIC_SUPABASE_ANON_KEY")
 
 # Auto-correct URL if user pasted just the ID
 if SUPABASE_URL and not SUPABASE_URL.startswith("http"):
