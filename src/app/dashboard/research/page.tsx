@@ -2,10 +2,25 @@
 
 import { GlassCard } from "@/components/ui/GlassCard";
 import { StockSearchInput } from "@/components/ui/StockSearchInput";
-import { X, Info, AlertTriangle } from "lucide-react";
-import { useState, useEffect } from "react";
+import {
+    X,
+    Info,
+    AlertTriangle,
+    Trophy,
+    TrendingUp,
+    ShieldCheck,
+    Zap,
+    BarChart3,
+    Share2,
+    ArrowUpRight,
+    CheckCircle2,
+    Target
+} from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
+import { RiverDynamicsChart } from "@/features/dashboard/components/RiverDynamicsChart";
+import { RadialImpactChart } from "@/features/dashboard/components/RadialImpactChart";
 
 // --- Types ---
 interface StockData {
@@ -49,46 +64,76 @@ const formatCurrency = (val: number | undefined | null) => {
     return `₹${val.toLocaleString()}`;
 };
 
-const formatNumber = (val: number | undefined | null, decimals = 2) => {
+const formatPercent = (val: number | undefined | null) => {
+    if (val === undefined || val === null || isNaN(val)) return "-";
+    return `${val.toFixed(2)}%`;
+};
+
+const formatNumber = (val: number | undefined | null, decimals = 1) => {
     if (val === undefined || val === null || isNaN(val)) return "-";
     return val.toFixed(decimals);
 };
 
-const getComparisonColor = (val: number, values: number[], type: 'high-good' | 'low-good' | 'neutral') => {
-    if (type === 'neutral') return 'text-foreground';
-    const validValues = values.filter(v => v !== undefined && v !== null && !isNaN(v));
-    if (validValues.length === 0) return 'text-foreground';
+// --- Scoring Logic ---
+const calculateWinner = (stocks: StockData[]) => {
+    if (stocks.length < 2) return null;
 
-    const max = Math.max(...validValues);
-    const min = Math.min(...validValues);
+    const scores = stocks.map(stock => {
+        let score = 0;
+        let reasons: string[] = [];
 
-    if (type === 'high-good') {
-        if (val === max) return 'text-emerald-500 font-bold';
-        if (val === min) return 'text-rose-500';
-    } else {
-        if (val === min) return 'text-emerald-500 font-bold';
-        if (val === max) return 'text-rose-500';
-    }
-    return 'text-foreground';
+        // 1. Valuation (Low PE is weighted)
+        const avgPE = stocks.reduce((acc, s) => acc + (s.pe_ratio || 0), 0) / stocks.length;
+        if ((stock.pe_ratio || 0) < avgPE) {
+            score += 20;
+            reasons.push("Better Valuation (Lower P/E)");
+        }
+
+        // 2. Growth (Revenue/Profit)
+        const avgGrowth = stocks.reduce((acc, s) => acc + (s.revenue_growth_yoy || 0), 0) / stocks.length;
+        if ((stock.revenue_growth_yoy || 0) > avgGrowth) {
+            score += 25;
+            reasons.push("Superior Revenue Growth");
+        }
+
+        // 3. Efficiency (ROE/ROCE)
+        const avgROE = stocks.reduce((acc, s) => acc + (s.roe || 0), 0) / stocks.length;
+        if ((stock.roe || 0) > avgROE) {
+            score += 25;
+            reasons.push("High Capital Efficiency (ROE)");
+        }
+
+        // 4. Financial Health (Debt to Equity - Lower is better)
+        const avgDebt = stocks.reduce((acc, s) => acc + (s.debt_to_equity || 0), 0) / stocks.length;
+        if ((stock.debt_to_equity || 0) < avgDebt) {
+            score += 15;
+            reasons.push("Lower Debt Profile");
+        }
+
+        // 5. Price Strength (52W High vicinity)
+        const pFromHigh = ((stock.high_52w - stock.last_price) / stock.high_52w) * 100;
+        if (pFromHigh < 10) {
+            score += 15;
+            reasons.push("Strong Momentum (Near 52W High)");
+        }
+
+        return { symbol: stock.symbol, score, reasons };
+    });
+
+    return scores.sort((a, b) => b.score - a.score)[0];
 };
 
 export default function ResearchPage() {
-    // State
     const [selectedSymbols, setSelectedSymbols] = useState<string[]>(['RELIANCE', 'TCS', 'INFY']);
     const [stockData, setStockData] = useState<StockData[]>([]);
     const [loading, setLoading] = useState(false);
-    const [activeSection, setActiveSection] = useState<string | null>('all'); // For mobile collapsing if needed
 
-    // Fetch Data
     useEffect(() => {
-        if (selectedSymbols.length > 0) {
-            fetchStockData();
-        } else {
-            setStockData([]);
-        }
+        if (selectedSymbols.length > 0) fetchData();
+        else setStockData([]);
     }, [selectedSymbols]);
 
-    const fetchStockData = async () => {
+    const fetchData = async () => {
         setLoading(true);
         try {
             const { data, error } = await supabase
@@ -97,29 +142,25 @@ export default function ResearchPage() {
                 .in('symbol', selectedSymbols);
 
             if (data) {
-                // Enrich with mock data for fields likely missing in MVP DB
                 const enrichedData = data.map(stock => ({
                     ...stock,
-                    // Mocking extended metrics for the requested "Advanced" feel
                     sector: stock.sector || "Technology",
                     industry: "IT Services",
                     pb_ratio: stock.pb_ratio || (Math.random() * 5 + 1),
                     price_to_sales: Math.random() * 8 + 1,
-                    sector_pe: 25.4, // Mock Sector PE
-                    revenue_growth_yoy: (Math.random() * 20 - 5),
-                    profit_growth_yoy: (Math.random() * 15),
+                    sector_pe: 25.4,
+                    revenue_growth_yoy: (Math.random() * 20 - 5) + 10,
+                    profit_growth_yoy: (Math.random() * 15) + 5,
                     roce: (stock.roe || 15) + (Math.random() * 5),
-                    debt_to_equity: Math.random() * 1.5,
-                    op_margin: Math.random() * 25 + 10,
-                    net_margin: Math.random() * 15 + 5,
-                    beta: 0.8 + Math.random() * 0.6,
-                    volatility: Math.random() * 30 + 10,
+                    debt_to_equity: Math.random() * 0.8,
+                    op_margin: Math.random() * 25 + 15,
+                    net_margin: Math.random() * 15 + 10,
+                    beta: 0.8 + Math.random() * 0.4,
+                    volatility: Math.random() * 20 + 5,
                     sector_trend: Math.random() > 0.5 ? 'Bullish' : 'Neutral',
-                    relative_strength: Math.random() * 20 - 10, // +5% vs sector
-                    all_time_high: (stock.high_52w || stock.last_price) * (1 + Math.random() * 0.4), // Mock ATH > 52W High
+                    all_time_high: (stock.high_52w || stock.last_price) * (1 + Math.random() * 0.2),
                 }));
 
-                // Sort by selection order
                 const sorted = selectedSymbols.map(sym => enrichedData.find((d: any) => d.symbol === sym)).filter(Boolean) as StockData[];
                 setStockData(sorted);
             }
@@ -130,206 +171,322 @@ export default function ResearchPage() {
         }
     };
 
-    const removeSymbol = (symbol: string) => {
-        if (selectedSymbols.length <= 2) {
-            // Optional: Allow 1, but requirement says "Compare minimum 2". 
-            // We'll allow removing but show UI state for "Select 2nd stock".
-        }
-        setSelectedSymbols(selectedSymbols.filter(s => s !== symbol));
-    };
+    const winner = useMemo(() => calculateWinner(stockData), [stockData]);
 
-    // Render Logic
-    const renderRow = (
-        label: string,
-        key: keyof StockData | 'calculated',
-        type: 'high-good' | 'low-good' | 'neutral' = 'neutral',
-        formatStr?: string,
-        tooltip?: string,
-        calculateFn?: (stock: StockData) => number
-    ) => {
-        const values = stockData.map(s => calculateFn ? calculateFn(s) : (s[key as keyof StockData] as number));
-
+    const MetricVisual = ({ value, max, label, color = "sky" }: { value: number, max: number, label: string, color?: string }) => {
+        const percentage = Math.min((value / max) * 100, 100);
         return (
-            <tr className="hover:bg-muted/50 transition-all duration-150 group active:scale-95">
-                <td className="p-4 text-sm font-medium text-muted-foreground sticky left-0 bg-background/95 backdrop-blur-sm border-r border-border/50 group-hover:bg-muted/50 z-10 flex items-center gap-2 active:scale-95">
-                    {label}
-                    {tooltip && (
-                        <div className="relative group/tooltip">
-                            <Info className="h-3 w-3 text-muted-foreground/50 cursor-help hover:text-primary transition-all duration-150" />
-                            <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 w-48 p-2 bg-popover text-popover-foreground text-xs rounded-lg shadow-md opacity-0 group-hover/tooltip:opacity-100 pointer-events-none transition-opacity z-50 border border-border">
-                                {tooltip}
-                            </div>
-                        </div>
-                    )}
-                </td>
-                {stockData.map(stock => {
-                    const val = calculateFn ? calculateFn(stock) : (stock[key as keyof StockData] as number);
-                    const colorClass = getComparisonColor(val, values, type);
-
-                    let displayVal = val !== undefined && val !== null ? val.toString() : "-";
-
-                    if (val === undefined || val === null || isNaN(val)) {
-                        displayVal = "-";
-                    } else {
-                        if (formatStr === 'currency') displayVal = formatCurrency(val);
-                        else if (formatStr === 'percent') displayVal = `${val.toFixed(2)}%`;
-                        else if (formatStr === 'ratio') displayVal = `${val.toFixed(2)}x`;
-                        else if (formatStr === 'number') displayVal = val.toFixed(2);
-                    }
-
-                    return (
-                        <td key={stock.symbol} className={`p-4 text-center text-sm border-l border-border/10 ${colorClass}`}>
-                            {displayVal}
-                        </td>
-                    );
-                })}
-            </tr>
+            <div className="space-y-2">
+                <div className="flex justify-between items-end">
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{label}</span>
+                    <span className={`text-sm font-bold text-${color}-400`}>{formatNumber(value)}%</span>
+                </div>
+                <div className="h-1.5 w-full bg-card/50 rounded-full overflow-hidden border border-white/5">
+                    <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${percentage}%` }}
+                        className={`h-full bg-gradient-to-r from-${color}-500 to-${color}-400 shadow-[0_0_10px_rgba(var(--${color}-500),0.3)]`}
+                    />
+                </div>
+            </div>
         );
     };
 
     return (
-        <div className="space-y-6 max-w-[1600px] mx-auto pb-20">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-10 max-w-[1600px] mx-auto pb-24">
+            {/* Nav & Search */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-foreground tracking-tight">Stock Comparison</h1>
-                    <p className="text-muted-foreground">Analyze and compare assets side-by-side to make data-driven decisions.</p>
+                    <h1 className="text-4xl font-extrabold text-foreground tracking-tighter mb-2">
+                        Battle of Assets
+                    </h1>
+                    <div className="flex items-center gap-3">
+                        <div className="flex -space-x-2">
+                            {selectedSymbols.map(s => (
+                                <div key={s} className="h-8 w-8 rounded-full bg-gradient-to-br from-orange-500 to-red-500 border-2 border-background flex items-center justify-center text-[10px] font-bold text-white shadow-xl">
+                                    {s[0]}
+                                </div>
+                            ))}
+                        </div>
+                        <p className="text-muted-foreground text-sm font-medium">Comparing {selectedSymbols.length} Market Leaders</p>
+                    </div>
                 </div>
 
-                {/* Search / Add */}
-                <StockSearchInput
-                    onSelect={(symbol) => {
-                        if (!selectedSymbols.includes(symbol)) {
-                            if (selectedSymbols.length >= 3) {
-                                alert("Maximum 3 stocks allowed for comparison");
-                                return;
+                <div className="flex items-center gap-3">
+                    <StockSearchInput
+                        onSelect={(symbol) => {
+                            if (!selectedSymbols.includes(symbol) && selectedSymbols.length < 3) {
+                                setSelectedSymbols([...selectedSymbols, symbol]);
                             }
-                            setSelectedSymbols([...selectedSymbols, symbol]);
-                        }
-                    }}
-                    placeholder="Search and add stocks to compare..."
-                    className="w-full md:w-96"
-                />
+                        }}
+                        placeholder="Add stock to battle..."
+                        className="w-full md:w-80 shadow-2xl"
+                    />
+                    <button className="p-3 rounded-xl bg-card border border-border/50 hover:bg-muted text-foreground transition-all">
+                        <Share2 className="h-5 w-5" />
+                    </button>
+                </div>
             </div>
 
             {/* Selection Chips */}
-            <div className="flex flex-wrap gap-3">
-                {selectedSymbols.map(stock => (
-                    <div key={stock} className="flex items-center gap-2 pl-3 pr-2 py-1.5 bg-card border border-border/50 rounded-full shadow-soft animate-in fade-in zoom-in duration-200">
-                        <span className="font-bold text-sm text-foreground">{stock}</span>
+            <div className="flex flex-wrap gap-2">
+                {selectedSymbols.map(sym => (
+                    <motion.div
+                        layout
+                        key={sym}
+                        className="flex items-center gap-2 pl-4 pr-2 py-2 bg-gradient-to-r from-card to-card/50 border border-border/40 rounded-2xl shadow-xl group"
+                    >
+                        <span className="font-bold text-sm">{sym}</span>
                         <button
-                            onClick={() => removeSymbol(stock)}
-                            className="p-1 hover:bg-destructive/10 rounded-full text-muted-foreground hover:text-destructive transition-all duration-150 active:scale-95"
+                            onClick={() => setSelectedSymbols(selectedSymbols.filter(s => s !== sym))}
+                            className="p-1 rounded-lg hover:bg-rose-500/10 text-muted-foreground hover:text-rose-500 transition-colors"
                         >
-                            <X className="h-3 w-3" />
+                            <X className="h-4 w-4" />
                         </button>
-                    </div>
+                    </motion.div>
                 ))}
-                {selectedSymbols.length < 2 && (
-                    <div className="flex items-center gap-2 px-3 py-1.5 border border-dashed border-border rounded-full text-sm text-muted-foreground">
-                        <Info className="h-3 w-3" /> Select at least 2 stocks
-                    </div>
-                )}
             </div>
 
-            {/* Render Comparison or Empty State */}
-            {selectedSymbols.length < 1 ? (
-                <div className="h-64 flex items-center justify-center text-muted-foreground">
-                    Add stocks to start comparing
+            {loading ? (
+                <div className="h-96 flex flex-col items-center justify-center gap-4 text-muted-foreground">
+                    <div className="h-10 w-10 border-4 border-t-sky-500 border-sky-500/20 rounded-full animate-spin" />
+                    <p className="animate-pulse font-medium uppercase tracking-widest text-xs">Simulating Battle Results...</p>
                 </div>
-            ) : (
-                <GlassCard className="overflow-hidden p-0 border-border/50 shadow-strong">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr>
-                                    <th className="p-4 min-w-[180px] bg-muted/20 sticky left-0 z-20 border-b border-border/50">
-                                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Metric</span>
-                                    </th>
-                                    {stockData.map(stock => (
-                                        <th key={stock.symbol} className="p-4 min-w-[200px] text-center border-l border-border/10 border-b border-border/50 bg-muted/5">
-                                            <div className="flex flex-col items-center gap-1">
-                                                <span className="text-lg font-bold text-foreground">{stock.symbol}</span>
-                                                <span className="text-xs text-muted-foreground bg-secondary/50 px-2 py-0.5 rounded">{stock.sector}</span>
-                                            </div>
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-border/10">
-                                {/* BASIC INFO */}
-                                <tr className="bg-muted/10"><td colSpan={4} className="p-2 px-4 text-xs font-bold text-primary uppercase tracking-widest sticky left-0 bg-secondary/90 backdrop-blur">Basic Information</td></tr>
-                                {renderRow("Latest Price", "last_price", "neutral", "currency", "Current market price per share")}
-                                {renderRow("Market Cap", "market_cap", "high-good", "currency", "Total value of the company's shares")}
-                                {renderRow("Industry", "industry", "neutral", undefined, "Primary business sector")}
+            ) : stockData.length > 0 ? (
+                <div className="space-y-12">
+                    {/* New Stepped Rank Design for Battle Power (Inspired by User Reference) */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-0 rounded-[2rem] overflow-hidden border border-white/5 shadow-2xl bg-white">
+                        {stockData.sort((a, b) => {
+                            const scoreA = calculateWinner([a, ...stockData.filter(x => x !== a)])?.score || 0;
+                            const scoreB = calculateWinner([b, ...stockData.filter(x => x !== b)])?.score || 0;
+                            return scoreB - scoreA;
+                        }).map((stock, idx) => {
+                            const colors = [
+                                { bg: 'bg-[#0a262a]', text: 'text-white', rank: 'rank 01/', meta: 'text-white/40' },
+                                { bg: 'bg-[#2ec4b6]', text: 'text-[#0a262a]', rank: 'rank 02/', meta: 'text-[#0a262a]/60' },
+                                { bg: 'bg-[#cbf3f0]', text: 'text-[#0a262a]', rank: 'rank 03/', meta: 'text-[#0a262a]/60' },
+                            ];
+                            const theme = colors[idx] || colors[2];
+                            const scoreValue = Math.round(calculateWinner([stock, ...stockData.filter(x => x !== stock)])?.score || 0);
 
-                                {/* VALUATION */}
-                                <tr className="bg-muted/10"><td colSpan={4} className="p-2 px-4 text-xs font-bold text-primary uppercase tracking-widest sticky left-0 bg-secondary/90 backdrop-blur">Valuation</td></tr>
-                                {renderRow("P/E Ratio", "pe_ratio", "low-good", "number", "Price to Earnings Ratio. Lower is generally better value.")}
-                                {renderRow("P/B Ratio", "pb_ratio", "low-good", "number", "Price to Book Ratio. Compares market value to book value.")}
-                                {renderRow("P/S Ratio", "price_to_sales", "low-good", "number", "Price to Sales Ratio. Valuable for growth stocks.")}
-                                {/* Sector PE Comparison Row */}
-                                <tr>
-                                    <td className="p-4 text-sm font-medium text-muted-foreground sticky left-0 bg-background/95 backdrop-blur-sm border-r border-border/50 flex items-center gap-2">
-                                        vs Sector PE
-                                        <div className="relative group/tooltip">
-                                            <Info className="h-3 w-3 text-muted-foreground/50 cursor-help hover:text-primary transition-all duration-150" />
-                                            <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 w-48 p-2 bg-popover text-popover-foreground text-xs rounded-lg shadow-md opacity-0 group-hover/tooltip:opacity-100 pointer-events-none transition-opacity z-50 border border-border">
-                                                Is the stock cheaper or more expensive than its peers?
+                            return (
+                                <div key={stock.symbol} className={`${theme.bg} ${theme.text} p-12 min-h-[400px] flex flex-col justify-between relative group`}>
+                                    <div>
+                                        <div className="flex items-start justify-between">
+                                            <div className="text-8xl font-black tracking-tighter flex items-start">
+                                                {scoreValue}
+                                                <span className="text-xl mt-4 ml-1 font-bold">(%)</span>
                                             </div>
                                         </div>
-                                    </td>
-                                    {stockData.map(stock => (
-                                        <td key={stock.symbol} className="p-4 text-center border-l border-border/10">
-                                            <div className="flex flex-col items-center gap-1">
-                                                <span className="text-xs text-muted-foreground mb-1">Sec: {stock.sector_pe}</span>
-                                                {(stock.pe_ratio || 0) < (stock.sector_pe || 0) ? (
-                                                    <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-500/10 text-emerald-500 rounded-full border border-emerald-500/20">UNDERVALUED</span>
-                                                ) : (
-                                                    <span className="text-[10px] font-bold px-2 py-0.5 bg-rose-500/10 text-rose-500 rounded-full border border-rose-500/20">PREMIUM</span>
-                                                )}
+                                        <div className="mt-8 flex gap-8">
+                                            <div className="text-[10px] font-bold uppercase tracking-widest opacity-60">
+                                                {theme.rank}
                                             </div>
-                                        </td>
-                                    ))}
-                                </tr>
+                                            <div className="text-[10px] font-bold uppercase tracking-wider leading-relaxed">
+                                                /Battle Power Score<br />
+                                                Exchange - {stock.symbol}
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                {/* CALCULATED TECHNICALS */}
-                                <tr className="bg-muted/10"><td colSpan={4} className="p-2 px-4 text-xs font-bold text-primary uppercase tracking-widest sticky left-0 bg-secondary/90 backdrop-blur">Technical Analysis</td></tr>
-                                {renderRow("52W High", "high_52w", "neutral", "currency", "Highest price in last 52 weeks")}
-                                {renderRow("52W Low", "low_52w", "neutral", "currency", "Lowest price in last 52 weeks")}
-                                {renderRow("Correction from 52W High", "calculated", "low-good", "percent", "Percentage drop from the 52-week high price", (s) => s.high_52w ? ((s.high_52w - s.last_price) / s.high_52w) * 100 : 0)}
-                                {renderRow("Premium over 52W Low", "calculated", "high-good", "percent", "Percentage gain from the 52-week low price", (s) => s.low_52w ? ((s.last_price - s.low_52w) / s.low_52w) * 100 : 0)}
-                                {renderRow("Correction from ATH", "calculated", "low-good", "percent", "Percentage drop from All-Time High price", (s) => s.all_time_high ? ((s.all_time_high - s.last_price) / s.all_time_high) * 100 : 0)}
+                                    <div className="mt-12">
+                                        <div className="text-2xl font-black uppercase tracking-tighter mb-1">
+                                            {stock.company_name.split(' ')[0]}
+                                        </div>
+                                        <div className="text-xs font-bold opacity-40 uppercase tracking-[0.2em]">
+                                            Ranked Market Leader
+                                        </div>
+                                    </div>
 
-                                {/* FINANCIAL HEALTH */}
-                                <tr className="bg-muted/10"><td colSpan={4} className="p-2 px-4 text-xs font-bold text-primary uppercase tracking-widest sticky left-0 bg-secondary/90 backdrop-blur">Financial Strength</td></tr>
-                                {renderRow("Revenue Growth (YoY)", "revenue_growth_yoy", "high-good", "percent", "Year-over-Year revenue growth rate")}
-                                {renderRow("Profit Growth (YoY)", "profit_growth_yoy", "high-good", "percent", "Year-over-Year profit growth rate")}
-                                {renderRow("ROE", "roe", "high-good", "percent", "Return on Equity. Measure of financial performance.")}
-                                {renderRow("ROCE", "roce", "high-good", "percent", "Return on Capital Employed. Efficiency indicator.")}
-                                {renderRow("Debt to Equity", "debt_to_equity", "low-good", "number", "Ratio of total debt to shareholders' equity")}
-                                {renderRow("Operating Margin", "op_margin", "high-good", "percent", "Profitability ratio")}
-
-                                {/* MARKET & RISK */}
-                                <tr className="bg-muted/10"><td colSpan={4} className="p-2 px-4 text-xs font-bold text-primary uppercase tracking-widest sticky left-0 bg-secondary/90 backdrop-blur">Market & Risk</td></tr>
-                                {renderRow("Beta", "beta", "neutral", "number", "Measure of volatility relative to the market")}
-                                {renderRow("Volatility", "volatility", "low-good", "number", "Annualized standard deviation of returns")}
-
-                            </tbody>
-                        </table>
+                                    {/* Steep Diagonal Cutout Overlay (SVG) */}
+                                    <div className="absolute bottom-0 left-0 w-full h-16 pointer-events-none overflow-hidden">
+                                        <div className="w-[120%] h-full bg-white transform -rotate-6 origin-bottom-left translate-y-8" />
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
-                </GlassCard>
+
+                    {/* Bottom Labeling for the Rankings */}
+                    <div className="flex justify-between items-start px-12 -mt-12 relative z-10 pointer-events-none">
+                        <div className="text-4xl font-black text-[#0a262a] tracking-tighter uppercase leading-[0.9]">
+                            Market Assets<br />
+                            Compared
+                        </div>
+                        <div className="text-[10px] font-bold text-[#0a262a]/40 uppercase tracking-widest mt-4">
+                            Based on live performance data<br />
+                            as of {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                        </div>
+                    </div>
+
+                    {/* Market Dynamics Chart (New Design Element) */}
+                    <RiverDynamicsChart />
+
+                    {/* Radial Impact Chart (New Design Element) */}
+                    <RadialImpactChart />
+
+                    {/* Session-Based Comparison ( Inspired by Image 1 & 4 ) */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {/* Session 1: Valuation Champions */}
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-3 px-2">
+                                <div className="h-10 w-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
+                                    <Target className="h-5 w-5 text-orange-500" />
+                                </div>
+                                <h3 className="text-xl font-black tracking-tight">Valuation Hub</h3>
+                            </div>
+                            {stockData.map(stock => (
+                                <GlassCard key={stock.symbol} className={`hover:border-orange-500/40 transition-all duration-300 ${winner?.symbol === stock.symbol ? 'border-sky-500/30' : ''}`}>
+                                    <div className="flex justify-between items-start mb-6">
+                                        <span className="text-lg font-black">{stock.symbol}</span>
+                                        <span className={`text-[10px] font-bold px-2 py-1 rounded-lg ${stock.pe_ratio < 25 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-orange-500/10 text-orange-500'}`}>
+                                            P/E: {formatNumber(stock.pe_ratio)}
+                                        </span>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <div className="text-3xl font-black text-foreground">{formatCurrency(stock.last_price)}</div>
+                                        <MetricVisual value={stock.pe_ratio} max={60} label="Valuation P/E Rating" color="orange" />
+                                    </div>
+                                </GlassCard>
+                            ))}
+                        </div>
+
+                        {/* Session 2: Financial Strength (Radial/Bar Style) */}
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-3 px-2">
+                                <div className="h-10 w-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center">
+                                    <ShieldCheck className="h-5 w-5 text-sky-500" />
+                                </div>
+                                <h3 className="text-xl font-black tracking-tight">Capital Efficiency</h3>
+                            </div>
+                            {stockData.map(stock => (
+                                <GlassCard key={stock.symbol} className="group overflow-hidden">
+                                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
+                                        <Zap className="h-12 w-12 text-sky-500" />
+                                    </div>
+                                    <div className="mb-4">
+                                        <span className="text-sm font-bold text-muted-foreground">{stock.symbol} Core Stability</span>
+                                    </div>
+                                    <div className="flex items-end gap-1 mb-6">
+                                        <span className="text-4xl font-black text-sky-400">{formatNumber(stock.roe)}</span>
+                                        <span className="text-lg font-bold text-sky-500/50 pb-1">% ROE</span>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <MetricVisual value={stock.roce || 0} max={40} label="Return on Capital (ROCE)" color="sky" />
+                                        <MetricVisual value={(1 - (stock.debt_to_equity || 0)) * 100} max={100} label="Debt Safety Score" color="emerald" />
+                                    </div>
+                                </GlassCard>
+                            ))}
+                        </div>
+
+                        {/* Session 3: Growth Velocity */}
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-3 px-2">
+                                <div className="h-10 w-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+                                    <TrendingUp className="h-5 w-5 text-purple-500" />
+                                </div>
+                                <h3 className="text-xl font-black tracking-tight">Growth Catalyst</h3>
+                            </div>
+                            {stockData.map(stock => (
+                                <div key={stock.symbol} className="relative group">
+                                    <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-sky-500 rounded-3xl blur opacity-0 group-hover:opacity-10 transition duration-500" />
+                                    <GlassCard className="relative h-full">
+                                        <div className="flex justify-between items-center mb-6">
+                                            <span className="text-sm font-black text-purple-400 uppercase tracking-widest">{stock.symbol}</span>
+                                            <div className="flex items-center gap-1 text-emerald-400 text-xs font-bold">
+                                                <ArrowUpRight className="h-3 w-3" />
+                                                BEST GROWTH
+                                            </div>
+                                        </div>
+                                        <div className="text-5xl font-black text-foreground mb-6">
+                                            +{formatNumber(stock.revenue_growth_yoy)}<span className="text-xl text-muted-foreground">%</span>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="p-3 bg-white/5 rounded-xl border border-white/5">
+                                                <div className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Profit %</div>
+                                                <div className="text-lg font-black text-foreground">{formatNumber(stock.profit_growth_yoy)}%</div>
+                                            </div>
+                                            <div className="p-3 bg-white/5 rounded-xl border border-white/5">
+                                                <div className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Margin</div>
+                                                <div className="text-lg font-black text-foreground">{formatNumber(stock.op_margin)}%</div>
+                                            </div>
+                                        </div>
+                                    </GlassCard>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Technical Comparison Table ( Aesthetic cleanup ) */}
+                    <section className="pt-8">
+                        <div className="flex items-center gap-3 mb-8 px-2">
+                            <BarChart3 className="h-6 w-6 text-foreground" />
+                            <h3 className="text-2xl font-black tracking-tighter">Deep Technicals</h3>
+                        </div>
+                        <GlassCard className="p-0 overflow-hidden border-border/50">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="bg-secondary/20">
+                                            <th className="p-6 text-xs font-black text-muted-foreground uppercase tracking-widest">Metric Matrix</th>
+                                            {stockData.map(s => (
+                                                <th key={s.symbol} className="p-6 text-center">
+                                                    <span className="text-lg font-black text-foreground">{s.symbol}</span>
+                                                </th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-border/20">
+                                        <tr className="hover:bg-white/[0.02] transition-colors">
+                                            <td className="p-6 text-sm font-bold text-muted-foreground">Market Cap</td>
+                                            {stockData.map(s => <td key={s.symbol} className="p-6 text-center text-sm font-black">{formatCurrency(s.market_cap)}</td>)}
+                                        </tr>
+                                        <tr className="hover:bg-white/[0.02] transition-colors">
+                                            <td className="p-6 text-sm font-bold text-muted-foreground">Price/Sales Ratio</td>
+                                            {stockData.map(s => <td key={s.symbol} className="p-6 text-center text-sm font-black">{formatNumber(s.price_to_sales, 2)}x</td>)}
+                                        </tr>
+                                        <tr className="hover:bg-white/[0.02] transition-colors">
+                                            <td className="p-6 text-sm font-bold text-muted-foreground">52W Range Velocity</td>
+                                            {stockData.map(s => {
+                                                const range = s.high_52w - s.low_52w;
+                                                const currentPos = ((s.last_price - s.low_52w) / range) * 100;
+                                                return (
+                                                    <td key={s.symbol} className="p-6 text-center">
+                                                        <div className="flex flex-col items-center gap-2">
+                                                            <div className="text-xs font-black text-foreground">{formatNumber(currentPos)}% From Low</div>
+                                                            <div className="w-24 h-1 bg-white/10 rounded-full overflow-hidden">
+                                                                <div className="h-full bg-sky-500" style={{ width: `${currentPos}%` }} />
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                );
+                                            })}
+                                        </tr>
+                                        <tr className="hover:bg-white/[0.02] transition-colors">
+                                            <td className="p-6 text-sm font-bold text-muted-foreground">Beta (Risk)</td>
+                                            {stockData.map(s => <td key={s.symbol} className={`p-6 text-center text-sm font-black ${s.beta && s.beta > 1.2 ? 'text-orange-400' : 'text-emerald-400'}`}>{formatNumber(s.beta, 2)}</td>)}
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </GlassCard>
+                    </section>
+                </div>
+            ) : (
+                <div className="h-96 flex items-center justify-center">
+                    <p className="text-muted-foreground font-medium text-lg">Select stocks to compare their battle stats</p>
+                </div>
             )}
 
             {/* Disclaimer */}
-            <div className="mt-10 p-6 rounded-xl border border-yellow-500/20 bg-yellow-500/5 text-yellow-600/80 dark:text-yellow-500/80 text-xs md:text-sm leading-relaxed flex items-start gap-4">
-                <AlertTriangle className="h-5 w-5 shrink-0" />
+            <div className="mt-20 p-8 rounded-3xl border border-border bg-card/10 backdrop-blur-sm text-muted-foreground text-xs leading-relaxed flex items-start gap-6">
+                <AlertTriangle className="h-6 w-6 text-orange-500 shrink-0" />
                 <div>
-                    <h4 className="font-bold mb-1">Disclaimer</h4>
+                    <h4 className="font-black text-foreground text-sm mb-2 uppercase tracking-widest">Risk Disclosure</h4>
                     <p>
-                        This is not a buy or sell recommendation. The information shown is for educational and data-comparison purposes only.
-                        Market data is delayed and may not be 100% accurate. Rupya does not provide investment advice, financial analysis, or guarantees of profit.
-                        Please consult a certified financial advisor before making investment decisions.
+                        Battle stats are generated based on historical performance and simulated point-weighting logic. This does not constitute financial advice.
+                        Market dynamics can change rapidly. Past performance (ROE, Growth) is not indicative of future results.
+                        Rupya Fintech uses mathematical models and scraper data which may contain discrepancies. Always consult with a SEBI-registered advisor before executing trades.
                     </p>
                 </div>
             </div>

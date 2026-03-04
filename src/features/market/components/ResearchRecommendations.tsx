@@ -20,6 +20,7 @@ interface Recommendation {
 export function ResearchRecommendations() {
     const [recs, setRecs] = useState<Recommendation[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isFlash, setIsFlash] = useState(false);
 
     useEffect(() => {
         const fetchRecs = async () => {
@@ -35,6 +36,23 @@ export function ResearchRecommendations() {
         };
 
         fetchRecs();
+
+        const channel = supabase
+            .channel('research_updates')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'research_recommendations' },
+                () => {
+                    fetchRecs();
+                    setIsFlash(true);
+                    setTimeout(() => setIsFlash(false), 1000);
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }, []);
 
     const getPotential = (rec: Recommendation) => {
@@ -54,19 +72,19 @@ export function ResearchRecommendations() {
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-700 ${isFlash ? 'ring-2 ring-sky-500/20 bg-sky-500/5 p-2 rounded-2xl' : ''}`}>
                 {loading ? (
                     [1, 2, 3].map(i => (
                         <div key={i} className="h-64 bg-card/40 rounded-xl border border-border/50 animate-pulse" />
                     ))
                 ) : recs.length > 0 ? (
                     recs.map((rec) => (
-                        <div key={rec.id} className="rounded-xl overflow-hidden border border-border bg-[#0f1115] hover:border-sky-500/30 transition-all group relative">
+                        <div key={rec.id} className={`rounded-xl overflow-hidden border border-border bg-[#0f1115] hover:border-sky-500/30 transition-all group relative ${isFlash ? 'border-sky-500/50 shadow-[0_0_15px_rgba(14,165,233,0.1)]' : ''}`}>
                             {/* Top Banner (Target Expected) */}
                             <div className="absolute top-3 right-3 z-10">
-                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${rec.recommendation_type === 'BUY'
-                                        ? 'text-green-400 bg-green-500/10 border-green-500/20'
-                                        : 'text-red-400 bg-red-500/10 border-red-500/20'
+                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded border transition-colors duration-500 ${isFlash ? 'text-sky-400 border-sky-400 bg-sky-400/10' : (rec.recommendation_type === 'BUY'
+                                    ? 'text-green-400 bg-green-500/10 border-green-500/20'
+                                    : 'text-red-400 bg-red-500/10 border-red-500/20')
                                     }`}>
                                     {getPotential(rec)} TARGET {rec.recommendation_type === 'BUY' ? 'EXPECTED' : 'LEFT'}
                                 </span>
@@ -142,8 +160,8 @@ export function ResearchRecommendations() {
                                     </button>
 
                                     <button className={`ml-2 px-4 py-1.5 text-[10px] font-bold rounded flex items-center gap-1 transition-all uppercase tracking-wider ${rec.recommendation_type === 'BUY'
-                                            ? 'bg-teal-500 hover:bg-teal-400 text-black shadow-[0_0_10px_rgba(20,184,166,0.2)]'
-                                            : 'bg-red-500 hover:bg-red-400 text-white shadow-[0_0_10px_rgba(239,68,68,0.2)]'
+                                        ? 'bg-teal-500 hover:bg-teal-400 text-black shadow-[0_0_10px_rgba(20,184,166,0.2)]'
+                                        : 'bg-red-500 hover:bg-red-400 text-white shadow-[0_0_10px_rgba(239,68,68,0.2)]'
                                         }`}>
                                         {rec.recommendation_type}
                                     </button>

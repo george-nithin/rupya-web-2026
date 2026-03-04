@@ -37,10 +37,10 @@ export default function DashboardPage() {
 
     return (
         <div className="space-y-12">
-            <div className="flex justify-between items-end">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
                 <div>
-                    <h1 className="text-3xl font-black text-white tracking-tight leading-none">Dashboard</h1>
-                    <p className="text-white/40 font-bold uppercase tracking-widest text-[10px] mt-2">Welcome back, {userName} • Terminal Active</p>
+                    <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight leading-none">Dashboard</h1>
+                    <p className="text-white/40 font-bold uppercase tracking-widest text-[9px] md:text-[10px] mt-2">Welcome back, {userName} • Terminal Active</p>
                 </div>
                 <div className="text-right hidden sm:block">
                     <div className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">Market Status</div>

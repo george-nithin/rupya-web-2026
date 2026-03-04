@@ -24,6 +24,7 @@ export function ActiveTradeTracker() {
     const [activeTrade, setActiveTrade] = useState<Trade | null>(null);
     const [loading, setLoading] = useState(true);
     const [ltp, setLtp] = useState<number>(0);
+    const [isFlashing, setIsFlashing] = useState(false);
 
     useEffect(() => {
         const fetchOpenTrade = async () => {
@@ -81,7 +82,11 @@ export function ActiveTradeTracker() {
                 'postgres_changes',
                 { event: 'UPDATE', schema: 'public', table: 'market_equity_quotes', filter: `symbol=eq.${activeTrade.symbol}` },
                 (payload) => {
-                    if (payload.new.last_price) setLtp(payload.new.last_price);
+                    if (payload.new.last_price) {
+                        setLtp(payload.new.last_price);
+                        setIsFlashing(true);
+                        setTimeout(() => setIsFlashing(false), 1000);
+                    }
                 }
             )
             .subscribe();
@@ -117,9 +122,10 @@ export function ActiveTradeTracker() {
 
     return (
         <GlassCard
-            colorBorder={currentPnl >= 0 ? "emerald" : "rose"}
-            glow
-            className="col-span-1 lg:col-span-12 relative overflow-hidden p-8"
+            colorBorder={isFlashing ? "orange" : (currentPnl >= 0 ? "emerald" : "rose")}
+            glow={isFlashing || currentPnl >= 0}
+            className={`col-span-1 lg:col-span-12 relative overflow-hidden p-8 transition-all duration-500 ${isFlashing ? 'ring-2 ring-orange-500/50 transform scale-[1.01]' : ''
+                }`}
         >
             {/* Background Glow based on P&L */}
             <div className={`absolute -top-20 -right-20 w-80 h-80 rounded-full blur-[100px] opacity-20 ${currentPnl >= 0 ? 'bg-green-500' : 'bg-rose-500'}`} />

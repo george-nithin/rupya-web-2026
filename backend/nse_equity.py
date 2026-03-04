@@ -3,6 +3,7 @@ from nse_session import NSESession
 from utils import log_info, log_error, log_success
 import csv
 import io
+import datetime
 
 class NSEEquity:
     def __init__(self, session: NSESession):
@@ -11,7 +12,7 @@ class NSEEquity:
     def fetch_quote(self, symbol: str):
         """
         Fetch real-time quote for an equity symbol.
-        Endpoint: /api/quote-equity?symbol={SYMBOL}
+        Endpoint: /api/quote-equity?symbol={SYMBOL} with yfinance fallback.
         """
         log_info(f"Fetching Quote for {symbol}...")
         endpoint = "/api/quote-equity"
@@ -39,7 +40,42 @@ class NSEEquity:
             }
             return parsed
         else:
-            log_error(f"No valid data found for {symbol}")
+            log_info(f"NSE failed for {symbol}. Trying yfinance fallback...")
+            return self._fetch_via_yfinance(symbol)
+
+    def _fetch_via_yfinance(self, symbol: str):
+        """Fallback using yfinance for equity quotes"""
+        try:
+            import yfinance as yf
+            ticker = f"{symbol}.NS"
+            tk = yf.Ticker(ticker)
+            hist = tk.history(period="1d")
+            if hist.empty:
+                return None
+            
+            latest = hist.iloc[-1]
+            price = float(latest['Close'])
+            open_p = float(latest['Open'])
+            change = price - open_p
+            p_change = (change / open_p * 100) if open_p > 0 else 0
+            
+            parsed = {
+                "symbol": symbol,
+                "companyName": symbol, # Limited info via hist
+                "lastPrice": round(price, 2),
+                "change": round(change, 2),
+                "pChange": round(p_change, 2),
+                "open": round(open_p, 2),
+                "dayHigh": round(float(latest['High']), 2),
+                "dayLow": round(float(latest['Low']), 2),
+                "previousClose": 0, # Could get from iloc[-2] if period="5d"
+                "lastUpdateTime": str(datetime.datetime.now()),
+                "totalTradedVolume": int(latest['Volume'])
+            }
+            log_success(f"Fetched {symbol} quote via yfinance fallback.")
+            return parsed
+        except Exception as e:
+            log_error(f"yfinance fallback for {symbol} failed: {e}")
             return None
 
 
@@ -105,21 +141,11 @@ class NSEEquity:
 
         return []
 
-    def fetch_index(self, index_name):
-        """
-        Fetch stocks for a specific index.
-        Endpoint: /api/equity-stockIndices?index={index_name}
-        """
-        log_info(f"Fetching Index: {index_name}...")
-        endpoint = "/api/equity-stockIndices"
-        params = {"index": index_name}
-        return self.session.get(endpoint, params=params)
-
-    def fetch_nifty_total_market(self):
+    def fetch_nifty_total_market(self, indices_obj):
         """
         Fetch NIFTY 500 (Total Market).
         """
-        return self.fetch_index("NIFTY 500")
+        return indices_obj.fetch_index("NIFTY 500")
 
     def fetch_historical_data(self, symbol: str, days=50):
         """

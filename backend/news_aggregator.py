@@ -36,10 +36,6 @@ class NewsAggregator:
         
     def fetch_all_news(self):
         """Fetch all types of market news"""
-        if not is_market_hours():
-            log_info("Outside Market Hours (09:00 - 17:00 IST). Skipping news aggregation.")
-            return
-
         log_info("Starting news aggregation...")
         
         try:

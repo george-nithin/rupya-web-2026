@@ -26,10 +26,50 @@ export default function WatchlistPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState<any[]>([]);
     const [showSearchBox, setShowSearchBox] = useState(false);
+    const [flashSymbols, setFlashSymbols] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
         fetchWatchlist();
         fetchMovers();
+
+        // Realtime Subscription for Watchlist Prices
+        const channel = supabase
+            .channel('watchlist_realtime')
+            .on(
+                'postgres_changes',
+                { event: 'UPDATE', schema: 'public', table: 'market_equity_quotes' },
+                (payload) => {
+                    const updated = payload.new as any;
+                    setFlashSymbols(prev => ({ ...prev, [updated.symbol]: true }));
+                    setTimeout(() => {
+                        setFlashSymbols(prev => {
+                            const next = { ...prev };
+                            delete next[updated.symbol];
+                            return next;
+                        });
+                    }, 1000);
+
+                    // Optimistically update the watchlist state if the symbol exists
+                    setWatchlist(prev => prev.map(s =>
+                        s.symbol === updated.symbol ? { ...s, ...updated } : s
+                    ));
+                }
+            )
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'market_movers' },
+                () => fetchMovers()
+            )
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'user_watchlist' },
+                () => fetchWatchlist()
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }, []);
 
     const fetchWatchlist = async () => {
@@ -117,10 +157,10 @@ export default function WatchlistPage() {
     return (
         <div className="space-y-6 max-w-[1600px] mx-auto pb-10">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-foreground tracking-tight">Market Watchlist</h1>
-                    <p className="text-muted-foreground text-sm">Monitor your favorite assets in real-time.</p>
+                    <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">Market Watchlist</h1>
+                    <p className="text-muted-foreground text-xs md:text-sm">Monitor your favorite assets in real-time.</p>
                 </div>
 
                 <div className="flex items-center gap-3 relative">
@@ -206,43 +246,52 @@ export default function WatchlistPage() {
                                         <tr><td colSpan={6} className="text-center py-20 text-muted-foreground">Loading your watchlist...</td></tr>
                                     ) : watchlist.length === 0 ? (
                                         <tr><td colSpan={6} className="text-center py-20 text-muted-foreground">Your watchlist is empty. Search above to add stocks.</td></tr>
-                                    ) : watchlist.map((stock) => (
-                                        <tr key={stock.symbol} className="group hover:bg-secondary/30 transition-all active:scale-95">
-                                            <td className="px-4 md:px-6 py-3">
-                                                <Link href={`/dashboard/market/${stock.symbol}`} className="flex items-center gap-3">
-                                                    <div className="h-8 w-8 rounded-xl bg-secondary/50 flex items-center justify-center font-bold text-primary text-xs md:text-sm">
-                                                        {stock.symbol[0]}
-                                                    </div>
-                                                    <div>
-                                                        <div className="font-bold text-foreground group-hover:text-primary transition-all duration-150">{stock.symbol}</div>
-                                                        <div className="text-[10px] text-muted-foreground truncate max-w-[100px] md:max-w-[160px]">{stock.company_name}</div>
-                                                    </div>
-                                                </Link>
-                                            </td>
-                                            <td className="px-4 md:px-6 py-3 text-right font-medium text-foreground">
-                                                ₹{stock.last_price?.toLocaleString()}
-                                            </td>
-                                            <td className={`px-4 md:px-6 py-3 text-right font-bold ${stock.percent_change >= 0 ? "text-emerald-500" : "text-red-500"}`}>
-                                                {stock.percent_change > 0 ? "+" : ""}{stock.percent_change}%
-                                            </td>
-                                            <td className="hidden md:table-cell px-6 py-3 text-right text-muted-foreground text-xs">
-                                                {(stock.total_traded_volume / 1000000).toFixed(1)}M
-                                            </td>
-                                            <td className="hidden md:table-cell px-6 py-3">
-                                                <span className="px-2 py-1 rounded bg-secondary/50 text-[10px] text-muted-foreground border border-border/20 whitespace-nowrap">
-                                                    {stock.sector || "N/A"}
-                                                </span>
-                                            </td>
-                                            <td className="px-4 md:px-6 py-3 text-right">
-                                                <button
-                                                    onClick={() => removeFromWatchlist(stock.symbol)}
-                                                    className="p-2 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 rounded-xl text-destructive transition-all active:scale-95"
-                                                >
-                                                    <Trash2 className="h-5 w-5" />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                    ) : watchlist.map((stock) => {
+                                        const isFlash = !!flashSymbols[stock.symbol];
+                                        return (
+                                            <tr
+                                                key={stock.symbol}
+                                                className={`group transition-all duration-500 hover:bg-secondary/30 ${isFlash ? 'bg-orange-500/10 ring-1 ring-orange-500/20' : ''
+                                                    }`}
+                                            >
+                                                <td className="px-4 md:px-6 py-3">
+                                                    <Link href={`/dashboard/market/${stock.symbol}`} className="flex items-center gap-3">
+                                                        <div className={`h-8 w-8 rounded-xl flex items-center justify-center font-black text-xs md:text-sm transition-colors duration-500 ${isFlash ? 'bg-orange-500 text-white' : 'bg-secondary/50 text-primary'}`}>
+                                                            {stock.symbol[0]}
+                                                        </div>
+                                                        <div>
+                                                            <div className={`font-black tracking-tight transition-colors duration-500 ${isFlash ? 'text-orange-400' : 'text-foreground'}`}>
+                                                                {stock.symbol}
+                                                            </div>
+                                                            <div className="text-[10px] text-muted-foreground truncate max-w-[100px] md:max-w-[160px] font-bold uppercase">{stock.company_name}</div>
+                                                        </div>
+                                                    </Link>
+                                                </td>
+                                                <td className={`px-4 md:px-6 py-3 text-right font-black transition-colors duration-500 ${isFlash ? 'text-orange-400' : 'text-foreground'}`}>
+                                                    ₹{stock.last_price?.toLocaleString()}
+                                                </td>
+                                                <td className={`px-4 md:px-6 py-3 text-right font-black transition-colors duration-500 ${isFlash ? 'text-orange-400' : (stock.percent_change >= 0 ? "text-emerald-500" : "text-red-500")}`}>
+                                                    {stock.percent_change > 0 ? "+" : ""}{stock.percent_change}%
+                                                </td>
+                                                <td className="hidden md:table-cell px-6 py-3 text-right text-muted-foreground text-[10px] font-mono">
+                                                    {(stock.total_traded_volume / 1000000).toFixed(1)}M
+                                                </td>
+                                                <td className="hidden md:table-cell px-6 py-3">
+                                                    <span className="px-2 py-1 rounded bg-secondary/50 text-[9px] font-black text-white/40 border border-white/5 uppercase tracking-wider">
+                                                        {stock.sector || "N/A"}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 md:px-6 py-3 text-right">
+                                                    <button
+                                                        onClick={() => removeFromWatchlist(stock.symbol)}
+                                                        className="p-2 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 rounded-xl text-destructive transition-all active:scale-95"
+                                                    >
+                                                        <Trash2 className="h-5 w-5" />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>

@@ -19,6 +19,7 @@ interface FnoMover {
 export function FnoMovers() {
     const [movers, setMovers] = useState<FnoMover[]>([]);
     const [loading, setLoading] = useState(true);
+    const [flashSymbols, setFlashSymbols] = useState<Record<string, boolean>>({});
 
     // Left Block State
     const [activeMoverTab, setActiveMoverTab] = useState<'Price Gainers' | 'Price Losers' | 'OI Gainers' | 'OI Losers'>('Price Gainers');
@@ -28,12 +29,44 @@ export function FnoMovers() {
 
     useEffect(() => {
         fetchData();
-        const interval = setInterval(fetchData, 60000); // 1 min refresh
-        return () => clearInterval(interval);
+
+        const channel = supabase
+            .channel('fno_movers_updates')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'market_fno_movers' },
+                (payload) => {
+                    const newData = payload.new as FnoMover;
+                    if (newData && newData.symbol) {
+                        setMovers(current => {
+                            const exists = current.find(m => m.symbol === newData.symbol);
+                            if (exists) {
+                                return current.map(m => m.symbol === newData.symbol ? { ...m, ...newData } : m);
+                            }
+                            return [...current, newData];
+                        });
+
+                        // Trigger flash
+                        setFlashSymbols(prev => ({ ...prev, [newData.symbol]: true }));
+                        setTimeout(() => {
+                            setFlashSymbols(prev => {
+                                const next = { ...prev };
+                                delete next[newData.symbol];
+                                return next;
+                            });
+                        }, 1000);
+                    }
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }, []);
 
     const fetchData = async () => {
-        const { data, error } = await supabase
+        const { data } = await supabase
             .from('market_fno_movers')
             .select('*');
         if (data) {
@@ -74,36 +107,47 @@ export function FnoMovers() {
             );
         }
 
-        return data.map((item) => (
-            <tr key={item.symbol} className="hover:bg-card/20 transition-all duration-150 group border-b border-border/50 last:border-0 active:scale-95">
-                <td className="py-3 pl-2">
-                    <div className="font-bold text-white text-xs group-hover:text-sky-400 transition-all duration-150 uppercase">{item.symbol}</div>
-                    <div className="text-[10px] text-muted-foreground">24 Feb 2026</div>
-                </td>
-                <td className="py-3 text-right font-medium text-foreground text-xs">
-                    ₹{item.ltp.toLocaleString()}
-                </td>
-                <td className={`py-3 text-right text-xs font-medium ${item.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {item.change > 0 ? '+' : ''}{item.change.toFixed(2)}
-                </td>
-                <td className="py-3 text-right pr-2">
-                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold inline-block min-w-[50px] text-center ${item.percent_change >= 0
-                            ? 'bg-green-500/10 text-green-400 border border-green-500/20'
-                            : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                        }`}>
-                        {item.percent_change > 0 ? '+' : ''}{item.percent_change.toFixed(2)}%
-                    </span>
-                </td>
-            </tr>
-        ));
+        return data.map((item) => {
+            const isFlash = !!flashSymbols[item.symbol];
+            return (
+                <tr
+                    key={item.symbol}
+                    className={`transition-all duration-500 group border-b border-border/50 last:border-0 active:scale-95 ${isFlash ? 'bg-orange-500/10 border-orange-500/30 ring-1 ring-orange-500/20' : 'hover:bg-card/20'
+                        }`}
+                >
+                    <td className="py-3 pl-4">
+                        <div className={`font-black text-xs transition-colors duration-500 uppercase ${isFlash ? 'text-orange-400' : 'text-white group-hover:text-sky-400'}`}>{item.symbol}</div>
+                        <div className="text-[10px] text-muted-foreground">MAR 2026</div>
+                    </td>
+                    <td className="py-3 text-right">
+                        <div className={`text-xs font-black transition-colors duration-500 ${isFlash ? 'text-orange-400' : 'text-foreground'}`}>
+                            ₹{item.ltp.toLocaleString()}
+                        </div>
+                    </td>
+                    <td className={`py-3 text-right text-xs font-bold transition-colors duration-500 ${isFlash ? 'text-orange-400' : (item.change >= 0 ? 'text-green-400' : 'text-red-400')}`}>
+                        {item.change > 0 ? '+' : ''}{item.change.toFixed(2)}
+                    </td>
+                    <td className="py-3 text-right pr-4">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-black inline-block min-w-[55px] text-center transition-all duration-500 ${isFlash
+                            ? 'bg-orange-500/20 text-orange-400 border border-orange-500/40'
+                            : (item.percent_change >= 0
+                                ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+                                : 'bg-red-500/10 text-red-400 border border-red-500/20')
+                            }`}>
+                            {item.percent_change > 0 ? '+' : ''}{item.percent_change.toFixed(2)}%
+                        </span>
+                    </td>
+                </tr>
+            );
+        });
     };
 
     const TabButton = ({ active, label, onClick }: any) => (
         <button
             onClick={onClick}
             className={`px-3 py-1.5 text-[10px] font-medium rounded-xl transition-all border uppercase tracking-wider ${active
-                    ? 'bg-sky-500/10 text-sky-400 border-sky-500/20 shadow-[0_0_10px_rgba(14,165,233,0.1)]'
-                    : 'text-muted-foreground border-transparent hover:text-foreground hover:bg-card/20'
+                ? 'bg-sky-500/10 text-sky-400 border-sky-500/20 shadow-[0_0_10px_rgba(14,165,233,0.1)]'
+                : 'text-muted-foreground border-transparent hover:text-foreground hover:bg-card/20'
                 }`}
         >
             {label}

@@ -18,9 +18,40 @@ export default function PortfolioPage() {
     const [analyzing, setAnalyzing] = useState(false);
     const [allocation, setAllocation] = useState<any[]>([]);
     const [showBrokerModal, setShowBrokerModal] = useState(false);
+    const [flashSymbols, setFlashSymbols] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
         fetchPortfolio();
+
+        // Realtime Subscription for prices and holdings
+        const channel = supabase
+            .channel('portfolio_realtime')
+            .on(
+                'postgres_changes',
+                { event: 'UPDATE', schema: 'public', table: 'market_equity_quotes' },
+                (payload) => {
+                    const updated = payload.new as any;
+                    setFlashSymbols(prev => ({ ...prev, [updated.symbol]: true }));
+                    setTimeout(() => {
+                        setFlashSymbols(prev => {
+                            const next = { ...prev };
+                            delete next[updated.symbol];
+                            return next;
+                        });
+                    }, 1000);
+                    fetchPortfolio(); // Refresh full data to trigger recalculations
+                }
+            )
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'user_portfolio' },
+                () => fetchPortfolio()
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }, []);
 
     const analyzePortfolio = async () => {
@@ -117,26 +148,28 @@ export default function PortfolioPage() {
                 onClose={() => setShowBrokerModal(false)}
             />
 
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-foreground">Portfolio Intelligence</h1>
-                    <p className="text-muted-foreground">AI-powered portfolio analysis & forecasting</p>
+                    <h1 className="text-xl md:text-2xl font-bold text-foreground">Portfolio Intelligence</h1>
+                    <p className="text-muted-foreground text-xs md:text-sm">AI-powered portfolio analysis & forecasting</p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-2 w-full md:w-auto">
                     <GlassButton
                         variant="secondary"
                         onClick={() => setShowBrokerModal(true)}
+                        className="flex-1 md:flex-none py-2 px-3 text-xs"
                     >
-                        <LinkIcon className="h-4 w-4 mr-2" />
-                        Connect Broker
+                        <LinkIcon className="h-3.5 w-3.5 mr-2" />
+                        Connect
                     </GlassButton>
                     <GlassButton
                         variant="primary"
                         onClick={analyzePortfolio}
                         disabled={analyzing || holdings.length === 0}
+                        className="flex-1 md:flex-none py-2 px-3 text-xs"
                     >
-                        <Sparkles className="h-4 w-4 mr-2" />
-                        {analyzing ? "Analyzing..." : "Analyze Portfolio"}
+                        <Sparkles className="h-3.5 w-3.5 mr-2" />
+                        {analyzing ? "Analyzing..." : "Analyze"}
                     </GlassButton>
                 </div>
             </div>
@@ -252,19 +285,30 @@ export default function PortfolioPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border/10">
-                                {holdings.map((stock) => (
-                                    <tr key={stock.symbol} className="hover:bg-muted/50 transition-all duration-150">
-                                        <td className="py-3 pl-2 font-medium text-foreground">{stock.symbol}</td>
-                                        <td className="py-3 text-right text-foreground">{stock.qty}</td>
-                                        <td className="py-3 text-right text-foreground">₹{stock.avg.toLocaleString()}</td>
-                                        <td className="py-3 text-right text-foreground">₹{stock.ltp.toLocaleString()}</td>
-                                        <td className="py-3 text-right text-foreground font-medium">₹{stock.value.toLocaleString()}</td>
-                                        <td className={`py-3 text-right pr-2 font-medium ${stock.pnl >= 0 ? "text-emerald-500" : "text-red-500"}`}>
-                                            {stock.pnl >= 0 ? "+" : ""}₹{stock.pnl.toLocaleString()} <br />
-                                            <span className="text-xs opacity-80">({stock.pnlPercent.toFixed(2)}%)</span>
-                                        </td>
-                                    </tr>
-                                ))}
+                                {holdings.map((stock) => {
+                                    const isFlash = !!flashSymbols[stock.symbol];
+                                    return (
+                                        <tr
+                                            key={stock.symbol}
+                                            className={`transition-all duration-500 hover:bg-muted/50 ${isFlash ? 'bg-orange-500/10 ring-1 ring-orange-500/20' : ''
+                                                }`}
+                                        >
+                                            <td className={`py-3 pl-2 font-black text-xs uppercase transition-colors duration-500 ${isFlash ? 'text-orange-400' : 'text-foreground'}`}>
+                                                {stock.symbol}
+                                            </td>
+                                            <td className="py-3 text-right text-foreground font-medium">{stock.qty}</td>
+                                            <td className="py-3 text-right text-foreground/60 font-mono text-xs">₹{stock.avg.toLocaleString()}</td>
+                                            <td className={`py-3 text-right font-black transition-colors duration-500 ${isFlash ? 'text-orange-400' : 'text-foreground'}`}>
+                                                ₹{stock.ltp.toLocaleString()}
+                                            </td>
+                                            <td className="py-3 text-right text-foreground font-black">₹{stock.value.toLocaleString()}</td>
+                                            <td className={`py-3 text-right pr-2 font-black transition-colors duration-500 ${isFlash ? 'text-orange-400' : (stock.pnl >= 0 ? "text-emerald-500" : "text-red-500")}`}>
+                                                {stock.pnl >= 0 ? "+" : ""}₹{stock.pnl.toLocaleString()} <br />
+                                                <span className="text-[10px] opacity-80 font-bold">({stock.pnlPercent.toFixed(2)}%)</span>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>
