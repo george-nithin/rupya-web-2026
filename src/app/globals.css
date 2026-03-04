@@ -254,4 +254,15 @@ body:not(.dark) {
     background: linear-gradient(#0f172a, #0f172a) padding-box,
       linear-gradient(135deg, #10b981, #059669) border-box;
   }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
 }

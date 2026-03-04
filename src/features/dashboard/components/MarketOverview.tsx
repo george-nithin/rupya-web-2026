@@ -4,6 +4,7 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { TrendingUp, TrendingDown, Activity } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { cn } from "@/lib/utils";
 
 interface MarketIndex {
     index_name: string;
@@ -107,42 +108,59 @@ export function MarketOverview() {
     }, []);
 
     return (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
-            {indices.map((index) => {
-                const isFlash = !!lastUpdated[index.index_name];
+        <div className="relative -mx-4 md:-mx-6 lg:mx-0">
+            <div className="flex lg:grid lg:grid-cols-5 gap-3 overflow-x-auto px-4 md:px-6 lg:px-0 pb-4 no-scrollbar snap-x snap-mandatory">
+                {indices.map((index) => {
+                    const isFlash = !!lastUpdated[index.index_name];
 
-                return (
-                    <GlassCard
-                        key={index.index_name}
-                        className={`relative overflow-hidden group hover:border-border transition-all cursor-pointer p-3 border-transparent ${isFlash ? 'ring-2 ring-orange-500/50 bg-orange-500/10' : ''
-                            }`}
-                    >
-                        <div className="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition-opacity">
-                            <Activity className="h-6 w-6" />
+                    return (
+                        <div
+                            key={index.index_name}
+                            className="flex-shrink-0 w-[160px] md:w-[200px] lg:w-auto snap-start"
+                        >
+                            <GlassCard
+                                className={cn(
+                                    "relative overflow-hidden group hover:border-border transition-all cursor-pointer p-3 border-transparent h-full",
+                                    isFlash && "ring-2 ring-orange-500/50 bg-orange-500/10"
+                                )}
+                            >
+                                <div className="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition-opacity">
+                                    <Activity className="h-6 w-6" />
+                                </div>
+
+                                <div className="space-y-1 relative z-10">
+                                    <div className="text-[9px] font-black text-white/40 uppercase tracking-widest flex items-center gap-1.5">
+                                        <span className={cn(
+                                            "h-1 w-1 rounded-full",
+                                            index.change >= 0 ? "bg-green-500" : "bg-red-500",
+                                            isFlash && "animate-ping"
+                                        )} />
+                                        {index.index_name}
+                                    </div>
+                                    <div className={cn(
+                                        "text-base font-black text-white tracking-tight transition-colors",
+                                        isFlash && "text-orange-400"
+                                    )}>
+                                        {index.last_price?.toLocaleString('en-IN', { maximumFractionDigits: 1 })}
+                                    </div>
+
+                                    <div className={cn(
+                                        "flex items-center text-[10px] font-bold",
+                                        index.change >= 0 ? "text-green-400" : "text-red-400"
+                                    )}>
+                                        {index.change >= 0 ? <TrendingUp className="h-2.5 w-2.5 mr-0.5" /> : <TrendingDown className="h-2.5 w-2.5 mr-0.5" />}
+                                        {index.percent_change?.toFixed(2)}%
+                                    </div>
+                                </div>
+
+                                {isFlash && (
+                                    <div className="absolute inset-0 bg-orange-500/5 animate-pulse pointer-events-none" />
+                                )}
+                            </GlassCard>
                         </div>
-
-                        <div className="space-y-1 relative z-10">
-                            <div className="text-[9px] font-black text-white/40 uppercase tracking-widest flex items-center gap-1.5">
-                                <span className={`h-1 w-1 rounded-full ${index.change >= 0 ? "bg-green-500" : "bg-red-500"} ${isFlash ? "animate-ping" : ""}`} />
-                                {index.index_name}
-                            </div>
-                            <div className={`text-base font-black text-white tracking-tight transition-colors ${isFlash ? 'text-orange-400' : ''}`}>
-                                {index.last_price?.toLocaleString('en-IN', { maximumFractionDigits: 1 })}
-                            </div>
-
-                            <div className={`flex items-center text-[10px] font-bold ${index.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                {index.change >= 0 ? <TrendingUp className="h-2.5 w-2.5 mr-0.5" /> : <TrendingDown className="h-2.5 w-2.5 mr-0.5" />}
-                                {index.percent_change?.toFixed(2)}%
-                            </div>
-                        </div>
-
-                        {/* Flicker overlay */}
-                        {isFlash && (
-                            <div className="absolute inset-0 bg-orange-500/5 animate-pulse pointer-events-none" />
-                        )}
-                    </GlassCard>
-                );
-            })}
+                    );
+                })}
+            </div>
         </div>
     );
 }

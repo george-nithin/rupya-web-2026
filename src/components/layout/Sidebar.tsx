@@ -100,7 +100,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 className={cn(
                     "fixed left-0 top-0 z-[70] h-screen flex-col border-r border-border/40 bg-card text-muted-foreground font-sans transition-all duration-300",
                     "md:flex",
-                    isOpen ? "flex w-64 translate-x-0" : "w-0 -translate-x-full md:translate-x-0 md:w-20",
+                    isOpen ? "flex w-64 translate-x-0 pointer-events-auto" : "w-0 -translate-x-full md:translate-x-0 md:w-20",
+                    !isOpen && "md:pointer-events-auto pointer-events-none",
                     isHovered && "md:w-64"
                 )}>
                 {/* Logo Section */}

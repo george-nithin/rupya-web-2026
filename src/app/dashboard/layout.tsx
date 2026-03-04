@@ -22,7 +22,7 @@ export default function DashboardLayout({
                 <Navbar onMenuClick={() => setIsMobileMenuOpen(true)} />
 
                 <main className="md:pl-20 pt-16 min-h-screen transition-all duration-300">
-                    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6 md:space-y-8 animate-in fade-in duration-500">
+                    <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 md:space-y-8 animate-in fade-in duration-500">
                         {children}
                     </div>
                 </main>
